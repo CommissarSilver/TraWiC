@@ -1,13 +1,6 @@
 import os, tqdm, json, logging, inspect
 from datasets import load_dataset
 
-logging.basicConfig(
-    filename="runlog.log",
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
-
 
 def get_thestack_dataset(
     language: str = "python",
@@ -94,4 +87,11 @@ def get_thestack_dataset(
 
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        filename="runlog.log",
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+
     get_thestack_dataset()
