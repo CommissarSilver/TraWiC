@@ -1,13 +1,6 @@
 import os, tqdm, json, logging, inspect, keyword
 import multiprocessing as mp
 
-logging.basicConfig(
-    filename="runlog.log",
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
-
 
 def get_word_count(script_path: str):
     """
@@ -49,7 +42,7 @@ def get_word_count(script_path: str):
         raise e
 
 
-def word_count_directory(directory_path: str, scipt_suffix: str):
+def word_count_directory(directory_path: str, script_suffix: str):
     """
     counts the entire directory's word (vocabulary) frequency
 
@@ -68,7 +61,7 @@ def word_count_directory(directory_path: str, scipt_suffix: str):
     scripts = [
         os.path.join(directory_path, i)
         for i in os.listdir(directory_path)
-        if i.endswith(scipt_suffix)
+        if i.endswith(script_suffix)
     ]
 
     word_count = {}
@@ -182,8 +175,15 @@ def remove_keywords(word_count: dict):
 
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        filename="runlog.log",
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+
     mp.freeze_support()
     l = word_count_directory(
         directory_path="/Users/ahura/Nexus/TWMC/data/the_stack/python/",
-        scipt_suffix=".py",
+        script_suffix=".py",
     )
