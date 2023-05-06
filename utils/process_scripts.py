@@ -49,7 +49,7 @@ def get_word_count(script_path: str):
         raise e
 
 
-def word_cuont_directory(directory_path: str, scipt_suffix: str):
+def word_count_directory(directory_path: str, scipt_suffix: str):
     """
     counts the entire directory's word (vocabulary) frequency
 
@@ -127,6 +127,8 @@ def remove_keywords(word_count: dict):
         dir(__builtins__)
         + keyword.kwlist
         + [
+            "''",
+            '""',
             "+",
             "=",
             "==",
@@ -181,7 +183,7 @@ def remove_keywords(word_count: dict):
 
 if __name__ == "__main__":
     mp.freeze_support()
-    l = word_cuont_directory(
+    l = word_count_directory(
         directory_path="/Users/ahura/Nexus/TWMC/data/the_stack/python/",
         scipt_suffix=".py",
     )
