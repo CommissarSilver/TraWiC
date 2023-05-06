@@ -1,3 +1,4 @@
 /data/*
 .vscode/settings.json
 *.log
+word_count.json
