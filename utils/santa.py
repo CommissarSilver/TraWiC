@@ -6,6 +6,10 @@ logger = logger_utils.CustomLogger(log_file="model.log")
 
 
 class SantaCoder:
+    """
+    interface for interacting with the SantaCoder model
+    """
+
     def __init__(self):
         frame = inspect.currentframe()
         frame_info = inspect.getframeinfo(frame)
@@ -26,7 +30,7 @@ class SantaCoder:
             )
             raise e
 
-    def predict(self, input_text):
+    def predict(self, input_text: str):
         frame = inspect.currentframe()
         frame_info = inspect.getframeinfo(frame)
         try:
