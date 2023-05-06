@@ -5,7 +5,7 @@ from datasets import load_dataset
 def get_thestack_dataset(
     language: str = "python",
     save_directory: str = os.path.join(os.getcwd(), "data"),
-    scripts_num: int = 10**6,
+    scripts_num: int = 10**4,
 ):
     """
     get the TheStack dataset.
@@ -14,7 +14,7 @@ def get_thestack_dataset(
     Args:
         language (str, optional): which language to download. Defaults to "python".
         save_directory (str, optional): where to store the downloaded scripts. Defaults to os.path.join(os.getcwd(), "data").
-        scripts_num (int, optional): number of scripts to download. Defaults to 10**6.
+        scripts_num (int, optional): number of scripts to download. Defaults to 10**4.
     """
     # we'll use streaming so that it doesn't go and download the entire thing
     dataset = load_dataset(
