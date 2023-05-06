@@ -35,7 +35,9 @@ class SantaCoder:
                 }
             )
             self.model = AutoModelForCausalLM.from_pretrained(
-                checkpoint, trust_remote_code=True
+                checkpoint,
+                trust_remote_code=True,
+                max_length=200,
             ).to(self.device)
             logger.info(
                 f"{frame_info.filename} - {frame_info.function} - SantaCoder model successfuly loaded"
@@ -56,7 +58,8 @@ class SantaCoder:
             inputs = self.tokenizer.encode(input_text, return_tensors="pt").to(
                 self.device
             )
-            outputs = self.model.generate(inputs)
+            with torch.no_grad():
+                outputs = self.model.generate(inputs)
             logger.info(
                 f"{frame_info.filename} - {frame_info.function} - SantaCoder Generated Code Snippet - output = {self.tokenizer.decode(outputs[0])}"
             )
@@ -78,7 +81,7 @@ class SantaCoder:
     def infill(
         self,
         prefix_suffix_tuples,
-        max_tokens: int = 50,
+        max_tokens: int = 200,
         temperature: float = 0.2,
         top_p: float = 0.95,
     ):
