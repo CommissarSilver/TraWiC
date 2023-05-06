@@ -85,7 +85,7 @@ def get_thestack_dataset(
                     json.dump(tracker, open(os.path.join(data_dir, "index.json"), "w"))
                     break
             logging.info(
-                f"{frame_info.filename} - {frame_info.function} - Succesfully downloaded and stored the scripts"
+                f"{frame_info.filename} - {frame_info.function} - Succesfully downloaded and stored {str(scripts_num)} scripts"
             )
         except:
             logging.exception(
@@ -93,5 +93,5 @@ def get_thestack_dataset(
             )
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     get_thestack_dataset()
