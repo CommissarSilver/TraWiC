@@ -1,5 +1,7 @@
-import os, tqdm, json, logging, inspect, keyword
+import os, tqdm, json, inspect, keyword, logger_utils
 import multiprocessing as mp
+
+logger = logger_utils.CustomLogger("process_scripts.log")
 
 
 def get_word_count(script_path: str):
@@ -21,7 +23,7 @@ def get_word_count(script_path: str):
             script = f.read()
             script = script.replace("\n", " ").replace("\t", " ").replace("\r", " ")
     except Exception as e:
-        logging.exception(
+        logger.exception(
             f"{frame_info.filename} - {frame_info.function} - Error in opening the script"
         )
         raise e
@@ -36,7 +38,7 @@ def get_word_count(script_path: str):
 
         return words
     except Exception as e:
-        logging.exception(
+        logger.exception(
             f"{frame_info.filename} - {frame_info.function} - Error in counting the script's word (vocabulary) frequency"
         )
         raise e
@@ -70,7 +72,7 @@ def word_count_directory(directory_path: str, script_suffix: str):
     try:
         results = worker_pool.map_async(get_word_count, scripts).get()
     except Exception as e:
-        logging.exception(
+        logger.exception(
             f"{frame_info.filename} - {frame_info.function} - Error in counting the entire directory's word (vocabulary) frequency"
         )
         raise e
@@ -90,11 +92,11 @@ def word_count_directory(directory_path: str, script_suffix: str):
         # save the word_count in json format
         json.dump(remove_keywords(word_count), open("word_count.json", "w"), indent=4)
 
-        logging.info(
+        logger.info(
             f"{frame_info.filename} - {frame_info.function} - Succesfully saved the word count in json format"
         )
     except Exception as e:
-        logging.exception(
+        logger.exception(
             f"{frame_info.filename} - {frame_info.function} - Error in saving the word count in json format"
         )
         raise e
@@ -162,11 +164,11 @@ def remove_keywords(word_count: dict):
                 del word_count[builtin]
             except KeyError:
                 pass
-        logging.info(
+        logger.info(
             f"{frame_info.filename} - {frame_info.function} - Succesfully removed Python builtins, variables and operators"
         )
     except Exception as e:
-        logging.exception(
+        logger.exception(
             f"{frame_info.filename} - {frame_info.function} - Error in saving the word count in json format"
         )
         raise e
@@ -175,13 +177,6 @@ def remove_keywords(word_count: dict):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        filename="runlog.log",
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
-
     mp.freeze_support()
     l = word_count_directory(
         directory_path="/Users/ahura/Nexus/TWMC/data/the_stack/python/",

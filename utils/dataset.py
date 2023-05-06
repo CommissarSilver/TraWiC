@@ -1,5 +1,7 @@
-import os, tqdm, json, logging, inspect
+import os, tqdm, json, inspect, logger_utils
 from datasets import load_dataset
+
+logger = logger_utils.CustomLogger("dataset.log")
 
 
 def get_thestack_dataset(
@@ -29,11 +31,11 @@ def get_thestack_dataset(
             streaming=True,
             split="train",
         )
-        logging.info(
+        logger.info(
             f"{frame_info.filename} - {frame_info.function} - Succesfully connected to huggingface's TheStack dataset"
         )
     except:
-        logging.exception(
+        logger.exception(
             f"{frame_info.filename} - {frame_info.function} - Error connecting to huggingface's TheStack dataset"
         )
 
@@ -42,11 +44,11 @@ def get_thestack_dataset(
         if not os.path.exists(os.path.join(save_directory, "the_stack", language)):
             os.makedirs(os.path.join(save_directory, "the_stack", language))
         data_dir = os.path.join(save_directory, "the_stack", language)
-        logging.info(
+        logger.info(
             f"{frame_info.filename} - {frame_info.function} - Succesfully created the directory for saving the scripts"
         )
     except:
-        logging.exception(
+        logger.exception(
             f"{frame_info.filename} - {frame_info.function} - Error in creating directory for saving the scripts"
         )
 
@@ -77,21 +79,14 @@ def get_thestack_dataset(
                 if i == scripts_num:
                     json.dump(tracker, open(os.path.join(data_dir, "index.json"), "w"))
                     break
-            logging.info(
+            logger.info(
                 f"{frame_info.filename} - {frame_info.function} - Succesfully downloaded and stored {str(scripts_num)} scripts"
             )
         except:
-            logging.exception(
+            logger.exception(
                 f"{frame_info.filename} - {frame_info.function} - Error in dowloading/storing the scripts"
             )
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        filename="runlog.log",
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
-
     get_thestack_dataset()

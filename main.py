@@ -1,14 +1,11 @@
-import os, logging
+import os
 from utils import dataset, process_scripts
+from utils.santa import SantaCoder
 
-logging.basicConfig(
-    filename="runlog.log",
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
 
 if __name__ == "__main__":
+    model = SantaCoder()
+    print(model.predict("import numpy as np"))
     dataset.get_thestack_dataset(
         language="python",
         save_directory=os.path.join(os.getcwd(), "data"),
