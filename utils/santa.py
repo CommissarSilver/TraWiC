@@ -82,7 +82,7 @@ class SantaCoder:
         self,
         prefix_suffix_tuples,
         max_tokens: int = 200,
-        temperature: float = 0.2,
+        temperature: float = 0.8,
         top_p: float = 0.95,
     ):
         output_list = True
