@@ -1,7 +1,8 @@
 __pycache__/
 /data
 /logs
-.vscode/settings.json
+/.vscode
+
 *.log
 *.pyc
 word_count.json
