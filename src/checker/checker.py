@@ -1,4 +1,5 @@
 import os, re, sys, logging
+from typing import Tuple, List, Dict
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, parent_dir)
@@ -136,7 +137,18 @@ class Checker:
         }
 
     @staticmethod
-    def separate_script(script_text, word, line_number):
+    def separate_script(script_text: str, word: str, line_number: int) -> Tuple[str, str]:
+        """
+        Separates the script into two parts, before and after the specified word in the specified line number
+
+        Args:
+            script_text (str): the text of the script
+            word (str): the word to separate the script with
+            line_number (int): the line number of the word
+
+        Returns:
+            (str, str): the prefix and suffix of the script
+        """
         lines = script_text.split("\n")
         prefix = "\n".join(
             lines[: line_number - 1]
@@ -154,7 +166,16 @@ class Checker:
 
         return prefix, suffix
 
-    def prepare_inputs_for_infill(self, level):
+    def prepare_inputs_for_infill(self, level: str) -> List[Dict[str, str, str, str]]:
+        """
+        Prepares the input for the infill model
+
+        Args:
+            level (str): "fuinction_names", "class_names", "variable_names", "strings", "docstrings", "comments"
+
+        Returns:
+            List[Dict[str, str, str, str]]: list of candidates for the infill model
+        """
         candidates = []
 
         if self.processed_input[level] != None:
@@ -196,6 +217,7 @@ class Checker:
                 candidates.append({"infill": item, "prefix": prefix, "suffix": suffix})
             elif level in ("docstrings", "comments"):
                 raise "not implemented yet"
+        
         return candidates
 
 
