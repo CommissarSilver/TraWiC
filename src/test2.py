@@ -9,9 +9,9 @@ prefix = """    def setRoomInfo(self):
         timeArray = time.localtime(timeStamp)
         otherStyleTime = time.strftime("%Y-%m-%d", timeArray)
         self.create_time.setText("<a style='color:#BCBCBC'>{}</a>".format(otherStyleTime))
-        members = len(self.data['owners']) + len(self.data['admins']) + """
+        members = """
 
-suffix = """
+suffix = """ + len(self.data['admins']) + len(self.data['members'])
         memberCounter = "<a style='color:#BCBCBC'>{}/{}</a>".format(members, ('∞' if self.data['maxUsers']==0 else self.data['maxUsers']))
         self.member.setText(memberCounter)"""
 
