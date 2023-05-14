@@ -1,4 +1,6 @@
-import torch, inspect, logging, logger_utils as logger_utils
+import torch, inspect, logging
+import logger_utils as logger_utils
+from typing import Tuple
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 
@@ -50,18 +52,18 @@ class SantaCoder:
             )
             raise e
 
-    def predict(self, input_text: str):
+    def predict(self, input_text: str) -> str:
         frame = inspect.currentframe()
         frame_info = inspect.getframeinfo(frame)
         try:
             logger.debug(
                 f"{frame_info.filename} - {frame_info.function} - SantaCoder Invoked - input_text = {input_text}"
             )
-            inputs = self.tokenizer.encode(input_text, return_tensors="pt").to(
-                self.device
-            )
+            inputs: torch.Tensor = self.tokenizer.encode(
+                input_text, return_tensors="pt"
+            ).to(self.device)
             with torch.no_grad():
-                outputs = self.model.generate(inputs)
+                outputs: torch.Tensor = self.model.generate(inputs)
             logger.debug(
                 f"{frame_info.filename} - {frame_info.function} - SantaCoder Generated Code Snippet - output = {self.tokenizer.decode(outputs[0])}"
             )
@@ -82,11 +84,23 @@ class SantaCoder:
 
     def infill(
         self,
-        prefix_suffix_tuples,
+        prefix_suffix_tuples: Tuple[str, str],
         max_tokens: int = 200,
         temperature: float = 0.8,
         top_p: float = 0.95,
     ):
+        """
+        Generate code snippets by infilling between the prefix and suffix.
+
+        Args:
+            prefix_suffix_tuples (_type_): a tuple of form (prefix, suffix)
+            max_tokens (int, optional): maximum tokens for the model. Defaults to 200.
+            temperature (float, optional): model temp. Defaults to 0.8.
+            top_p (float, optional): top_p. Defaults to 0.95.
+
+        Returns:
+            str: infilled code snippet
+        """
         frame = inspect.currentframe()
         frame_info = inspect.getframeinfo(frame)
 
@@ -103,6 +117,7 @@ class SantaCoder:
         inputs = self.tokenizer(
             prompts, return_tensors="pt", padding=True, return_token_type_ids=False
         ).to(self.device)
+        
         max_length = inputs.input_ids[0].size(0) + max_tokens
         with torch.no_grad():
             outputs = self.model.generate(
@@ -113,7 +128,7 @@ class SantaCoder:
                 max_length=max_length,
                 pad_token_id=self.tokenizer.pad_token_id,
             )
-        # WARNING: cannot use skip_special_tokens, because it blows away the FIM special tokens.
+
         try:
             result = [
                 self.extract_fim_part(
