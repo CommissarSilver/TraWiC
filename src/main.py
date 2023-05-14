@@ -1,7 +1,7 @@
 import os
 from data import dataset
 from utils import process_scripts
-from utils.santa import SantaCoder
+from models.santa import SantaCoder
 from checker.checker import Checker
 
 if __name__ == "__main__":

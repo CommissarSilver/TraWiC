@@ -36,7 +36,7 @@ class Checker:
 
         # use regex to extract the mentioned items
         docstrings_iter = re.finditer(r'"""[\s\S]*?"""', self.original_input)
-        comments_iter = re.finditer(r"#\s*(#.*)", self.original_input)
+        comments_iter = re.finditer(r"#\s*(#.*)", self.original_input) # @TODO: #1 fix this regex
         function_names_iter = re.finditer(
             r"def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\((.*)\)", self.original_input
         )
@@ -236,6 +236,18 @@ class Checker:
                     {
                         "infill": item,
                         "prefix": prefix + "#",
+                        "suffix": suffix,
+                        "level": level,
+                    }
+                )
+            elif level == "docstrings":
+                prefix, suffix = Checker.separate_script(
+                    script_text=self.original_input, word=item, line_number=key[0]
+                )
+                candidates.append(
+                    {
+                        "infill": item,
+                        "prefix": prefix,
                         "suffix": suffix,
                         "level": level,
                     }
