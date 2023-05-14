@@ -1,5 +1,6 @@
 import os
-from utils import dataset, process_scripts
+from data import dataset
+from utils import process_scripts
 from utils.santa import SantaCoder
 
 
