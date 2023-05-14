@@ -1,0 +1,52 @@
+version: 1
+disable_existing_loggers: true
+
+formatters:
+  simpleFormatter:
+    format: '%(asctime)s - %(levelname)s - [%(filename)s] - [%(funcName)s] - %(message)s'
+
+handlers:
+  consoleHandler:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: simpleFormatter
+    stream: ext://sys.stdout
+
+  fileHandler:
+    class: logging.FileHandler
+    level: INFO
+    formatter: simpleFormatter
+    filename: logs/runlog.log
+    encoding: utf-8
+  
+  dataHandler:
+    class: logging.FileHandler
+    level: DEBUG
+    formatter: simpleFormatter
+    filename: logs/data_trail.log
+    encoding: utf-8
+
+loggers:
+  process_scripts:
+    level: DEBUG
+    handlers: [consoleHandler]
+    propagate: false
+
+  model:
+    level: DEBUG
+    handlers: [consoleHandler, dataHandler, fileHandler]
+    propagate: false
+
+  data:
+    level: DEBUG
+    handlers: [consoleHandler]
+    propagate: false
+  
+  checker:
+    level: DEBUG
+    handlers: [consoleHandler, dataHandler, fileHandler]
+    propagate: false
+
+root:
+  level: INFO
+  handlers: [consoleHandler]
