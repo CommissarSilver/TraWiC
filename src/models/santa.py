@@ -1,6 +1,7 @@
 import torch, inspect, logging
 import logger_utils as logger_utils
 from typing import Tuple
+from models.model import InfillModel
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 
@@ -9,7 +10,7 @@ logger = logger_utils.CustomLogger(
 )
 
 
-class SantaCoder:
+class SantaCoder(InfillModel):
     """
     interface for interacting with the SantaCoder model
     """
@@ -117,7 +118,7 @@ class SantaCoder:
         inputs = self.tokenizer(
             prompts, return_tensors="pt", padding=True, return_token_type_ids=False
         ).to(self.device)
-        
+
         max_length = inputs.input_ids[0].size(0) + max_tokens
         with torch.no_grad():
             outputs = self.model.generate(

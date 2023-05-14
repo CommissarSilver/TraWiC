@@ -1,3 +1,4 @@
+from models.model import InfillModel
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 checkpoint = "bigcode/starcoder"
@@ -11,4 +12,3 @@ model = AutoModelForCausalLM.from_pretrained(checkpoint, trust_remote_code=True)
 inputs = tokenizer.encode("def print_hello_world():", return_tensors="pt").to(device)
 outputs = model.generate(inputs)
 print(tokenizer.decode(outputs[0]))
-
