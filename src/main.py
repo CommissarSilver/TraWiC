@@ -1,8 +1,15 @@
-import os
+import os, logging, logging.config, yaml
+
 from data import dataset
 from utils import process_scripts
 from models.santa import SantaCoder
 from checker.checker import Checker
+
+# load logging configuration
+with open(os.path.join(os.getcwd(), "src", "logging_config.yaml"), "r") as f:
+    config = yaml.safe_load(f.read())
+
+logging.config.dictConfig(config)
 
 if __name__ == "__main__":
     model = SantaCoder()

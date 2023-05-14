@@ -2,13 +2,7 @@ import os, re, sys, logging
 from typing import Tuple, List, Dict
 from fuzzywuzzy import fuzz
 
-parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-sys.path.insert(0, parent_dir)
-import logger_utils
-
-logger = logger_utils.CustomLogger(
-    "checker.log", create_directory=True, log_level=logging.DEBUG
-)
+logger = logging.getLogger("checker")
 
 
 class Checker:
@@ -36,7 +30,9 @@ class Checker:
 
         # use regex to extract the mentioned items
         docstrings_iter = re.finditer(r'"""[\s\S]*?"""', self.original_input)
-        comments_iter = re.finditer(r"#\s*(#.*)", self.original_input) # @TODO: #1 fix this regex
+        comments_iter = re.finditer(
+            r"#\s*(#.*)", self.original_input
+        )  # @TODO: #1 fix this regex
         function_names_iter = re.finditer(
             r"def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\((.*)\)", self.original_input
         )
@@ -49,7 +45,6 @@ class Checker:
         strings_iter = re.finditer(r"\".*?\"|'.*?'", self.original_input)
 
         # for each of the items, we need to store their value and their line numbers
-        logger.debug("*" * 50)
         try:
             docstrings = {
                 (
@@ -58,9 +53,9 @@ class Checker:
                 ): match.group()
                 for match in docstrings_iter
             }
-            logger.debug(f"docstrings: {docstrings}")
+            logger.debug(f"Extracted docstrings: {docstrings}")
         except Exception as e:
-            logger.exception(f"error in extracting docstrings: {e}")
+            logger.exception(f"Error in extracting docstrings: {e}")
             docstrings = None
 
         try:
@@ -71,9 +66,9 @@ class Checker:
                 ): match.group()
                 for match in comments_iter
             }
-            logger.debug(f"comments: {comments}")
+            logger.debug(f"Extracted comments: {comments}")
         except Exception as e:
-            logger.exception(f"error in extracting comments: {e}")
+            logger.exception(f"Error in extracting comments: {e}")
             comments = None
 
         try:
@@ -84,9 +79,9 @@ class Checker:
                 ): (match.group(1), match.group(2))
                 for match in function_names_iter
             }
-            logger.debug(f"function_names: {function_names}")
+            logger.debug(f"Extracted function_names: {function_names}")
         except Exception as e:
-            logger.exception(f"error in extracting function names:{e}")
+            logger.exception(f"Error in extracting function names:{e}")
             function_names = None
 
         try:
@@ -97,9 +92,9 @@ class Checker:
                 ): (match.group(1), match.group(2))
                 for match in class_names_iter
             }
-            logger.debug(f"class_names: {class_names}")
+            logger.debug(f"Extracted class_names: {class_names}")
         except Exception as e:
-            logger.exception(f"error in extracting class names: {e}")
+            logger.exception(f"Error in extracting class names: {e}")
             class_names = None
 
         try:
@@ -110,9 +105,9 @@ class Checker:
                 ): match.group(1)
                 for match in variable_names_iter
             }
-            logger.debug(f"variable_names: {variable_names}")
+            logger.debug(f"Extracted variable_names: {variable_names}")
         except Exception as e:
-            logger.exception(f"error in extracting variable names: {e}")
+            logger.exception(f"Error in extracting variable names: {e}")
             variable_names = None
 
         try:
@@ -123,13 +118,13 @@ class Checker:
                 ): match.group()
                 for match in strings_iter
             }
-            logger.debug(f"strings: {strings}")
+            logger.debug(f"Extracted strings: {strings}")
         except Exception as e:
-            logger.exception(f"error in extracting strings: {e}")
+            logger.exception(f"Error in extracting strings: {e}")
             strings = None
         logger.debug("*" * 50)
 
-        logger.info("finished preparing input")
+        logger.info("Finished preparing input")
 
         self.processed_input = {
             "docstrings": docstrings,
@@ -185,7 +180,7 @@ class Checker:
         if self.processed_input[level] != None:
             model_input_candidates = self.processed_input[level]
         else:
-            raise "there are no candidates for this level"
+            raise "There are no candidates for this level"
 
         for key, item in model_input_candidates.items():
             if level in ("function_names", "class_names"):
@@ -261,19 +256,22 @@ class Checker:
         if similiarity_metric == "exact":
             if candidate["infill"] in model_output:
                 logger.debug(
-                    f"similarity metric: ( {similiarity_metric} ). found infill objective in model output. infill objective: ( {candidate['infill']} ), model output: ( {model_output} )"
+                    f"Similarity metric: ( {similiarity_metric} ). found infill objective in model output. infill objective: ( {candidate['infill']} ), model output: ( {model_output} )"
                 )
+                logger.info(f"Found infill objective: {candidate['infill']}")
                 return True
             else:
                 logger.debug(
-                    f"similarity metric: ( {similiarity_metric} ). didn't find infill objective in model output. infill objective: ({candidate['infill']}), model output: ( {model_output} )"
+                    f"Similarity metric: ( {similiarity_metric} ). didn't find infill objective in model output. infill objective: ({candidate['infill']}), model output: ( {model_output} )"
                 )
+                logger.info(f"Didn't find infill objective: {candidate['infill']}")
                 return False
         elif similiarity_metric == "fuzzy":
             similarity_ratio = fuzz.ratio(candidate["infill"], model_output)
             logger.debug(
-                f"similarity metric: ( {similiarity_metric} ). similarity ratio: ( {similarity_ratio} ). infill objective: ( {candidate['infill']} ), model output: ( {model_output} )"
+                f"Similarity metric: ( {similiarity_metric} ). similarity ratio: ( {similarity_ratio} ). infill objective: ( {candidate['infill']} ), model output: ( {model_output} )"
             )
+            logger.info(f"Found similarity ratio: {similarity_ratio}")
         pass
 
 

@@ -1,8 +1,7 @@
-import os, tqdm, json, inspect
-import logger_utils
+import os, tqdm, json, logging
 from datasets import load_dataset
 
-logger = logger_utils.CustomLogger("dataset.log")
+logger = logging.getLogger("data")
 
 
 def get_thestack_dataset(
@@ -12,17 +11,13 @@ def get_thestack_dataset(
 ):
     """
     get the TheStack dataset.
-    ! Requires huggingface'scli login
+    ! Requires huggingface's cli login
 
     Args:
         language (str, optional): which language to download. Defaults to "python".
         save_directory (str, optional): where to store the downloaded scripts. Defaults to os.path.join(os.getcwd(), "data").
         scripts_num (int, optional): number of scripts to download. Defaults to 10**4.
     """
-
-    # for logging purposes. DO NOT CHANGE!
-    frame = inspect.currentframe()
-    frame_info = inspect.getframeinfo(frame)
 
     # we'll use streaming so that it doesn't go and download the entire thing
     try:
@@ -32,26 +27,18 @@ def get_thestack_dataset(
             streaming=True,
             split="train",
         )
-        logger.info(
-            f"{frame_info.filename} - {frame_info.function} - Succesfully connected to huggingface's TheStack dataset"
-        )
+        logger.info(f"Succesfully connected to huggingface's TheStack dataset")
     except:
-        logger.exception(
-            f"{frame_info.filename} - {frame_info.function} - Error connecting to huggingface's TheStack dataset"
-        )
+        logger.exception(f"Error connecting to huggingface's TheStack dataset")
 
     # create the directory if it doesn't exist
     try:
         if not os.path.exists(os.path.join(save_directory, "the_stack", language)):
             os.makedirs(os.path.join(save_directory, "the_stack", language))
         data_dir = os.path.join(save_directory, "the_stack", language)
-        logger.info(
-            f"{frame_info.filename} - {frame_info.function} - Succesfully created the directory for saving the scripts"
-        )
+        logger.info(f"Succesfully created the directory for saving the scripts")
     except:
-        logger.exception(
-            f"{frame_info.filename} - {frame_info.function} - Error in creating directory for saving the scripts"
-        )
+        logger.exception(f"Error in creating directory for saving the scripts")
 
     i = 0
     # use tracker to index the hexshas of the stored scripts
@@ -80,13 +67,9 @@ def get_thestack_dataset(
                 if i == scripts_num:
                     json.dump(tracker, open(os.path.join(data_dir, "index.json"), "w"))
                     break
-            logger.info(
-                f"{frame_info.filename} - {frame_info.function} - Succesfully downloaded and stored {str(scripts_num)} scripts"
-            )
+            logger.info(f"Succesfully downloaded and stored {str(scripts_num)} scripts")
         except:
-            logger.exception(
-                f"{frame_info.filename} - {frame_info.function} - Error in dowloading/storing the scripts"
-            )
+            logger.exception(f"Error in dowloading/storing the scripts")
 
 
 if __name__ == "__main__":
