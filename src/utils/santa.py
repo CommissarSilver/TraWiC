@@ -1,8 +1,10 @@
-import torch, inspect, logger_utils
+import torch, inspect, logging, logger_utils as logger_utils
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 
-logger = logger_utils.CustomLogger(log_file="model.log")
+logger = logger_utils.CustomLogger(
+    "model.log", create_directory=True, log_level=logging.DEBUG
+)
 
 
 class SantaCoder:
@@ -52,7 +54,7 @@ class SantaCoder:
         frame = inspect.currentframe()
         frame_info = inspect.getframeinfo(frame)
         try:
-            logger.info(
+            logger.debug(
                 f"{frame_info.filename} - {frame_info.function} - SantaCoder Invoked - input_text = {input_text}"
             )
             inputs = self.tokenizer.encode(input_text, return_tensors="pt").to(
@@ -60,7 +62,7 @@ class SantaCoder:
             )
             with torch.no_grad():
                 outputs = self.model.generate(inputs)
-            logger.info(
+            logger.debug(
                 f"{frame_info.filename} - {frame_info.function} - SantaCoder Generated Code Snippet - output = {self.tokenizer.decode(outputs[0])}"
             )
             return self.tokenizer.decode(outputs[0])
@@ -85,6 +87,9 @@ class SantaCoder:
         temperature: float = 0.8,
         top_p: float = 0.95,
     ):
+        frame = inspect.currentframe()
+        frame_info = inspect.getframeinfo(frame)
+
         output_list = True
         if type(prefix_suffix_tuples) == tuple:
             prefix_suffix_tuples = [prefix_suffix_tuples]
@@ -109,10 +114,19 @@ class SantaCoder:
                 pad_token_id=self.tokenizer.pad_token_id,
             )
         # WARNING: cannot use skip_special_tokens, because it blows away the FIM special tokens.
-        result = [
-            self.extract_fim_part(
-                self.tokenizer.decode(tensor, skip_special_tokens=False)
+        try:
+            result = [
+                self.extract_fim_part(
+                    self.tokenizer.decode(tensor, skip_special_tokens=False)
+                )
+                for tensor in outputs
+            ]
+            logger.debug(
+                f"{frame_info.filename} - {frame_info.function} - SantaCoder Generated Code Snippet - output = {result}"
             )
-            for tensor in outputs
-        ]
+        except Exception as e:
+            logger.exception(
+                f"{frame_info.filename} - {frame_info.function} - Error in generating code snippet",
+            )
+            raise e
         return result if output_list else result[0]
