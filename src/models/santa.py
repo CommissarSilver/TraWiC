@@ -1,13 +1,10 @@
 import torch, inspect, logging
-import logger_utils as logger_utils
 from typing import Tuple
 from models.model import InfillModel
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 
-logger = logger_utils.CustomLogger(
-    "model.log", create_directory=True, log_level=logging.DEBUG
-)
+logger = logging.getLogger("model")
 
 
 class SantaCoder(InfillModel):
@@ -16,13 +13,13 @@ class SantaCoder(InfillModel):
     """
 
     def __init__(self):
-        frame = inspect.currentframe()
-        frame_info = inspect.getframeinfo(frame)
+        # @TODO: #2 move these to a config file
         self.FIM_PREFIX = "<fim-prefix>"
         self.FIM_MIDDLE = "<fim-middle>"
         self.FIM_SUFFIX = "<fim-suffix>"
         self.FIM_PAD = "<fim-pad>"
         self.ENDOFTEXT = "<|endoftext|>"
+
         checkpoint = "bigcode/santacoder"
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         try:
@@ -44,44 +41,40 @@ class SantaCoder(InfillModel):
                 trust_remote_code=True,
                 max_length=200,
             ).to(self.device)
-            logger.info(
-                f"{frame_info.filename} - {frame_info.function} - SantaCoder model successfuly loaded"
-            )
+            logger.info(f"SantaCoder model successfuly loaded")
         except Exception as e:
-            logger.exception(
-                f"{frame_info.filename} - {frame_info.function} - Error in loading the SantaCoder model"
-            )
-            raise e
+            logger.exception(f"Error in loading the SantaCoder model")
+            raise "Problem in initializing SantaCoder Model"
 
     def predict(self, input_text: str) -> str:
-        frame = inspect.currentframe()
-        frame_info = inspect.getframeinfo(frame)
         try:
-            logger.debug(
-                f"{frame_info.filename} - {frame_info.function} - SantaCoder Invoked - input_text = {input_text}"
-            )
             inputs: torch.Tensor = self.tokenizer.encode(
                 input_text, return_tensors="pt"
             ).to(self.device)
+            logger.debug(f"SantaCoder Invoked - input_text = {input_text}")
+
             with torch.no_grad():
                 outputs: torch.Tensor = self.model.generate(inputs)
+
             logger.debug(
-                f"{frame_info.filename} - {frame_info.function} - SantaCoder Generated Code Snippet - output = {self.tokenizer.decode(outputs[0])}"
+                f"SantaCoder Invoked - input = ( {input_text} ) - output = ( {self.tokenizer.decode(outputs[0])} )"
             )
             return self.tokenizer.decode(outputs[0])
         except Exception as e:
-            logger.exception(
-                f"{frame_info.filename} - {frame_info.function} - Error in generating code snippet",
-            )
+            logger.exception(f"Error in generating code snippet from SantaCoder")
             raise e
 
     def extract_fim_part(self, s: str):
         """
         Find the index of <fim-middle>
         """
-        start = s.find(self.FIM_MIDDLE) + len(self.FIM_MIDDLE)
-        stop = s.find(self.ENDOFTEXT, start) or len(s)
-        return s[start:stop]
+        try:
+            start = s.find(self.FIM_MIDDLE) + len(self.FIM_MIDDLE)
+            stop = s.find(self.ENDOFTEXT, start) or len(s)
+            return s[start:stop]
+        except Exception as e:
+            logger.exception(f"Error in extracting fim part from SantaCoder output")
+            raise e
 
     def infill(
         self,
@@ -102,9 +95,6 @@ class SantaCoder(InfillModel):
         Returns:
             str: infilled code snippet
         """
-        frame = inspect.currentframe()
-        frame_info = inspect.getframeinfo(frame)
-
         output_list = True
         if type(prefix_suffix_tuples) == tuple:
             prefix_suffix_tuples = [prefix_suffix_tuples]
@@ -138,11 +128,10 @@ class SantaCoder(InfillModel):
                 for tensor in outputs
             ]
             logger.debug(
-                f"{frame_info.filename} - {frame_info.function} - SantaCoder Generated Code Snippet - output = {result}"
+                f"SantaCoder Invoked - input = ( {prefix_suffix_tuples} ) - output = {result}"
             )
         except Exception as e:
-            logger.exception(
-                f"{frame_info.filename} - {frame_info.function} - Error in generating code snippet",
-            )
+            logger.exception(f"Error in generating code snippet")
             raise e
+
         return result if output_list else result[0]
