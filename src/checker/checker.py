@@ -1,5 +1,6 @@
 import os, re, sys, logging
 from typing import Tuple, List, Dict
+from fuzzywuzzy import fuzz
 
 parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, parent_dir)
@@ -15,9 +16,10 @@ class Checker:
         if input_path.endswith(".py"):
             self.input_path = input_path
             self.original_input = open(self.input_path, "r").read()
+
         else:
             raise NotImplementedError
-        self.processed_input = None
+        self.prepare_input()
 
     def prepare_input(self):
         """
@@ -34,7 +36,7 @@ class Checker:
 
         # use regex to extract the mentioned items
         docstrings_iter = re.finditer(r'"""[\s\S]*?"""', self.original_input)
-        comments_iter = re.finditer(r"#.*", self.original_input)
+        comments_iter = re.finditer(r"#\s*(#.*)", self.original_input)
         function_names_iter = re.finditer(
             r"def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\((.*)\)", self.original_input
         )
@@ -47,6 +49,7 @@ class Checker:
         strings_iter = re.finditer(r"\".*?\"|'.*?'", self.original_input)
 
         # for each of the items, we need to store their value and their line numbers
+        logger.debug("*" * 50)
         try:
             docstrings = {
                 (
@@ -124,6 +127,7 @@ class Checker:
         except Exception as e:
             logger.exception(f"error in extracting strings: {e}")
             strings = None
+        logger.debug("*" * 50)
 
         logger.info("finished preparing input")
 
@@ -166,7 +170,7 @@ class Checker:
 
         return prefix, suffix
 
-    def prepare_inputs_for_infill(self, level: str) -> List[Dict[str, str, str, str]]:
+    def prepare_inputs_for_infill(self, level: str) -> List[Dict]:
         """
         Prepares the input for the infill model
 
@@ -174,7 +178,7 @@ class Checker:
             level (str): "fuinction_names", "class_names", "variable_names", "strings", "docstrings", "comments"
 
         Returns:
-            List[Dict[str, str, str, str]]: list of candidates for the infill model
+            List[Dict]: list of candidates for the infill model
         """
         candidates = []
 
@@ -195,6 +199,7 @@ class Checker:
                         "line": key[0],
                         "prefix": prefix,
                         "suffix": suffix,
+                        "level": level,
                     }
                 )
                 # if the function has arguments, or the class inherits from another class, we need to add them to the infill as well
@@ -208,17 +213,56 @@ class Checker:
                             "line": key[0],
                             "prefix": prefix,
                             "suffix": suffix,
+                            "level": level,
                         }
                     )
             elif level in ("strings", "variable_names"):
                 prefix, suffix = Checker.separate_script(
                     script_text=self.original_input, word=item, line_number=key[0]
                 )
-                candidates.append({"infill": item, "prefix": prefix, "suffix": suffix})
-            elif level in ("docstrings", "comments"):
-                raise "not implemented yet"
-        
+                candidates.append(
+                    {
+                        "infill": item,
+                        "prefix": prefix,
+                        "suffix": suffix,
+                        "level": level,
+                    }
+                )
+            elif level == "comments":
+                prefix, suffix = Checker.separate_script(
+                    script_text=self.original_input, word=item, line_number=key[0]
+                )
+                candidates.append(
+                    {
+                        "infill": item,
+                        "prefix": prefix + "#",
+                        "suffix": suffix,
+                        "level": level,
+                    }
+                )
+
         return candidates
+
+    def check_similarity(
+        self, model_output: str, candidate: dict, similiarity_metric: str = "exact"
+    ) -> bool:
+        if similiarity_metric == "exact":
+            if candidate["infill"] in model_output:
+                logger.debug(
+                    f"similarity metric: ( {similiarity_metric} ). found infill objective in model output. infill objective: ( {candidate['infill']} ), model output: ( {model_output} )"
+                )
+                return True
+            else:
+                logger.debug(
+                    f"similarity metric: ( {similiarity_metric} ). didn't find infill objective in model output. infill objective: ({candidate['infill']}), model output: ( {model_output} )"
+                )
+                return False
+        elif similiarity_metric == "fuzzy":
+            similarity_ratio = fuzz.ratio(candidate["infill"], model_output)
+            logger.debug(
+                f"similarity metric: ( {similiarity_metric} ). similarity ratio: ( {similarity_ratio} ). infill objective: ( {candidate['infill']} ), model output: ( {model_output} )"
+            )
+        pass
 
 
 if __name__ == "__main__":
