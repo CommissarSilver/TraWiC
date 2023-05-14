@@ -1,4 +1,5 @@
-import os, tqdm, json, inspect, logger_utils
+import os, tqdm, json, inspect
+import logger_utils
 from datasets import load_dataset
 
 logger = logger_utils.CustomLogger("dataset.log")
@@ -89,4 +90,4 @@ def get_thestack_dataset(
 
 
 if __name__ == "__main__":
-    get_thestack_dataset()
+    get_thestack_dataset(scripts_num=10)

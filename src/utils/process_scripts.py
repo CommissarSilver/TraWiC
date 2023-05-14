@@ -1,4 +1,4 @@
-import os, tqdm, json, inspect, keyword, logger_utils
+import os, tqdm, json, inspect, keyword, logger_utils as logger_utils
 import multiprocessing as mp
 
 logger = logger_utils.CustomLogger("process_scripts.log")
