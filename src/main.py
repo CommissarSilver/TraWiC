@@ -27,13 +27,13 @@ if __name__ == "__main__":
         "/Users/ahura/Nexus/TWMC/data/the_stack/python/the_stack_python_script_0.py"
     )
 
-    candidate_inputs = test_input.prepare_inputs_for_infill(level="strings")
+    candidate_inputs = test_input.prepare_inputs_for_infill(level="function_names")
     for candidate_input in candidate_inputs:
         model_output = model.infill(
             (candidate_input["prefix"], candidate_input["suffix"])
         )
         test_input.check_similarity(
-            model_output, candidate_input, similiarity_metric="fuzzy"
+            model_output, candidate_input, similiarity_metric="exact"
         )
         if False:
             if candidate_input["infill"] in model_output:
