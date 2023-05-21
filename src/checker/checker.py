@@ -30,9 +30,7 @@ class Checker:
 
         # use regex to extract the mentioned items
         docstrings_iter = re.finditer(r'"""[\s\S]*?"""', self.original_input)
-        comments_iter = re.finditer(
-            r"\s*#(.*)", self.original_input
-        )  # @TODO: #1 fix this regex
+        comments_iter = re.finditer(r"\s*#(.*)", self.original_input)
         function_names_iter = re.finditer(
             r"def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\((.*)\)", self.original_input
         )
@@ -259,19 +257,25 @@ class Checker:
                     f"Similarity metric: ( {similiarity_metric} ). found infill objective in model output. infill objective: ( {candidate['infill']} ), model output: ( {model_output} )"
                 )
                 logger.info(f"Found infill objective: {candidate['infill']}")
-                return True
+                return {"similiarity_metric": similiarity_metric, candidate["infill"]: 1}
             else:
                 logger.debug(
                     f"Similarity metric: ( {similiarity_metric} ). didn't find infill objective in model output. infill objective: ({candidate['infill']}), model output: ( {model_output} )"
                 )
                 logger.info(f"Didn't find infill objective: {candidate['infill']}")
-                return False
+                return {candidate["infill"]: 0}
         elif similiarity_metric == "fuzzy":
             similarity_ratio = fuzz.ratio(candidate["infill"], model_output)
             logger.debug(
                 f"Similarity metric: ( {similiarity_metric} ). similarity ratio: ( {similarity_ratio} ). infill objective: ( {candidate['infill']} ), model output: ( {model_output} )"
             )
-            logger.info(f"Found similarity ratio: {similarity_ratio}")
+            logger.info(
+                f"Found similarity ratio for {candidate['infill']}: {similarity_ratio}"
+            )
+            return {
+                "similiarity_metric": similiarity_metric,
+                candidate["infill"]: similarity_ratio,
+            }
         pass
 
 
