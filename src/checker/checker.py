@@ -31,7 +31,7 @@ class Checker:
         # use regex to extract the mentioned items
         docstrings_iter = re.finditer(r'"""[\s\S]*?"""', self.original_input)
         comments_iter = re.finditer(
-            r"#\s*(#.*)", self.original_input
+            r"\s*#(.*)", self.original_input
         )  # @TODO: #1 fix this regex
         function_names_iter = re.finditer(
             r"def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\((.*)\)", self.original_input
