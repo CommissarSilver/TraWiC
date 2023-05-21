@@ -1,7 +1,7 @@
 import os, tqdm, json, inspect, keyword, logger_utils as logger_utils
 import multiprocessing as mp
 
-logger = logger_utils.CustomLogger("process_scripts.log")
+logger = logger_utils.CustomLogger("process_scripts")
 
 
 def get_word_count(script_path: str):
@@ -15,31 +15,26 @@ def get_word_count(script_path: str):
         (dict): dictionary of the vocabulary frequency in the script
     """
     # for logging purposes. DO NOT CHANGE!
-    frame = inspect.currentframe()
-    frame_info = inspect.getframeinfo(frame)
 
     try:
         with open(script_path, "r") as f:
             script = f.read()
             script = script.replace("\n", " ").replace("\t", " ").replace("\r", " ")
     except Exception as e:
-        logger.exception(
-            f"{frame_info.filename} - {frame_info.function} - Error in opening the script"
-        )
+        logger.exception(f"Error in opening the script at {script_path}")
         raise e
 
     try:
         words = {}
-        for word in script.split(" "):
-            if word not in words.keys():
-                words[word] = 1
-            else:
-                words[word] += 1
+        words = {
+            word: 1 if not word in words.keys() else words[word] + 1
+            for word in script.split(" ")
+        }
 
         return words
     except Exception as e:
         logger.exception(
-            f"{frame_info.filename} - {frame_info.function} - Error in counting the script's word (vocabulary) frequency"
+            f"Error in counting the script's word (vocabulary) frequency at {script_path}"
         )
         raise e
 
