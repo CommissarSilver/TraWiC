@@ -29,7 +29,7 @@ handlers:
 loggers:
   process_scripts:
     level: DEBUG
-    handlers: [consoleHandler]
+    handlers: [consoleHandler, fileHandler]
     propagate: false
 
   model:

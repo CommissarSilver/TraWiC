@@ -1,7 +1,7 @@
 import os, tqdm, json, logging
 from datasets import load_dataset
 
-logger = logging.getLogger("data")
+logger = logging.getLogger("process_scripts")
 
 
 def get_thestack_dataset(
@@ -73,4 +73,11 @@ def get_thestack_dataset(
 
 
 if __name__ == "__main__":
+    import yaml, logging.config
+
+    with open(os.path.join(os.getcwd(), "src", "logging_config.yaml"), "r") as f:
+        config = yaml.safe_load(f.read())
+
+    logging.config.dictConfig(config)
+
     get_thestack_dataset(scripts_num=10)

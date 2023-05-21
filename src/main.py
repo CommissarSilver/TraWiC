@@ -1,9 +1,9 @@
 import os, logging, logging.config, yaml
 
-from data import dataset
-from utils import process_scripts
-from models.santa import SantaCoder
-from checker.checker import Checker
+from data import get_thestack_dataset
+from utils import word_count_directory
+from models import SantaCoder
+from checker import Checker
 
 # load logging configuration
 with open(os.path.join(os.getcwd(), "src", "logging_config.yaml"), "r") as f:
@@ -12,17 +12,18 @@ with open(os.path.join(os.getcwd(), "src", "logging_config.yaml"), "r") as f:
 logging.config.dictConfig(config)
 
 if __name__ == "__main__":
+    get_thestack_dataset(
+        language="python",
+        save_directory=os.path.join(os.getcwd(), "data"),
+        scripts_num=100,
+    )
+    word_count_directory(
+        directory_path=os.path.join(os.getcwd(), "data", "the_stack", "python"),
+        script_suffix=".py",
+    )
+
     model = SantaCoder()
 
-    # dataset.get_thestack_dataset(
-    #     language="python",
-    #     save_directory=os.path.join(os.getcwd(), "data"),
-    #     scripts_num=10,
-    # )
-    # process_scripts.word_count_directory(
-    #     directory_path=os.path.join(os.getcwd(), "data", "the_stack", "python"),
-    #     script_suffix=".py",
-    # )
     test_input = Checker(
         "/Users/ahura/Nexus/TWMC/data/the_stack/python/the_stack_python_script_0.py"
     )
