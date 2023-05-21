@@ -22,6 +22,7 @@ class SantaCoder(InfillModel):
 
         checkpoint = "bigcode/santacoder"
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
+
         try:
             self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
             self.tokenizer.add_special_tokens(
@@ -47,11 +48,22 @@ class SantaCoder(InfillModel):
             raise "Problem in initializing SantaCoder Model"
 
     def predict(self, input_text: str) -> str:
+        """
+        Generate code snippet from the input text
+
+        Args:
+            input_text (str): input code. not tokenized.
+
+        Raises:
+            e: any error in generating code snippet
+
+        Returns:
+            str: geenrated code snippet
+        """
         try:
             inputs: torch.Tensor = self.tokenizer.encode(
                 input_text, return_tensors="pt"
             ).to(self.device)
-            logger.debug(f"SantaCoder Invoked - input_text = {input_text}")
 
             with torch.no_grad():
                 outputs: torch.Tensor = self.model.generate(inputs)
@@ -67,11 +79,21 @@ class SantaCoder(InfillModel):
     def extract_fim_part(self, s: str):
         """
         Find the index of <fim-middle>
+
+        Args:
+            s (str): input string
+
+        Raises:
+            e: any excepetion
+
+        Returns:
+            _type_: fim part of the input string
         """
         try:
             start = s.find(self.FIM_MIDDLE) + len(self.FIM_MIDDLE)
             stop = s.find(self.ENDOFTEXT, start) or len(s)
             return s[start:stop]
+
         except Exception as e:
             logger.exception(f"Error in extracting fim part from SantaCoder output")
             raise e
