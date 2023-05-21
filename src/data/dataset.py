@@ -47,22 +47,23 @@ def get_thestack_dataset(
     with tqdm.tqdm(total=scripts_num) as pbar:
         try:
             for dataset_sample in iter(dataset):
-                with open(
-                    os.path.join(
-                        os.path.join(data_dir),
-                        f"the_stack_{language}_script_{i}.{dataset_sample['ext']}",
-                    ),
-                    "w",
-                ) as f:
-                    f.write(dataset_sample["content"])
-                    tracker[dataset_sample["hexsha"]] = {
-                        "number": str(i),
-                        "name": f"the_stack_{language}_script_{i}.{dataset_sample['ext']}",
-                    }
+                if dataset_sample["ext"] == "py":
+                    with open(
+                        os.path.join(
+                            os.path.join(data_dir),
+                            f"the_stack_{language}_script_{i}.{dataset_sample['ext']}",
+                        ),
+                        "w",
+                    ) as f:
+                        f.write(dataset_sample["content"])
+                        tracker[dataset_sample["hexsha"]] = {
+                            "number": str(i),
+                            "name": f"the_stack_{language}_script_{i}.{dataset_sample['ext']}",
+                        }
 
-                i += 1
+                    i += 1
 
-                pbar.update(1)
+                    pbar.update(1)
 
                 if i == scripts_num:
                     json.dump(tracker, open(os.path.join(data_dir, "index.json"), "w"))
@@ -80,4 +81,4 @@ if __name__ == "__main__":
 
     logging.config.dictConfig(config)
 
-    get_thestack_dataset(scripts_num=10)
+    get_thestack_dataset(scripts_num=10**5)
