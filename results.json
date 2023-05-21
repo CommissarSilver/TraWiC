@@ -1,0 +1,606 @@
+[
+    {
+        "similiarity_metric": "exact",
+        "parse": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "self": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "tbl_iter": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "self, div": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "table_iter": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "self": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "parse": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "self": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "parse": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "self": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "__init__": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "self, site, request": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "url": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "retries": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "timeout": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "html_charset": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "wl_names": 1
+    },
+    {
+        "ssid": 0
+    },
+    {
+        "_bsiid": 0
+    },
+    {
+        "similiarity_metric": "exact",
+        "channel": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "mode": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "root": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "wlans": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "routes": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "id": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "id": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "wlan_div": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "id": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "route_div": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "wl": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "iface": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "gw": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "tbl": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "d": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "name": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "val": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "root": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "tbl": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "tag": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "url": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "retries": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "timeout": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "html_charset": 1
+    },
+    {
+        "neighbors": 0
+    },
+    {
+        "similiarity_metric": "exact",
+        "etx": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "etx": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "url": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "retries": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "timeout": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "html_charset": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "iface_by_gw": 1
+    },
+    {
+        "etx": 0
+    },
+    {
+        "similiarity_metric": "exact",
+        "iface": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "site": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "request": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "site": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "site": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "site": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "version": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "interfaces": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "ips": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "count": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "etx": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "iface": 1
+    },
+    {
+        "is_wlan": 0
+    },
+    {
+        "similiarity_metric": "exact",
+        "etx": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "is_wlan": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "iface": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "is_wlan": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "wlan_info": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "iface": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "is_wlan": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "wlan_info": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "wl_if": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "m": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "wl_if": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "n": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "iface": 1
+    },
+    {
+        "iface": 0
+    },
+    {
+        "similiarity_metric": "exact",
+        "is_wlan": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "is_wlan": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "wlan_info": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "Status": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "Page_Tree, Version_Mixin": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "Status": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "Table_Iter": 1
+    },
+    {
+        "Page_Tree": 0
+    },
+    {
+        "similiarity_metric": "exact",
+        "Table_Iter": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "OLSR_Connections": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "Table_Iter": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "OLSR_Connections": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "OLSR_Routes": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "Table_Iter": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "OLSR_Routes": 1
+    },
+    {
+        "similiarity_metric": "exact",
+        "OpenWRT": 1
+    },
+    {
+        "autosuper": 0
+    },
+    {
+        "similiarity_metric": "exact",
+        "OpenWRT": 1
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "#!/usr/bin/python": 19
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "\n# -*- coding: utf-8 -*-": 88
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "\n# #*** <License> ************************************************************#": 0
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "\n# This module is part of the repository CNDB.": 15
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "\n#": 80
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "\n# This module is licensed under the terms of the BSD 3-Clause License": 25
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "\n# <http://www.c-tanzer.at/license/bsd_3c.html>.": 33
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "\n# #*** </License> ***********************************************************#": 39
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        " # force utf-8 encoding": 95
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "\n    # end def parse": 4
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "\n    # end def tbl_iter": 18
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "\n\n# end class Status": 5
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "\n    # end def table_iter": 11
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "\n\n# end class Table_Iter": 64
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        " # force utf-8 encoding": 7
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "\n    # end def parse": 7
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "\n\n# end class OLSR_Connections": 29
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        " # force utf-8 encoding": 6
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "\n    # end def parse": 17
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "\n\n# end class OLSR_Routes": 15
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "\n            # check own ip": 1
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "\n    # end def __init__": 23
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "\n\n# end class OpenWRT": 36
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'cgi-bin/luci/freifunk/status/status'": 89
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'utf-8'": 100
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'ssid'": 33
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'bssid'": 12
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'channel'": 100
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'mode'": 2
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "\"div\"": 60
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'id'": 9
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'cbi-wireless'": 31
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'cbi-routes'": 29
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'iface'": 9
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'gateway'": 62
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "\"table\"": 2
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'cbi-section-table'": 19
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'class'": 8
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'input'": 0
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'.'": 7
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'value'": 10
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "\"div\"": 100
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'maincontent'": 40
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "\"table\"": 4
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'th'": 7
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'cgi-bin/luci/freifunk/olsr/'": 84
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'utf-8'": 100
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'cgi-bin/luci/freifunk/olsr/routes'": 91
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'utf-8'": 100
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'ips'": 89
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "\"Duplicate wlan: %s/%s\"": 53
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'unknown'": 1
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'ip'": 1
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'ips'": 100
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'interfaces'": 100
+    },
+    {
+        "similiarity_metric": "fuzzy",
+        "'version'": 48
+    }
+]
