@@ -45,7 +45,7 @@ class SantaCoder(InfillModel):
             logger.info(f"SantaCoder model successfuly loaded")
         except Exception as e:
             logger.exception(f"Error in loading the SantaCoder model")
-            raise "Problem in initializing SantaCoder Model"
+            raise Exception("Problem in initializing SantaCoder Model")
 
     def predict(self, input_text: str) -> str:
         """
