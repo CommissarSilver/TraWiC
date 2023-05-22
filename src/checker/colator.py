@@ -13,21 +13,39 @@ def prepare_input(input_string: str):
         - class names
         - variable names
         - strings
-    the results are stored in the `processed_input` attribute of the class
 
+    Args:
+        input_string (str): The input code script to extract items from.
+
+    Returns:
+        Tuple[Dict[Tuple[int, int], str], Dict[Tuple[int, int], str], Dict[Tuple[int, int], str], Dict[Tuple[int, int], str], Dict[Tuple[int, int], str], Dict[Tuple[int, int], str]]: A tuple containing dictionaries for each of the extracted items, with the keys being tuples representing the start and end line numbers of the item, and the values being the extracted item itself.
     """
 
     # use regex to extract the mentioned items
-    docstrings_iter = re.finditer(r'"""[\s\S]*?"""', input_string)
-    comments_iter = re.finditer(r"\s*#(.*)", input_string)
+    docstrings_iter = re.finditer(
+        r'"""[\s\S]*?"""',
+        input_string,
+    )
+    comments_iter = re.finditer(
+        r"\s*#(.*)",
+        input_string,
+    )
     function_names_iter = re.finditer(
-        r"def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\((.*)\)", input_string
+        r"def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\((.*)\)",
+        input_string,
     )
     class_names_iter = re.finditer(
-        r"class\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:\((.*?)\))?", input_string
+        r"class\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*(?:\((.*?)\))?",
+        input_string,
     )
-    variable_names_iter = re.finditer(r"([a-zA-Z_][a-zA-Z0-9_]*)\s*=", input_string)
-    strings_iter = re.finditer(r"\".*?\"|'.*?'", input_string)
+    variable_names_iter = re.finditer(
+        r"([a-zA-Z_][a-zA-Z0-9_]*)\s*=",
+        input_string,
+    )
+    strings_iter = re.finditer(
+        r"\".*?\"|'.*?'",
+        input_string,
+    )
 
     # for each of the items, we need to store their value and their line numbers
     try:
@@ -107,6 +125,7 @@ def prepare_input(input_string: str):
     except Exception as e:
         logger.exception(f"Error in extracting strings: {e}")
         strings = None
+
     logger.debug("*" * 50)
 
     logger.info("Finished preparing input")
@@ -154,16 +173,25 @@ def separate_script(script_text: str, word: str, line_number: int) -> Tuple[str,
 def prepare_inputs_for_infill(
     original_input_string: str,
     processed_input: dict,
-) -> List[Dict]:
+) -> Dict[str, List[Dict]]:
     """
-    Prepares the input for the infill model
+    Prepares the input for the infill model.
 
     Args:
-        level (str): "fuinction_names", "class_names", "variable_names", "strings", "docstrings", "comments"
+        original_input_string (str): The original input script as a string.
+        processed_input (dict): A dictionary containing the processed input at different levels of granularity.
+            The keys are strings representing the level of granularity, and the values are dictionaries with
+            keys representing the line number and values representing the corresponding input at that level.
 
     Returns:
-        List[Dict]: list of candidates for the infill model
+        List[Dict]: A list of candidates for the infill model. Each candidate is a dictionary with the following keys:
+            - "infill": The input to be infilled.
+            - "line": The line number where the input appears in the original script.
+            - "prefix": The code preceding the input in the original script.
+            - "suffix": The code following the input in the original script.
+            - "level": The level of granularity at which the input was extracted.
     """
+
     candidates = {
         "function_names": [],
         "class_names": [],
@@ -260,3 +288,12 @@ def process_input(
         prepare_inputs_for_infill(input_code_string, processed_input)
         for input_code_string, processed_input in processed_inputs.items()
     ]
+
+
+if __name__ == "__main__":
+    input_code_string_batch = ["print('hello, world!')", "x = 5"]
+
+    # Act
+    result = process_input(input_code_string_batch)
+
+    print(result)
