@@ -277,9 +277,16 @@ def prepare_inputs_for_infill(
     return candidates
 
 
-def process_input(
-    input_code_string_batch: list,
-):
+def process_input(input_code_string_batch: list) -> list:
+    """
+    Processes a batch of input code strings by preparing them for infilling.
+
+    Args:
+        input_code_string_batch (list): A list of input code strings to process.
+
+    Returns:
+        list: A list of processed input code strings, each prepared for infilling.
+    """
     processed_inputs = {
         input_code_string: prepare_input(input_code_string)
         for input_code_string in input_code_string_batch
