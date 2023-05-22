@@ -8,7 +8,7 @@ def get_thestack_dataset(
     language: str = "python",
     save_directory: str = os.path.join(os.getcwd(), "data"),
     scripts_num: int = 10**4,
-):
+) -> None:
     """
     get the TheStack dataset.
     ! Requires huggingface's cli login
@@ -28,17 +28,18 @@ def get_thestack_dataset(
             split="train",
         )
         logger.info(f"Succesfully connected to huggingface's TheStack dataset")
-    except:
+    except Exception as e:
         logger.exception(f"Error connecting to huggingface's TheStack dataset")
-
+        raise e
     # create the directory if it doesn't exist
     try:
         if not os.path.exists(os.path.join(save_directory, "the_stack", language)):
             os.makedirs(os.path.join(save_directory, "the_stack", language))
         data_dir = os.path.join(save_directory, "the_stack", language)
         logger.info(f"Succesfully created the directory for saving the scripts")
-    except:
+    except Exception as e:
         logger.exception(f"Error in creating directory for saving the scripts")
+        raise e
 
     i = 0
     # use tracker to index the hexshas of the stored scripts
