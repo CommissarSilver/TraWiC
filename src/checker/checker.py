@@ -1,5 +1,5 @@
 import os, re, sys, logging
-from typing import Tuple, List, Dict
+from typing import Tuple, List, Dict, Union
 from fuzzywuzzy import fuzz
 
 logger = logging.getLogger("checker")
@@ -178,7 +178,7 @@ class Checker:
         if self.processed_input[level] != None:
             model_input_candidates = self.processed_input[level]
         else:
-            raise "There are no candidates for this level"
+            raise Exception("There are no candidates for this level")
 
         for key, item in model_input_candidates.items():
             if level in ("function_names", "class_names"):
@@ -250,7 +250,7 @@ class Checker:
 
     def check_similarity(
         self, model_output: str, candidate: dict, similiarity_metric: str = "exact"
-    ) -> bool:
+    ) -> Dict[str, Union[int, float, str]]:
         if similiarity_metric == "exact":
             if candidate["infill"] in model_output:
                 logger.debug(
@@ -276,7 +276,10 @@ class Checker:
                 "similiarity_metric": similiarity_metric,
                 candidate["infill"]: similarity_ratio,
             }
-        pass
+        else:
+            raise Exception(
+                f"Similarity metric: ( {similiarity_metric} ) is not supported"
+            )
 
 
 if __name__ == "__main__":
