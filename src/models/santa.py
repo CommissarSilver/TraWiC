@@ -133,14 +133,18 @@ class SantaCoder(InfillModel):
 
         max_length = inputs.input_ids[0].size(0) + max_tokens
         with torch.no_grad():
-            outputs = self.model.generate(
-                **inputs,
-                do_sample=True,
-                top_p=top_p,
-                temperature=temperature,
-                max_length=max_length,
-                pad_token_id=self.tokenizer.pad_token_id,
-            )
+            try:
+                outputs = self.model.generate(
+                    **inputs,
+                    do_sample=True,
+                    top_p=top_p,
+                    temperature=temperature,
+                    max_length=max_length,
+                    pad_token_id=self.tokenizer.pad_token_id,
+                )
+            except Exception as e:
+                logger.exception(f"Error in generating code snippet from SantaCoder {e}")
+                return [""]
 
         try:
             result = [
@@ -154,6 +158,6 @@ class SantaCoder(InfillModel):
             )
         except Exception as e:
             logger.exception(f"Error in generating code snippet")
-            raise e
+            result = [""]
 
         return result if output_list else result[0]

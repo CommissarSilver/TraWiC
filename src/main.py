@@ -56,29 +56,31 @@ for file_path in dataset_files_path:
 
     model_inputs = [input for sublist in model_inputs for input in sublist]
     results = []
-    for candidate_input in model_inputs[:2]:
+    for candidate_input in model_inputs[:3]:
         model_output = model.infill(
             (candidate_input["prefix"], candidate_input["suffix"])
         )
-
-        result = file_checker.check_similarity(
-            model_output,
-            candidate_input,
-            similiarity_metric="exact"
-            if candidate_input["level"]
-            in ["function_names", "variable_names", "class_names"]
-            else "fuzzy",
-        )
-
-        results.append(
-            {
-                "file_path": file_path,
-                "similarity_metric": "exact"
+        try:
+            result = file_checker.check_similarity(
+                model_output,
+                candidate_input,
+                similiarity_metric="exact"
                 if candidate_input["level"]
                 in ["function_names", "variable_names", "class_names"]
                 else "fuzzy",
-                "result": result,
-            }
-        )
+            )
 
-    json.dump(results, open(os.path.join(os.getcwd(), "results.json"), "w"))
+            results.append(
+                {
+                    "file_path": file_path,
+                    "similarity_metric": "exact"
+                    if candidate_input["level"]
+                    in ["function_names", "variable_names", "class_names"]
+                    else "fuzzy",
+                    "result": result,
+                }
+            )
+        except Exception as e:
+            logging.error(e)
+    # add to results.json don't overwrite
+    json.dump(results, open(os.path.join(os.getcwd(), "results.json"), "a"))
