@@ -53,10 +53,13 @@ for file_path in dataset_files_path:
             "strings",
         ]
     ]
-
+    # print file path in red
+    print("\033[91m" + file_path + "\033[0m")
     model_inputs = [input for sublist in model_inputs for input in sublist]
+    if model_inputs == []:
+        continue
     results = []
-    for candidate_input in model_inputs[:3]:
+    for candidate_input in model_inputs:
         model_output = model.infill(
             (candidate_input["prefix"], candidate_input["suffix"])
         )

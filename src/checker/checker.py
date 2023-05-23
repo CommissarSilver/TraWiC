@@ -251,35 +251,47 @@ class Checker:
     def check_similarity(
         self, model_output: str, candidate: dict, similiarity_metric: str = "exact"
     ) -> Dict[str, Union[int, float, str]]:
-        if similiarity_metric == "exact":
-            if candidate["infill"] in model_output:
+        if model_output != None:
+            if similiarity_metric == "exact":
+                if candidate["infill"] in model_output:
+                    logger.debug(
+                        f"Similarity metric: ( {similiarity_metric} ). found infill objective in model output. infill objective: ( {candidate['infill']} ), model output: ( {model_output} )"
+                    )
+                    logger.info(f"Found infill objective: {candidate['infill']}")
+                    return {
+                        "similiarity_metric": similiarity_metric,
+                        candidate["infill"]: 1,
+                    }
+                else:
+                    logger.debug(
+                        f"Similarity metric: ( {similiarity_metric} ). didn't find infill objective in model output. infill objective: ({candidate['infill']}), model output: ( {model_output} )"
+                    )
+                    logger.info(f"Didn't find infill objective: {candidate['infill']}")
+                    return {candidate["infill"]: 0}
+            elif similiarity_metric == "fuzzy":
+                similarity_ratio = fuzz.ratio(candidate["infill"], model_output)
                 logger.debug(
-                    f"Similarity metric: ( {similiarity_metric} ). found infill objective in model output. infill objective: ( {candidate['infill']} ), model output: ( {model_output} )"
+                    f"Similarity metric: ( {similiarity_metric} ). similarity ratio: ( {similarity_ratio} ). infill objective: ( {candidate['infill']} ), model output: ( {model_output} )"
                 )
-                logger.info(f"Found infill objective: {candidate['infill']}")
-                return {"similiarity_metric": similiarity_metric, candidate["infill"]: 1}
+                logger.info(
+                    f"Found similarity ratio for {candidate['infill']}: {similarity_ratio}"
+                )
+                return {
+                    "similiarity_metric": similiarity_metric,
+                    candidate["infill"]: similarity_ratio,
+                }
             else:
-                logger.debug(
-                    f"Similarity metric: ( {similiarity_metric} ). didn't find infill objective in model output. infill objective: ({candidate['infill']}), model output: ( {model_output} )"
+                raise Exception(
+                    f"Similarity metric: ( {similiarity_metric} ) is not supported"
                 )
-                logger.info(f"Didn't find infill objective: {candidate['infill']}")
-                return {candidate["infill"]: 0}
-        elif similiarity_metric == "fuzzy":
-            similarity_ratio = fuzz.ratio(candidate["infill"], model_output)
-            logger.debug(
-                f"Similarity metric: ( {similiarity_metric} ). similarity ratio: ( {similarity_ratio} ). infill objective: ( {candidate['infill']} ), model output: ( {model_output} )"
+        else:
+            logger.exception(
+                f"MODEL RETURNED NONE. infill objective: ( {candidate['infill']} )"
             )
             logger.info(
-                f"Found similarity ratio for {candidate['infill']}: {similarity_ratio}"
+                f"Didn't find infill objective: {candidate['infill']} - Model returned None"
             )
-            return {
-                "similiarity_metric": similiarity_metric,
-                candidate["infill"]: similarity_ratio,
-            }
-        else:
-            raise Exception(
-                f"Similarity metric: ( {similiarity_metric} ) is not supported"
-            )
+            return {candidate["infill"]: 0}
 
 
 if __name__ == "__main__":
