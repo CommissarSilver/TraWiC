@@ -277,7 +277,7 @@ def prepare_inputs_for_infill(
     return candidates
 
 
-def process_input(input_code_string_batch: list) -> list:
+def process_input(input_code_string_batch: list):
     """
     Processes a batch of input code strings by preparing them for infilling.
 
@@ -291,10 +291,56 @@ def process_input(input_code_string_batch: list) -> list:
         input_code_string: prepare_input(input_code_string)
         for input_code_string in input_code_string_batch
     }
-    return [
+    prepared_inputs = [
         prepare_inputs_for_infill(input_code_string, processed_input)
         for input_code_string, processed_input in processed_inputs.items()
     ]
+
+    function_names = [item["function_names"] for item in prepared_inputs]
+    class_names = [item["class_names"] for item in prepared_inputs]
+    variable_names = [item["variable_names"] for item in prepared_inputs]
+    strings = [item["strings"] for item in prepared_inputs]
+    docstrings = [item["docstrings"] for item in prepared_inputs]
+    comments = [item["comments"] for item in prepared_inputs]
+
+    function_names_flat = [
+        (item["infill"], item["prefix"], item["suffix"], item["level"])
+        for sublist in function_names
+        for item in sublist
+    ]
+    class_names_flat = [
+        (item["infill"], item["prefix"], item["suffix"])
+        for sublist in class_names
+        for item in sublist
+    ]
+    variable_names_flat = [
+        (item["infill"], item["prefix"], item["suffix"])
+        for sublist in variable_names
+        for item in sublist
+    ]
+    strings_flat = [
+        (item["infill"], item["prefix"], item["suffix"])
+        for sublist in strings
+        for item in sublist
+    ]
+    docstrings_flat = [
+        (item["infill"], item["prefix"], item["suffix"])
+        for sublist in docstrings
+        for item in sublist
+    ]
+    comments_flat = [
+        (item["infill"], item["prefix"], item["suffix"])
+        for sublist in comments
+        for item in sublist
+    ]
+    return (
+        function_names_flat,
+        class_names_flat,
+        variable_names_flat,
+        strings_flat,
+        docstrings_flat,
+        comments_flat,
+    )
 
 
 if __name__ == "__main__":
