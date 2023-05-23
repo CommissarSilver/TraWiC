@@ -143,9 +143,15 @@ class SantaCoder(InfillModel):
                     pad_token_id=self.tokenizer.pad_token_id,
                 )
             except Exception as e:
-                logger.exception(f"Error in generating code snippet from SantaCoder {e}")
-                return [""]
-
+                if type(e) == IndexError:
+                    logger.exception(
+                        f"Error in generating code snippet from SantaCoder with an IndexError"
+                    )
+                else:
+                    logger.exception(
+                        f"Error in generating code snippet from SantaCoder {e}"
+                    )
+                outputs = None
         try:
             result = [
                 self.extract_fim_part(
@@ -158,6 +164,5 @@ class SantaCoder(InfillModel):
             )
         except Exception as e:
             logger.exception(f"Error in generating code snippet")
-            result = [""]
-
+            return None
         return result if output_list else result[0]
