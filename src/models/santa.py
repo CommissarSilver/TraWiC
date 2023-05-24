@@ -163,10 +163,8 @@ class SantaCoder(InfillModel):
                 logger.debug(
                     f"SantaCoder Invoked - input = ( {prefix_suffix_tuples} ) - output = {result}"
                 )
+                return result if output_list else result[0]
             else:
-                result = None
+                return None
         except Exception as e:
             logger.exception(f"Error in generating code snippet")
-            result = None
-
-        return result if output_list else result[0]
