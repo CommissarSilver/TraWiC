@@ -145,8 +145,9 @@ class SantaCoder(InfillModel):
             except Exception as e:
                 if type(e) == IndexError:
                     logger.exception(
-                        f"Error in generating code snippet from SantaCoder with an IndexError"
+                        f"Error in generating code snippet from SantaCoder with an IndexError. Input of {max_length} is too long."
                     )
+                    return 'too_many_tokens'
                 else:
                     logger.exception(
                         f"Error in generating code snippet from SantaCoder {e}"
