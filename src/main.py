@@ -72,7 +72,9 @@ for file_path in dataset_files_path:
                 in ["function_names", "variable_names", "class_names"]
                 else "fuzzy",
             )
-
+            if result == "too_many_tokens":
+                print("\033[91m" + file_path +'has toom any tokens - skipping'+ "\033[0m")
+                continue
             results.append(
                 {
                     "file_path": file_path,
