@@ -153,16 +153,20 @@ class SantaCoder(InfillModel):
                     )
                 outputs = None
         try:
-            result = [
-                self.extract_fim_part(
-                    self.tokenizer.decode(tensor, skip_special_tokens=False)
+            if outputs != None:
+                result = [
+                    self.extract_fim_part(
+                        self.tokenizer.decode(tensor, skip_special_tokens=False)
+                    )
+                    for tensor in outputs
+                ]
+                logger.debug(
+                    f"SantaCoder Invoked - input = ( {prefix_suffix_tuples} ) - output = {result}"
                 )
-                for tensor in outputs
-            ]
-            logger.debug(
-                f"SantaCoder Invoked - input = ( {prefix_suffix_tuples} ) - output = {result}"
-            )
+            else:
+                result = None
         except Exception as e:
             logger.exception(f"Error in generating code snippet")
-            return None
+            result = None
+
         return result if output_list else result[0]
