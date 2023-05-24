@@ -260,9 +260,12 @@ class Checker:
                 )
 
         return candidates
-    
+
+    @staticmethod
     def check_similarity(
-        self, model_output: str, candidate: dict, similiarity_metric: str = "exact"
+        model_output: str,
+        candidate: dict,
+        similiarity_metric: str = "exact",
     ) -> Dict[str, Union[int, float, str]]:
         if model_output != None:
             if similiarity_metric == "exact":
