@@ -6,13 +6,26 @@ logger = logging.getLogger("checker")
 
 
 class Checker:
+    """
+    A class for checking code files.
+
+    Attributes:
+    -----------
+    input_path : str
+        The path to the input file.
+    original_input : str
+        The original input file contents.
+
+    """
+
     def __init__(self, input_path: str) -> None:
+        # read the input file
         if input_path.endswith(".py"):
             self.input_path = input_path
             self.original_input = open(self.input_path, "r").read()
-
-        else:
+        else:  #! For now only python is supported
             raise NotImplementedError
+        # extract the items from the input file
         self.prepare_input()
 
     def prepare_input(self):
@@ -247,7 +260,7 @@ class Checker:
                 )
 
         return candidates
-
+    
     def check_similarity(
         self, model_output: str, candidate: dict, similiarity_metric: str = "exact"
     ) -> Dict[str, Union[int, float, str]]:
