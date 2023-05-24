@@ -285,6 +285,7 @@ class Checker:
                         f"Similarity metric: ( {similiarity_metric} ). found infill objective in model output. infill objective: ( {candidate['infill']} ), model output: ( {model_output} )"
                     )
                     logger.info(f"Found infill objective: {candidate['infill']}")
+
                     return {
                         "similiarity_metric": similiarity_metric,
                         candidate["infill"]: 1,
@@ -294,6 +295,7 @@ class Checker:
                         f"Similarity metric: ( {similiarity_metric} ). didn't find infill objective in model output. infill objective: ({candidate['infill']}), model output: ( {model_output} )"
                     )
                     logger.info(f"Didn't find infill objective: {candidate['infill']}")
+
                     return {candidate["infill"]: 0}
             elif similiarity_metric == "fuzzy":
                 similarity_ratio = fuzz.ratio(candidate["infill"], model_output)
@@ -303,6 +305,7 @@ class Checker:
                 logger.info(
                     f"Found similarity ratio for {candidate['infill']}: {similarity_ratio}"
                 )
+
                 return {
                     "similiarity_metric": similiarity_metric,
                     candidate["infill"]: similarity_ratio,
@@ -318,6 +321,7 @@ class Checker:
             logger.info(
                 f"Didn't find infill objective: {candidate['infill']} - Model returned None"
             )
+
             return {candidate["infill"]: 0}
 
 
