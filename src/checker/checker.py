@@ -267,6 +267,17 @@ class Checker:
         candidate: dict,
         similiarity_metric: str = "exact",
     ) -> Dict[str, Union[int, float, str]]:
+        """
+        Checks the similarity between the model output and a candidate infill.
+
+        Args:
+            model_output (str): output of the model
+            candidate (dict): the candidate dictionary
+            similiarity_metric (str, optional): which similarity method to select. Defaults to "exact".
+
+        Returns:
+            Dict[str, Union[int, float, str]]: results of the similarity check
+        """
         if model_output != None:
             if similiarity_metric == "exact":
                 if candidate["infill"] in model_output:
