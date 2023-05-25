@@ -132,6 +132,9 @@ class SantaCoder(InfillModel):
         ).to(self.device)
 
         max_length = inputs.input_ids[0].size(0) + max_tokens
+        if max_length > 2048:
+            # dp not even try to generate if the input is too long
+            return "too_many_tokens"
         with torch.no_grad():
             try:
                 outputs = self.model.generate(
@@ -145,9 +148,9 @@ class SantaCoder(InfillModel):
             except Exception as e:
                 if type(e) == IndexError:
                     logger.exception(
-                        f"Error in generating code snippet from SantaCoder with an IndexError. Input of {max_length} is too long."
+                        f"Error in generating code snippet from SantaCoder with an IndexError.",
                     )
-                    return 'too_many_tokens'
+                    return "too_many_tokens"
                 else:
                     logger.exception(
                         f"Error in generating code snippet from SantaCoder {e}"
