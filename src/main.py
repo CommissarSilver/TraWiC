@@ -58,34 +58,39 @@ for file_path in dataset_files_path:
     model_inputs = [input for sublist in model_inputs for input in sublist]
     if model_inputs == []:
         continue
-    results = []
     for candidate_input in model_inputs:
-        model_output = model.infill(
-            (candidate_input["prefix"], candidate_input["suffix"])
-        )
-        if model_output == "too_many_tokens":
-            print("\033[91m" + file_path + "has toom any tokens - skipping" + "\033[0m")
-            continue
-        try:
-            result = file_checker.check_similarity(
-                model_output,
-                candidate_input,
-                similiarity_metric="exact"
-                if candidate_input["level"]
-                in ["function_names", "variable_names", "class_names"]
-                else "fuzzy",
+        results = []
+        for i in range(5):
+            model_output = model.infill(
+                (candidate_input["prefix"], candidate_input["suffix"])
             )
-            results.append(
-                {
-                    "file_path": file_path,
-                    "similarity_metric": "exact"
+            if model_output == "too_many_tokens":
+                print(
+                    "\033[91m" + file_path + "has toom any tokens - skipping" + "\033[0m"
+                )
+                continue
+            try:
+                result = file_checker.check_similarity(
+                    model_output,
+                    candidate_input,
+                    similiarity_metric="exact"
                     if candidate_input["level"]
                     in ["function_names", "variable_names", "class_names"]
                     else "fuzzy",
-                    "result": result,
-                }
-            )
-        except Exception as e:
-            logging.error(e)
+                )
+                results.append(
+                    {
+                        "file_path": file_path,
+                        "level": candidate_input["level"],
+                        "similarity_metric": "exact"
+                        if candidate_input["level"]
+                        in ["function_names", "variable_names", "class_names"]
+                        else "fuzzy",
+                        "result": result,
+                        "candidate_input": candidate_input,
+                    }
+                )
+            except Exception as e:
+                logging.error(e)
+        json.dump(results, open(os.path.join(os.getcwd(), "results.json"), "a"))
     # add to results.json don't overwrite
-    json.dump(results, open(os.path.join(os.getcwd(), "results.json"), "a"))
