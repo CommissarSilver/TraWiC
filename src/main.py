@@ -92,5 +92,9 @@ for file_path in dataset_files_path:
                 )
             except Exception as e:
                 logging.error(e)
-        json.dump(results, open(os.path.join(os.getcwd(), "results.json"), "a"))
+        with open(os.path.join(os.getcwd(), "results.jsonl"), "a") as f:
+            for result in results:
+                json_results = json.dumps(results)
+                f.write(json_results)
+                f.write("\n")
     # add to results.json don't overwrite
