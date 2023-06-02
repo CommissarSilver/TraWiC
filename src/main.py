@@ -87,7 +87,8 @@ for file_path in dataset_files_path:
                         in ["function_names", "variable_names", "class_names"]
                         else "fuzzy",
                         "result": result,
-                        "candidate_input": candidate_input,
+                        "similarity_objective": candidate_input["infill"],
+                        "model_output": model_output,
                     }
                 )
             except Exception as e:
