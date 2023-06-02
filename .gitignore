@@ -7,3 +7,4 @@ __pycache__/
 *.pyc
 word_count.json
 results.json
+Runs/
