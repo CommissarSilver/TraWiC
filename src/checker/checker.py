@@ -266,7 +266,7 @@ class Checker:
         model_output: str,
         candidate: dict,
         similiarity_metric: str = "exact",
-    ) -> Dict[str, Union[int, float, str]]:
+    ) -> int:
         """
         Checks the similarity between the model output and a candidate infill.
 
@@ -276,7 +276,7 @@ class Checker:
             similiarity_metric (str, optional): which similarity method to select. Defaults to "exact".
 
         Returns:
-            Dict[str, Union[int, float, str]]: results of the similarity check
+            int: results of the similarity check
         """
         if model_output != None:
             if similiarity_metric == "exact":
@@ -286,17 +286,14 @@ class Checker:
                     )
                     logger.info(f"Found infill objective: {candidate['infill']}")
 
-                    return {
-                        "similiarity_metric": similiarity_metric,
-                        candidate["infill"]: 1,
-                    }
+                    return 1
                 else:
                     logger.debug(
                         f"Similarity metric: ( {similiarity_metric} ). didn't find infill objective in model output. infill objective: ({candidate['infill']}), model output: ( {model_output} )"
                     )
                     logger.info(f"Didn't find infill objective: {candidate['infill']}")
 
-                    return {candidate["infill"]: 0}
+                    return 0
             elif similiarity_metric == "fuzzy":
                 similarity_ratio = fuzz.ratio(candidate["infill"], model_output)
                 logger.debug(
@@ -306,10 +303,7 @@ class Checker:
                     f"Found similarity ratio for {candidate['infill']}: {similarity_ratio}"
                 )
 
-                return {
-                    "similiarity_metric": similiarity_metric,
-                    candidate["infill"]: similarity_ratio,
-                }
+                return similarity_ratio
             else:
                 raise Exception(
                     f"Similarity metric: ( {similiarity_metric} ) is not supported"
@@ -322,7 +316,7 @@ class Checker:
                 f"Didn't find infill objective: {candidate['infill']} - Model returned None"
             )
 
-            return {candidate["infill"]: 0}
+            return 0
 
 
 if __name__ == "__main__":
