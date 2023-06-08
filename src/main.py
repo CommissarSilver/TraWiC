@@ -1,7 +1,7 @@
 import os, logging, logging.config, yaml, torch, argparse, random, json
 from checker import Checker
 from models import SantaCoder
-
+import pandas as pd
 
 # load logging configuration
 with open(os.path.join(os.getcwd(), "src", "logging_config.yaml"), "r") as f:
@@ -36,6 +36,12 @@ dataset_files_path = [
     os.path.join(os.getcwd(), args.dataset_path, file)
     for file in os.listdir(os.path.join(os.getcwd(), args.dataset_path))
     if file.endswith(args.language)
+]
+results_so_far = pd.read_csv(os.path.join(os.getcwd(), "src", "trained_on.csv"))
+resluts_so_far_names = results_so_far["file_name"].tolist()
+
+dataset_files_path = [
+    file for file in dataset_files_path if file.split("/")[-1] not in resluts_so_far_names
 ]
 
 for file_path in dataset_files_path:
