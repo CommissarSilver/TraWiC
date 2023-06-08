@@ -57,9 +57,11 @@ def get_thestack_dataset(
                         "w",
                     ) as f:
                         f.write(dataset_sample["content"])
-                        tracker[dataset_sample["hexsha"]] = {
+                        tracker[
+                            f"the_stack_{language}_script_{i}.{dataset_sample['ext']}"
+                        ] = {
                             "number": str(i),
-                            "name": f"the_stack_{language}_script_{i}.{dataset_sample['ext']}",
+                            "hash": dataset_sample["hexsha"],
                             "stars_count": dataset_sample["max_stars_count"]
                             if dataset_sample["max_stars_count"] != None
                             else 0,
