@@ -60,6 +60,9 @@ def get_thestack_dataset(
                         tracker[dataset_sample["hexsha"]] = {
                             "number": str(i),
                             "name": f"the_stack_{language}_script_{i}.{dataset_sample['ext']}",
+                            "stars_count": dataset_sample["max_stars_count"]
+                            if dataset_sample["max_stars_count"] != None
+                            else 0,
                         }
 
                     i += 1
