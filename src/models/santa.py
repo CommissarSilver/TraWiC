@@ -39,6 +39,7 @@ class SantaCoder(InfillModel):
             )
             self.model = AutoModelForCausalLM.from_pretrained(
                 checkpoint,
+                revision="comments",
                 trust_remote_code=True,
                 max_length=200,
             ).to(self.device)
