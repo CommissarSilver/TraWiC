@@ -1,6 +1,7 @@
-from models import InspectorModel
+from models import InspectorModel, InspectorModelRF
 import torch
 import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
 
 ds = pd.read_csv("/Users/ahura/Nexus/TWMC/lm_dataset.csv")
 ds.drop(
@@ -15,6 +16,8 @@ ds.drop(
     ],
     inplace=True,
 )
+#### Linear Model ####
+#! Unstable. may have to opt out to using ensemble models
 # convert the dataframe to a tensor, the last column is the label
 x = torch.tensor(ds.iloc[:, 1:].values, dtype=torch.float32)
 y = torch.tensor(ds.iloc[:, -1].values, dtype=torch.float32)
@@ -63,3 +66,13 @@ for epoch in range(epochs):
             l.item(),
             "\033[0m",
         )
+#### Linear Model ####
+
+#### Random Forest ####
+x, y = ds.iloc[:, 1:].values, ds.iloc[:, -1].values
+clf = RandomForestClassifier(n_estimators=100, max_depth=100, random_state=0)
+clf.fit(x, y)
+from sklearn.tree import export_graphviz
+
+export_graphviz(clf.estimators_[0], out_file="tree.dot", feature_names=ds.columns[:-1])
+#### Random Forest ####
