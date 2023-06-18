@@ -62,7 +62,7 @@ for file_path in dataset_files_path:
         ]
     ]
     # print file path in red
-    print("\033[91m" + file_path + "\033[0m")
+    print("\033[91m" + file_path.split("/")[-1] + "\033[0m")
     model_inputs = [input for sublist in model_inputs for input in sublist]
     if model_inputs == []:
         continue
@@ -73,7 +73,12 @@ for file_path in dataset_files_path:
             (candidate_input["prefix"], candidate_input["suffix"])
         )
         if model_output == "too_many_tokens":
-            print("\033[91m" + file_path + "has too many tokens - skipping" + "\033[0m")
+            print(
+                "\033[91m"
+                + file_path.split("/")[-1]
+                + " has too many tokens - skipping"
+                + "\033[0m"
+            )
             f = open(os.path.join(os.getcwd(), "too_many_tokens.txt"), "a")
             f.write(file_path + "\n")
             break
