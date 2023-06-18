@@ -29,24 +29,24 @@ handlers:
 loggers:
   process_scripts:
     level: DEBUG
-    handlers: [consoleHandler, fileHandler]
+    handlers: [ fileHandler]
     propagate: false
 
   model:
     level: DEBUG
-    handlers: [consoleHandler, dataHandler, fileHandler]
+    handlers: [ dataHandler, fileHandler]
     propagate: false
 
   data:
     level: DEBUG
-    handlers: [consoleHandler]
+    handlers: []
     propagate: false
   
   checker:
     level: DEBUG
-    handlers: [consoleHandler, dataHandler, fileHandler]
+    handlers: [ dataHandler, fileHandler]
     propagate: false
 
 root:
   level: INFO
-  handlers: [consoleHandler]
+  handlers: []
