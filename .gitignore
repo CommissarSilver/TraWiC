@@ -2,7 +2,7 @@ __pycache__/
 /data
 /logs
 /.vscode
-.DS_Store
+*.DS_Store
 *.log
 *.pyc
 *.jsonl
