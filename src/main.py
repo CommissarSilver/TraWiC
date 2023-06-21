@@ -104,10 +104,14 @@ if __name__ == "__main__":
     results_so_far = pd.read_csv(os.path.join(os.getcwd(), "src", "trained_on.csv"))
     resluts_so_far_names = results_so_far["file_name"].tolist()
 
+    negatives = pd.read_csv(os.path.join(os.getcwd(), "src", "ds_python_neg.csv"))[
+        "file_name"
+    ].tolist()
+
     dataset_files_path = [
         file
         for file in dataset_files_path
-        if file.split("/")[-1] not in resluts_so_far_names
+        if file.split("/")[-1] in negatives
     ]
 
     for file_path in dataset_files_path:

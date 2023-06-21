@@ -227,7 +227,6 @@ def process_dataset(path_to_ds: str) -> None:
 
 
 if __name__ == "__main__":
-    # root_directory = os.path.join(os.getcwd(), "Runs")
     paths = [
         "/Users/ahura/Nexus/TWMC/Runs/Run 02",
         "/Users/ahura/Nexus/TWMC/Runs/Run 03",
