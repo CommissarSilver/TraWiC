@@ -43,18 +43,21 @@ def comment_to_code_ratio(script_path: str) -> float:
     Returns:
         float: ratio of comments and docstrings to code in the script.
     """
-    script = open(script_path, "r").read()
+    try:
+        script = open(script_path, "r").read()
 
-    comments, docstrings = extract_comments_and_docstrings(script)
+        comments, docstrings = extract_comments_and_docstrings(script)
 
-    comment_lines = len(comments)
-    docstring_lines = len(docstrings)
-    code_lines = len(script.split("\n"))
+        comment_lines = len(comments)
+        docstring_lines = len(docstrings)
+        code_lines = len(script.split("\n"))
 
-    return (comment_lines + docstring_lines) / code_lines
+        return (comment_lines + docstring_lines) / code_lines
+    except Exception:
+        return 2
 
 
-def build_dataset(path_to_jsonl: str) -> None:
+def build_dataset(jsonl_file_path: str) -> None:
     """
     Builds a dataset from a given jsonl file.
     Here we aim on cosolidating all of the data from the jsonl runs.
@@ -63,9 +66,7 @@ def build_dataset(path_to_jsonl: str) -> None:
     Args:
         path_to_jsonl (str): path to the jsonl file to build the dataset from.
     """
-    jsonl_ds = open(path_to_jsonl, "r").readlines()
-
-    final_dataset = pd.DataFrame(
+    dataset = pd.DataFrame(
         columns=[
             "file_name",
             "level",
@@ -77,19 +78,10 @@ def build_dataset(path_to_jsonl: str) -> None:
         ]
     )
 
-    trained_ons = pd.read_csv("/Users/ahura/Nexus/TWMC/src/trained_on.csv")
-    file_labels = {
-        file_name: 1
-        if 0.01
-        < comment_to_code_ratio(
-            os.path.join(os.getcwd(), "data", "the_stack", "python", file_name)
-        )
-        < 0.8
-        else 0
-        for file_name in trained_ons["file_name"]
-    }
+    jsonl_file = open(os.path.join(jsonl_file_path, "results.jsonl"), "r")
+    results_data = [line for line in jsonl_file]
 
-    for i, row in tqdm.tqdm(enumerate(jsonl_ds), total=len(jsonl_ds)):
+    for i, row in tqdm.tqdm(enumerate(results_data), total=len(results_data)):
         file_contents = json.loads(row)
         for entry in file_contents:
             try:
@@ -99,27 +91,25 @@ def build_dataset(path_to_jsonl: str) -> None:
                 result = entry["result"]
                 similarity_objective = entry["similarity_objective"]
                 model_output = entry["model_output"]
-                file_in_training_set = file_labels[file_name]
+                # file_in_training_set = file_labels[file_name]
 
-                final_dataset.loc[i] = [
+                dataset.loc[i] = [
                     file_name,
                     level,
                     similarity_metric,
                     result,
                     similarity_objective,
                     model_output,
-                    file_in_training_set,
+                    0,
                 ]
             except KeyError:
                 # there are some files that we can't calculate ratio for because they have some problems when read by tokenize. we skip them. they're not that many.
                 continue
-
-    final_dataset.to_csv(
-        os.path.join(os.getcwd(), "Runs", "final_dataset.csv"), index=False
+    dataset.to_csv(
+        os.path.join(jsonl_file_path, "dataset.csv"),
+        index=False,
     )
-
-    print("Number of positives:", len([i for i in file_labels.values() if i == 1]))
-    print("Number of negatives:", len([i for i in file_labels.values() if i == 0]))
+    return os.path.join(jsonl_file_path, "dataset.csv")
 
 
 def process_dataset(path_to_ds: str) -> None:
@@ -217,10 +207,37 @@ def process_dataset(path_to_ds: str) -> None:
         )
     # convert lm_dict to a dataframe
     lm_ds = pd.DataFrame.from_dict(lm_dict, orient="index")
+
+    for row in lm_ds.iterrows():
+        comment_to_code_ratio_file = comment_to_code_ratio(
+            os.path.join(os.getcwd(), "data", "the_stack", "python", row[0])
+        )
+        if comment_to_code_ratio_file == 2:
+            lm_ds.loc[row[0], "trained_on"] = 2
+
+        elif 0.01 < comment_to_code_ratio_file < 0.8:
+            lm_ds.loc[row[0], "trained_on"] = 1
+        else:
+            lm_ds.loc[row[0], "trained_on"] = 0
+    # drop the rows that their trained_on value is 2
+    lm_ds = lm_ds[lm_ds["trained_on"] != 2]
+
     # save the dataframe to a csv file
-    lm_ds.to_csv("lm_dataset.csv")
+    lm_ds.to_csv(f"{path_to_ds.split('/')[-2]}_processed_dataset.csv")
 
 
 if __name__ == "__main__":
-    build_dataset("/Users/ahura/Nexus/TWMC/Runs/file.jsonl")
-    process_dataset("/Users/ahura/Nexus/TWMC/Runs/Run 02/final_dataset.csv")
+    # root_directory = os.path.join(os.getcwd(), "Runs")
+    paths = [
+        "/Users/ahura/Nexus/TWMC/Runs/Run 02",
+        "/Users/ahura/Nexus/TWMC/Runs/Run 03",
+        "/Users/ahura/Nexus/TWMC/Runs/Run 04",
+        "/Users/ahura/Nexus/TWMC/Runs/Run 05",
+        "/Users/ahura/Nexus/TWMC/Runs/Run 06",
+        "/Users/ahura/Nexus/TWMC/Runs/Run 07",
+        "/Users/ahura/Nexus/TWMC/Runs/Run 08",
+        "/Users/ahura/Nexus/TWMC/Runs/Run 09",
+        "/Users/ahura/Nexus/TWMC/Runs/Run 10",
+    ]
+    for path in paths:
+        process_dataset(build_dataset(path))
