@@ -1,4 +1,4 @@
-import os, re, sys, logging
+import os, re, sys, logging, ast
 from typing import Tuple, List, Dict, Union
 from fuzzywuzzy import fuzz
 
@@ -319,10 +319,89 @@ class Checker:
             return 0
 
 
+class CheckerBlock:
+    def __init__(self, input_path: str) -> None:
+        # read the input file
+        if input_path.endswith(".py"):
+            self.input_path = input_path
+            self.original_input = open(self.input_path, "r").read()
+        else:  #! For now only python is supported
+            raise NotImplementedError
+        # extract the items from the input file
+        self.prepare_input()
+
+    def prepare_input(self):
+        # extract the functions
+        classes = []
+        functions = []
+
+        tree = ast.parse(self.original_input)
+        try:
+            for node in ast.walk(tree):
+                if isinstance(node, ast.ClassDef):
+                    class_name = node.name
+                    class_body = ast.get_source_segment(self.original_input, node)
+                    classes.append((class_name, class_body))
+                elif isinstance(node, ast.FunctionDef):
+                    function_name = node.name
+                    function_body = ast.get_source_segment(self.original_input, node)
+                    functions.append((function_name, function_body))
+        except Exception as e:
+            return "Error in parsing the input file"
+        self.classes = classes
+        self.functions = functions
+
+    def prepare_inputs_for_prediction(self):
+        # break down the functions and classes int half with a context token window of 2048
+        candidates = []
+        for function in self.functions:
+            # count the number of tokens in the function
+            tokens_num = len(function[1].split(" "))
+            if tokens_num > 2048:
+                continue
+            # break the function into two parts while keeping the tokens intact so that it doesn't cut words in half
+            inputs = (
+                function[1][: tokens_num // 2],
+                function[1][tokens_num // 2 :],
+            )
+            candidates.append(
+                {
+                    "file_path": self.input_path,
+                    "prefix": inputs[0],
+                    "suffix": inputs[1],
+                    "level": "functions",
+                }
+            )
+        for class_ in self.classes:
+            tokens_num = len(class_[1].split(" "))
+            if tokens_num > 2048:
+                continue
+            inputs = (class_[1][: tokens_num // 2], class_[1][tokens_num // 2 :])
+            candidates.append(
+                {
+                    "file_path": self.input_path,
+                    "prefix": inputs[0],
+                    "suffix": inputs[1],
+                    "level": "classes",
+                }
+            )
+        return candidates
+
+    @staticmethod
+    def check_similarity(model_output, candidate):
+        pass
+
+
 if __name__ == "__main__":
     checker = Checker(
         "/Users/ahura/Nexus/TWMC/data/the_stack/python/the_stack_python_script_0.py"
     )
     checker.prepare_input()
     x = checker.prepare_inputs_for_infill("strings")
+    print(x)
+
+    checker_block = CheckerBlock(
+        "/Users/ahura/Nexus/TWMC/data/the_stack/python/the_stack_python_script_0.py"
+    )
+    x = checker_block.prepare_inputs_for_prediction()
     print(x)
