@@ -19,6 +19,7 @@ datasets = [
     "/Users/ahura/Nexus/TWMC/Run 08_processed_dataset.csv",
     "/Users/ahura/Nexus/TWMC/Run 09_processed_dataset.csv",
     "/Users/ahura/Nexus/TWMC/Run 10_processed_dataset.csv",
+    "/Users/ahura/Nexus/TWMC/Run 11_processed_dataset.csv",
 ]
 datasets = [pd.read_csv(path) for path in datasets]
 combined_ds = pd.concat(datasets)
@@ -91,3 +92,12 @@ print(
 # print the accuracy
 accuracy = clf.score(test_ds.iloc[:, 1:].values, test_ds.iloc[:, -1].values)
 print("Accuracy:", accuracy)
+# calcualte the precision and recall
+from sklearn.metrics import precision_recall_fscore_support
+
+precision, recall, fscore, _ = precision_recall_fscore_support(
+    test_ds.iloc[:, -1].values, clf.predict(test_ds.iloc[:, 1:].values), average="weighted"
+)
+print("Precision:", precision)
+print("Recall:", recall)
+print("F-score:", fscore)
