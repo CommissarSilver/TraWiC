@@ -40,22 +40,29 @@ combined_ds.drop(
 combined_ds.to_csv("combined_ds.csv", index=False)
 
 # Split the dataset into training and testing datasets
-train_ds, test_ds = train_test_split(combined_ds, test_size=0.2, random_state=42)
+
+train_ds, test_ds = train_test_split(
+    combined_ds,
+    test_size=0.2,
+    random_state=42,
+    stratify=combined_ds["trained_on"],
+)
 # Split the testing dataset into testing and validation datasets
-test_ds, val_ds = train_test_split(test_ds, test_size=0.5, random_state=42)
+# test_ds, val_ds = train_test_split(test_ds, test_size=0.5, random_state=42)
 # drop the index column
+
 train_ds.drop(columns=["Unnamed: 0"], inplace=True)
 test_ds.drop(columns=["Unnamed: 0"], inplace=True)
-val_ds.drop(columns=["Unnamed: 0"], inplace=True)
+# val_ds.drop(columns=["Unnamed: 0"], inplace=True)
 
 ##### Random Forest ####
-x, y = train_ds.iloc[:, 1:].values, train_ds.iloc[:, -1].values
+x, y = train_ds.iloc[:, :-1].values, train_ds.iloc[:, -1].values
 print(f"Features shape: {x.shape}")
 print(f"Target shape: {y.shape}")
-print(f"Features Snippet: {x[:5]}")
-print(f"Target Snippet: {y[:5]}")
+print(f"Features Snippet: {x[:1]}")
+print(f"Target Snippet: {y[:1]}")
 
-clf = RandomForestClassifier(n_estimators=100, max_depth=100, random_state=0)
+clf = RandomForestClassifier(n_estimators=50, max_depth=100, random_state=0)
 clf.fit(x, y)
 ##### Feature Importance ####
 fig = plt.figure(figsize=(10, 10))
@@ -90,13 +97,15 @@ print(
     confusion_matrix(test_ds.iloc[:, -1].values, clf.predict(test_ds.iloc[:, 1:].values))
 )
 # print the accuracy
-accuracy = clf.score(test_ds.iloc[:, 1:].values, test_ds.iloc[:, -1].values)
+accuracy = clf.score(test_ds.iloc[:, :-1].values, test_ds.iloc[:, -1].values)
 print("Accuracy:", accuracy)
 # calcualte the precision and recall
 from sklearn.metrics import precision_recall_fscore_support
 
 precision, recall, fscore, _ = precision_recall_fscore_support(
-    test_ds.iloc[:, -1].values, clf.predict(test_ds.iloc[:, 1:].values), average="weighted"
+    test_ds.iloc[:, -1].values,
+    clf.predict(test_ds.iloc[:, :-1].values),
+    average="weighted",
 )
 print("Precision:", precision)
 print("Recall:", recall)
