@@ -334,20 +334,23 @@ class CheckerBlock:
         # extract the functions
         classes = []
         functions = []
-
-        tree = ast.parse(self.original_input)
         try:
+            tree = ast.parse(self.original_input)
             for node in ast.walk(tree):
                 if isinstance(node, ast.ClassDef):
                     class_name = node.name
-                    class_body = ast.get_source_segment(self.original_input, node)
+                    class_body = ast.get_source_segment(
+                        self.original_input, node, padded=True
+                    )
                     classes.append((class_name, class_body))
                 elif isinstance(node, ast.FunctionDef):
                     function_name = node.name
-                    function_body = ast.get_source_segment(self.original_input, node)
+                    function_body = ast.get_source_segment(
+                        self.original_input, node, padded=True
+                    )
                     functions.append((function_name, function_body))
         except Exception as e:
-            return "Error in parsing the input file"
+            pass
         self.classes = classes
         self.functions = functions
 
@@ -355,14 +358,15 @@ class CheckerBlock:
         # break down the functions and classes int half with a context token window of 2048
         candidates = []
         for function in self.functions:
-            # count the number of tokens in the function
+            # count the number of lines in the function
+            lines_num = len(function[1].split("\n"))
             tokens_num = len(function[1].split(" "))
             if tokens_num > 2048:
                 continue
             # break the function into two parts while keeping the tokens intact so that it doesn't cut words in half
             inputs = (
-                function[1][: tokens_num // 2],
-                function[1][tokens_num // 2 :],
+                "\n".join(function[1].split("\n")[: lines_num // 2]),
+                "\n".join(function[1].split("\n")[lines_num // 2 :]),
             )
             candidates.append(
                 {
@@ -372,19 +376,19 @@ class CheckerBlock:
                     "level": "functions",
                 }
             )
-        for class_ in self.classes:
-            tokens_num = len(class_[1].split(" "))
-            if tokens_num > 2048:
-                continue
-            inputs = (class_[1][: tokens_num // 2], class_[1][tokens_num // 2 :])
-            candidates.append(
-                {
-                    "file_path": self.input_path,
-                    "prefix": inputs[0],
-                    "suffix": inputs[1],
-                    "level": "classes",
-                }
-            )
+        # for class_ in self.classes:
+        #     tokens_num = len(class_[1].split(" "))
+        #     if tokens_num > 2048:
+        #         continue
+        #     inputs = (class_[1][: tokens_num // 2], class_[1][tokens_num // 2 :])
+        #     candidates.append(
+        #         {
+        #             "file_path": self.input_path,
+        #             "prefix": inputs[0],
+        #             "suffix": inputs[1],
+        #             "level": "classes",
+        #         }
+        #     )
         return candidates
 
     @staticmethod
@@ -393,15 +397,15 @@ class CheckerBlock:
 
 
 if __name__ == "__main__":
-    checker = Checker(
-        "/Users/ahura/Nexus/TWMC/data/the_stack/python/the_stack_python_script_0.py"
-    )
-    checker.prepare_input()
-    x = checker.prepare_inputs_for_infill("strings")
-    print(x)
+    # checker = Checker(
+    #     "/Users/ahura/Nexus/TWMC/data/the_stack/python/the_stack_python_script_0.py"
+    # )
+    # checker.prepare_input()
+    # x = checker.prepare_inputs_for_infill("strings")
+    # print(x)
 
     checker_block = CheckerBlock(
-        "/Users/ahura/Nexus/TWMC/data/the_stack/python/the_stack_python_script_0.py"
+        "/Users/ahura/Nexus/TWMC/data/the_stack/python/the_stack_python_script_32845.py"
     )
     x = checker_block.prepare_inputs_for_prediction()
     print(x)
