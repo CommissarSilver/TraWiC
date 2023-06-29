@@ -192,7 +192,7 @@ class SantaCoderBlock(InfillModel):
         except Exception as e:
             logger.exception(f"Error in loading the SantaCoderBlock model")
 
-    def predict(self, input_text: str) -> str:
+    def predict(self, input_text: str, suffix_text: str) -> str:
         """
         Generate code snippet from the input text
 
@@ -217,8 +217,15 @@ class SantaCoderBlock(InfillModel):
             inputs: torch.Tensor = self.tokenizer.encode(
                 input_text, return_tensors="pt"
             ).to(self.device)
+            suffixes = self.tokenizer.encode(suffix_text, return_tensors="pt").to(
+                self.device
+            )
             with torch.no_grad():
-                outputs: torch.Tensor = self.model.generate(inputs)
+                outputs: torch.Tensor = self.model.generate(
+                    inputs,
+                    pad_token_id=self.tokenizer.eos_token_id,
+                    max_new_tokens=suffixes.shape[1],
+                )
 
             logger.debug(
                 f"SantaCoderBlock Invoked - input = ( {input_text} ) - output = ( {self.tokenizer.decode(outputs[0])} )"
