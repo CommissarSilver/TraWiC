@@ -3,6 +3,7 @@ import pandas as pd
 import tqdm
 from io import BytesIO
 from typing import List, Tuple
+from skip_daat import SKIPS
 
 
 def extract_comments_and_docstrings(script: str) -> Tuple[List, List]:
@@ -90,6 +91,8 @@ def build_dataset(jsonl_file_path: str) -> None:
                 similarity_metric = entry["similarity_metric"]
                 result = entry["result"]
                 similarity_objective = entry["similarity_objective"]
+                if similarity_objective in SKIPS:
+                    raise KeyError
                 model_output = entry["model_output"]
                 # file_in_training_set = file_labels[file_name]
 
