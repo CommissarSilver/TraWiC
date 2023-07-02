@@ -3,6 +3,13 @@ from datasets import load_dataset
 
 logger = logging.getLogger("process_scripts")
 
+EXCLUDED_DS = [
+    "openai/human-eval",
+    "hendrycks/apps",
+    "google-research/google-research",
+    "nuprl/MultiPL-E",
+]
+
 
 def get_thestack_dataset(
     language: str = "python",
@@ -23,6 +30,7 @@ def get_thestack_dataset(
     try:
         dataset = load_dataset(
             "bigcode/the-stack",
+            revision="v1.1",
             data_dir=f"data/{language}",
             streaming=True,
             split="train",
@@ -48,7 +56,10 @@ def get_thestack_dataset(
     with tqdm.tqdm(total=scripts_num) as pbar:
         try:
             for dataset_sample in iter(dataset):
-                if dataset_sample["ext"] == "py":
+                if (
+                    dataset_sample["ext"] == "py"
+                    and dataset_sample["max_stars_repo_name"] not in EXCLUDED_DS
+                ):
                     with open(
                         os.path.join(
                             os.path.join(data_dir),
