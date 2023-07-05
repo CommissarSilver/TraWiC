@@ -10,3 +10,4 @@ __pycache__/
 word_count.json
 results.json
 Runs/
+/blocks
