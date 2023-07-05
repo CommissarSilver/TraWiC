@@ -24,7 +24,7 @@ def get_word_count(script_path: str):
         raise e
 
     try:
-        splited_script = script.split(" ")
+        splited_script = script.split()
         words = {word: splited_script.count(word) for word in splited_script}
 
         return words
@@ -54,37 +54,30 @@ def word_count_directory(directory_path: str, script_suffix: str):
         if i.endswith(script_suffix)
     ]
 
-    word_count = {}
-    worker_pool = mp.Pool(mp.cpu_count() - 1)
+    word_count = mp.Manager().dict()
     # get the word_count for each script using multiprocessing
-    try:
-        results = worker_pool.map_async(get_word_count, scripts).get()
-    except Exception as e:
-        logger.exception(
-            f"Error in counting the entire directory's word (vocabulary) frequency at {directory_path}"
-        )
-        raise e
-    # count the word_count of the entire directory
-    word_count = {
-        k: sum(dictionary.get(k, 1) for dictionary in results)
-        for dictionary in results
-        for k in dictionary.keys()
-    }
+    scripts_split = [scripts[i : i + 5000] for i in range(0, len(scripts), 5000)]
+    with mp.Pool(mp.cpu_count()) as pool:
+        for script_piece_num, script_piece in enumerate(
+            tqdm.tqdm(scripts_split, total=len(scripts_split))
+        ):
+            results = pool.imap_unordered(get_word_count, script_piece)
+
+            for result in results:
+                for key, value in result.items():
+                    word_count[key] = word_count.get(key, 0) + value
+
+            # Save the word_count in JSON format
+            json.dump(
+                remove_keywords(dict(word_count)),
+                open(
+                    os.path.join(os.getcwd(), f"word_count_{script_piece_num}.json"), "w"
+                ),
+                indent=4,
+            )
 
     # sort in descending order
     try:
-        total_sum = sum(word_count.values())
-        word_count = {
-            k: v / total_sum
-            for k, v in sorted(word_count.items(), key=lambda item: item[1], reverse=True)
-        }
-        # save the word_count in json format
-        json.dump(
-            remove_keywords(word_count),
-            open(os.path.join(directory_path, "word_count.json"), "w"),
-            indent=4,
-        )
-
         logger.info(
             f"Succesfully saved the word count in json format at {os.path.join(directory_path, 'word_count.json')}"
         )
