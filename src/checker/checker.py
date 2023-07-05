@@ -331,7 +331,9 @@ class CheckerBlock:
         self.prepare_input()
 
     def prepare_input(self):
-        # extract the functions
+        """
+        Extracts the classes and functions from the input file by using the ast module
+        """
         classes = []
         functions = []
         try:
@@ -376,6 +378,7 @@ class CheckerBlock:
                     "level": "functions",
                 }
             )
+        #! For now classes are not supported for investigation
         # for class_ in self.classes:
         #     tokens_num = len(class_[1].split(" "))
         #     if tokens_num > 2048:
@@ -393,19 +396,32 @@ class CheckerBlock:
 
     @staticmethod
     def check_similarity(model_output, candidate):
+        #! This will be handled by NiCAD
         pass
 
 
 if __name__ == "__main__":
-    # checker = Checker(
-    #     "/Users/ahura/Nexus/TWMC/data/the_stack/python/the_stack_python_script_0.py"
-    # )
-    # checker.prepare_input()
-    # x = checker.prepare_inputs_for_infill("strings")
-    # print(x)
+    checker = Checker(
+        os.path.join(
+            os.getcwd(),
+            "data",
+            "the_stack",
+            "python",
+            "the_stack_python_script_0.py",
+        )
+    )
+    checker.prepare_input()
+    x = checker.prepare_inputs_for_infill("strings")
+    print(x)
 
     checker_block = CheckerBlock(
-        "/Users/ahura/Nexus/TWMC/data/the_stack/python/the_stack_python_script_32845.py"
+        os.path.join(
+            os.getcwd(),
+            "data",
+            "the_stack",
+            "python",
+            "the_stack_python_script_32845.py",
+        )
     )
     x = checker_block.prepare_inputs_for_prediction()
     print(x)
