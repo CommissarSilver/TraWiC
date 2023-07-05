@@ -345,14 +345,22 @@ class CheckerBlock:
                         self.original_input, node, padded=True
                     )
                     classes.append((class_name, class_body))
+
                 elif isinstance(node, ast.FunctionDef):
                     function_name = node.name
                     function_body = ast.get_source_segment(
                         self.original_input, node, padded=True
                     )
                     functions.append((function_name, function_body))
+            logger.info(
+                f"Extracted {len(classes)} classes and {len(functions)} functions from {self.input_path} for CheckerBlcok"
+            )
         except Exception as e:
+            logger.info(
+                f"Couldn't extract classes and functions from {self.input_path} for CheckerBlcok - Skipping"
+            )
             pass
+
         self.classes = classes
         self.functions = functions
 
@@ -377,6 +385,9 @@ class CheckerBlock:
                     "suffix": inputs[1],
                     "level": "functions",
                 }
+            )
+            logger.info(
+                f"Created function candidates for {self.input_path} in CheckerBlock"
             )
         #! For now classes are not supported for investigation
         # for class_ in self.classes:
