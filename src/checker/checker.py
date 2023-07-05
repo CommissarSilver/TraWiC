@@ -191,7 +191,7 @@ class Checker:
         if self.processed_input[level] != None:
             model_input_candidates = self.processed_input[level]
         else:
-            raise Exception("There are no candidates for this level")
+            model_input_candidates = {}
 
         for key, item in model_input_candidates.items():
             if level in ("function_names", "class_names"):
