@@ -1,4 +1,7 @@
 import os
 
 # run this command in the directory where the NiCad clone is located
-os.system("./nicad6 functions py systems/dd default-report")
+print(f"{os.path.join(os.getcwd(),'NiCad-6.2')}/nicad6 functions py {os.path.join(os.getcwd(),'NiCad-6.2','systems','dd')} default-report")
+os.system(
+    f"{os.path.join(os.getcwd(),'NiCad-6.2')}/nicad6 functions py {os.path.join(os.getcwd(),'NiCad-6.2','systems','dd')} default-report"
+)
