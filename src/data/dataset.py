@@ -1,6 +1,7 @@
 import os, tqdm, json, logging
 from datasets import load_dataset
 
+
 logger = logging.getLogger("process_scripts")
 
 EXCLUDED_DS = [
@@ -90,6 +91,49 @@ def get_thestack_dataset(
             logger.exception(f"Error in dowloading/storing the scripts")
 
 
+def get_python_repos():
+    repos = {}
+    num_repos = 0
+    try:
+        dataset = load_dataset(
+            "bigcode/the-stack",
+            revision="v1.1",
+            data_dir=f"data/python",
+            streaming=True,
+            split="train",
+        )
+        logger.info(f"Succesfully connected to huggingface's TheStack dataset")
+    except Exception as e:
+        logger.exception(f"Error connecting to huggingface's TheStack dataset")
+        raise e
+
+    for dataset_sample in iter(dataset):
+        if (
+            dataset_sample["ext"] == "py"
+            and dataset_sample["max_stars_repo_name"] not in EXCLUDED_DS
+        ):
+            if dataset_sample["max_stars_repo_name"] not in repos.keys():
+                repos[dataset_sample["max_stars_repo_name"]] = 1
+                num_repos += 1
+            else:
+                repos[dataset_sample["max_stars_repo_name"]] += 1
+
+            if len(repos.keys()) % 10000 == 0:
+                # save the dictionary to a json file
+                json.dump(
+                    repos,
+                    open(
+                        os.path.join(
+                            os.getcwd(),
+                            "data",
+                            f"repos.json",
+                        ),
+                        "w",
+                    ),
+                )
+                print(f"Saved {len(repos.keys())} repos")
+
+
 if __name__ == "__main__":
     import yaml, logging.config
 
@@ -98,4 +142,5 @@ if __name__ == "__main__":
 
     logging.config.dictConfig(config)
 
-    get_thestack_dataset(scripts_num=10**5)
+    # get_thestack_dataset(scripts_num=10**5)
+    get_python_repos()
