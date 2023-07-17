@@ -20,7 +20,7 @@ parser.add_argument(
 parser.add_argument(
     "--dataset_path",
     type=str,
-    default="data/the_stack/python",
+    default="data",
     help="path to the dataset",
 )
 parser.add_argument(
@@ -56,7 +56,10 @@ def get_model_output(file_path):
         return None
     for candidate_input in tqdm(model_inputs):
         model_output = model.infill(
-            (candidate_input["prefix"], candidate_input["suffix"])
+            (candidate_input['infill'],
+             candidate_input["prefix"], 
+             candidate_input["suffix"],
+             candidate_input["level"])
         )
         if model_output == "too_many_tokens":
             f = open(os.path.join(os.getcwd(), "too_many_tokens.txt"), "a")
@@ -95,25 +98,14 @@ def get_model_output(file_path):
 
 
 if __name__ == "__main__":
-    dataset_files_path = [
-        os.path.join(os.getcwd(), args.dataset_path, file)
-        for file in os.listdir(os.path.join(os.getcwd(), args.dataset_path))
-        if file.endswith(args.language)
-    ]
-    results_so_far = pd.read_csv(os.path.join(os.getcwd(), "src", "trained_on.csv"))
-    resluts_so_far_names = results_so_far["file_name"].tolist()
-
-    # negatives = pd.read_csv(os.path.join(os.getcwd(), "src", "ds_python_neg.csv"))[
-    #     "file_name"
-    # ].tolist()
-
-    dataset_files_path = [
-        file
-        for file in dataset_files_path
-        if file.split("/")[-1] not in resluts_so_far_names
-    ]
-
-    for file_path in dataset_files_path:
+    dataset_files=[]
+    for dirpath, dirnames, filenames in os.walk(args.dataset_path):
+        python_files = [file for file in filenames if file.endswith(".py")]
+        if python_files:
+            dataset_files.extend([os.path.join(os.getcwd(),dirpath, file) for file in python_files])
+    
+    for file_path in dataset_files:
         results = []
-        print("\033[91m" + file_path.split("/")[-1] + "\033[0m")
+        print("\033[91m" + file_path + "\033[0m")
         result = get_model_output(file_path)
+
