@@ -22,13 +22,15 @@ parser.add_argument(
 parser.add_argument(
     "--dataset_path",
     type=str,
-    default="data/the_stack/python",
+    default="data",
     help="path to the dataset",
 )
 args = parser.parse_args()
 
 model = SantaCoderBlock()
-
+# if gpu is available, use it and send it to the gpu device
+if torch.cuda.is_available():
+    model=model.cuda()
 
 def get_model_output_inspector(file_path):
     results = []
@@ -46,20 +48,51 @@ def get_model_output_inspector(file_path):
 
 
 if __name__ == "__main__":
-    dataset_files_path = [
-        os.path.join(os.getcwd(), args.dataset_path, file)
-        for file in os.listdir(os.path.join(os.getcwd(), args.dataset_path))
-        if file.endswith(args.language)
-    ]
+    # print all gpu devices available
+    print("Available devices: ", torch.cuda.device_count())
+    if torch.cuda.is_available():
+        print("""⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⡤⠖⠒⠒⠒⠒⠦⢤⣀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠈⠳⣦⡀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡼⠁⠀⠀⣾⣛⣛⣖⣒⠦⣀⠀⠀⠀⢻⢳⡀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡼⠀⠀⢀⣀⣉⠀⠀⠀⠈⠓⢎⢷⡀⠀⠈⡆⢷⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⠃⠀⡾⠛⣄⠈⠙⣆⣠⣤⣤⣈⠙⠁⠀⠀⡇⠘⡆
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⠇⠀⠸⣇⠀⠉⠀⢀⡟⠁⢀⡀⠙⣿⠀⠀⠀⡇⠀⣷
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡞⠀⣀⣀⣿⣲⠤⡴⠛⣇⠀⠈⠉⢁⡿⠀⠀⣸⠁⠀⣿
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⠁⡞⡟⢻⣿⣄⣹⣡⠖⠈⣷⣲⣖⡏⠀⠀⠀⡏⠀⠀⡿
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⡇⠀⢇⢧⠀⠘⠻⣽⣻⣶⣶⣶⠯⣟⡄⠀⠀⣸⠀⠀⢰⠃
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡏⠀⠀⠈⠫⡿⣶⣄⡀⢰⣟⡛⢦⡀⢸⢸⠀⠀⡇⠀⠀⡼⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡞⢶⡏⠁⠀⠀⠈⠈⠙⠚⠽⣶⣿⣾⣿⡻⠏⠀⢸⠀⠀⢠⠇⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⠃⠈⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⢠⠉⠉⠁⠀⢀⡇⠀⠀⣞⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠂⠀⠀⠀⠀⣼⠀⠀⢀⡽⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⠀⠀⠀⠀⠀⠸⠁⠀⠀⡿⠁⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠆⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠁⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡟⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣞⣠⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠄⠀⡚⡷⠀⠀⣼⠁⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⢀⡿⢹⣷⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡇⠀⠘⠛⠃⠀⣰⠇⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⢠⡞⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡞⠁⠀⠀⠀⠀⢠⠟⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⣀⣠⠟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡰⠁⢀⡄⠀⠀⠀⡞⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⢸⡏⠁⠀⠀⠀⠀⡈⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⠃⢀⡞⠀⠀⠀⡴⠃⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⢀⣼⠁⠀⠀⢠⡴⡼⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡸⠃⠀⡞⠁⠀⠀⡼⠁⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⢀⣞⡥⡄⠀⠀⢸⡿⠀⠀⠀⠀⡠⠃⠀⠀⠀⠀⡰⠁⢀⡞⠀⠀⠀⡼⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⡞⢸⣇⠀⠀⠀⠈⠀⠀⠀⢀⡰⠁⠀⠀⠀⢀⡼⠁⢀⡞⠀⠀⠀⣾⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⣼⠁⢀⡎⠀⠀⠀⠀⠀⠀⠀⡞⠁⠀⠀⠀⣠⠏⠀⣠⠋⠀⠀⢰⡶⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⢠⠇⠀⡞⠀⠀⠀⠀⠀⠀⢀⠞⠀⠀⠀⠀⠰⠃⡀⢹⡅⠀⠀⣰⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⣼⠀⢰⠁⠀⠐⣄⠀⠀⡠⠎⠀⠀⠀⢀⡀⠀⠀⠛⠋⠀⢀⡴⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⣿⢀⠇⠀⠀⠀⠈⠉⠉⠀⠀⠀⠀⢠⠎⠀⠀⠀⠀⠀⣰⠟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠸⣼⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡴⠋⡠⠂⠀⠀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠹⣦⡍⢀⠀⠀⠀⠀⠀⣠⠞⣠⠞⠁⢀⣴⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠈⠳⠾⠥⣀⣠⣔⣋⣵⣊⡤⠴⠚⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 
-    results_so_far = pd.read_csv(os.path.join(os.getcwd(), "src", "test_ds.csv"))
-    resluts_so_far_names = results_so_far["file_name"].tolist()
+Look at me Morty, I'M ON GPU""")
 
-    test_ds_path = [
-        file for file in dataset_files_path if file.split("/")[-1] in resluts_so_far_names
-    ]
+    dataset_files=[]
+    for dirpath, dirnames, filenames in os.walk(args.dataset_path):
+        python_files = [file for file in filenames if file.endswith(".py")]
+        if python_files:
+            dataset_files.extend([os.path.join(os.getcwd(),dirpath, file) for file in python_files])
 
-    for file_path in test_ds_path:
+    for file_path in dataset_files:
         results = []
-        print("\033[91m" + file_path.split("/")[-1] + "\033[0m")
+        print("\033[91m" + file_path + "\033[0m")
         result = get_model_output_inspector(file_path)
