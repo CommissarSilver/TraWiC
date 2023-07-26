@@ -9,7 +9,59 @@ EXCLUDED_DS = [
     "hendrycks/apps",
     "google-research/google-research",
     "nuprl/MultiPL-E",
-]
+]  # these repos are excluded because they were excluded from SantaCoder's training dataset
+
+
+def extract_comments_and_docstrings(script: str) -> Tuple[List, List]:
+    """
+    Extracts comments and docstrings from a given script.
+
+    Args:
+        script (str): The script to extract comments and docstrings from.
+
+    Returns:
+        Tuple(List, List): A tuple containing a list of comments and a list of docstrings.
+    """
+    comments = []
+    docstrings = []
+    tokens = tokenize.tokenize(BytesIO(script.encode("utf-8")).readline)
+
+    for token in tokens:
+        if token.type == tokenize.COMMENT:
+            comments.append(token.string.strip())
+        elif token.type == tokenize.STRING and token.string.startswith(('"""', "'''")):
+            docs = token.string.strip().split("\n")
+            # remove the """ or ''' from the first and last lines
+            docs = docs[1:-1]
+            # append every element of docs to docstrings
+            for element in docs:
+                docstrings.append(element.strip())
+
+    return comments, docstrings
+
+
+def comment_to_code_ratio(script: str) -> float:
+    """
+    Calculates the ratio of comments and docstrings to code in a given script.
+
+    Args:
+        script_path (str): Path to the script to calculate the ratio for.
+
+    Returns:
+        float: ratio of comments and docstrings to code in the script.
+    """
+    try:
+        # script = open(script_path, "r").read()
+
+        comments, docstrings = extract_comments_and_docstrings(script)
+
+        comment_lines = len(comments)
+        docstring_lines = len(docstrings)
+        code_lines = len(script.split("\n"))
+
+        return (comment_lines + docstring_lines) / code_lines
+    except Exception:
+        return 2
 
 
 def get_thestack_dataset(
@@ -91,9 +143,20 @@ def get_thestack_dataset(
             logger.exception(f"Error in dowloading/storing the scripts")
 
 
-def get_python_repos():
+def get_python_repos_info(dataset_list: dict) -> None:
+    """
+    Unlike the get_thestack_dataset function, this function gets entire repositories instead of just scripts.
+    The purpose of this function is to only get repository names and whether they are in the original training set of not.
+    IT DOES NOT DIRECTLZ DOWNLAOD THE REPOSITORIES
+
+    Args:
+        dataset_list (dict): a dictionary of repository names and whether they are in the original training set of not
+    Raises:
+        e: error in connecting to HuggingFace's TheStack dataset
+    """
     repos = {}
     num_repos = 0
+
     try:
         dataset = load_dataset(
             "bigcode/the-stack",
@@ -110,37 +173,102 @@ def get_python_repos():
     for dataset_sample in iter(dataset):
         if (
             dataset_sample["ext"] == "py"
-            and dataset_sample["max_stars_repo_name"] not in EXCLUDED_DS
+            and dataset_sample["max_stars_repo_name"] in dataset_list
         ):
+            sample_comment_to_code_ratio = comment_to_code_ratio(
+                dataset_sample["content"]
+            )
             if dataset_sample["max_stars_repo_name"] not in repos.keys():
-                repos[dataset_sample["max_stars_repo_name"]] = 1
-                num_repos += 1
+                repos[dataset_sample["max_stars_repo_name"]] = {
+                    "scripts_num": 1,
+                    "in_train_num": 1 if 0.01 < sample_comment_to_code_ratio < 0.8 else 0,
+                }
             else:
-                repos[dataset_sample["max_stars_repo_name"]] += 1
-
-            if len(repos.keys()) % 10000 == 0:
-                # save the dictionary to a json file
-                json.dump(
-                    repos,
-                    open(
-                        os.path.join(
-                            os.getcwd(),
-                            "data",
-                            f"repos.json",
-                        ),
-                        "w",
-                    ),
+                repos[dataset_sample["max_stars_repo_name"]]["scripts_num"] += 1
+                repos[dataset_sample["max_stars_repo_name"]]["in_train_num"] += (
+                    1 if 0.01 < sample_comment_to_code_ratio < 0.8 else 0
                 )
-                print(f"Saved {len(repos.keys())} repos")
+
+        if len(repos.keys()) % 10000 == 0:
+            logging.info("processed {} repos".format(len(repos.keys())))
+            json.dump(repos, open("repos_info.json", "w"))
+
+
+def get_repos() -> None:
+    """
+    Downloads the repositories that have been marked as study candidates
+
+    Raises:
+        e: error in connecting to HuggingFace's TheStack dataset
+    """
+    x = open(os.path.join(os.getcwd(), "data", "repos_info.json"), "r").read()
+    repos_info = json.loads(x)
+
+    try:
+        dataset = load_dataset(
+            "bigcode/the-stack",
+            revision="v1.1",
+            data_dir=f"data/python",
+            streaming=True,
+            split="train",
+        )
+        logger.info(f"Succesfully connected to huggingface's TheStack dataset")
+    except Exception as e:
+        logger.exception(f"Error connecting to huggingface's TheStack dataset")
+        raise e
+
+    for dataset_sample in iter(dataset):
+        if dataset_sample["max_stars_repo_name"] in repos_info.keys():
+            if (
+                repos_info[dataset_sample["max_stars_repo_name"]]["in_train_num"]
+                and repos_info[dataset_sample["max_stars_repo_name"]]["scripts_num"] >= 1
+            ):  # check that the repository has more than one script and that it has at least one script in the original training set
+                if not os.path.exists(
+                    os.path.join(
+                        os.getcwd(), "data", dataset_sample["max_stars_repo_name"]
+                    )
+                ):
+                    os.makedirs(
+                        os.path.join(
+                            os.getcwd(), "data", dataset_sample["max_stars_repo_name"]
+                        )
+                    )
+                with open(
+                    os.path.join(
+                        os.getcwd(),
+                        "data",
+                        dataset_sample["max_stars_repo_name"],
+                        dataset_sample["max_stars_repo_path"].split("/")[-1],
+                    ),
+                    "w",
+                ) as f:  # save the script
+                    f.write(dataset_sample["content"])
 
 
 if __name__ == "__main__":
-    import yaml, logging.config
+    import yaml, logging.config, argparse
 
     with open(os.path.join(os.getcwd(), "src", "logging_config.yaml"), "r") as f:
         config = yaml.safe_load(f.read())
-
     logging.config.dictConfig(config)
 
-    # get_thestack_dataset(scripts_num=10**5)
-    get_python_repos()
+    parser = argparse.ArgumentParser(description="Trained Without My Consent")
+    parser.add_argument(
+        "--get_scripts",
+        type=bool,
+        default=True,
+        help="Whether to download individual scripts or entire repositories",
+    )  # programming language
+    if args.get_scripts:
+        get_thestack_dataset(scripts_num=10**5)
+    elif args.get_repos:
+        repo_info = pd.read_csv(
+            os.path.join(
+                os.getcwd(),
+                "data",
+                "repo_info_more_than_10_less_than_50.csv",
+            )
+        )
+
+        get_python_repos_info()
+        get_repos()
