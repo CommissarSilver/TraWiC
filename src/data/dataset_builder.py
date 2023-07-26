@@ -3,7 +3,7 @@ import pandas as pd
 import tqdm
 from io import BytesIO
 from typing import List, Tuple
-from skip_daat import SKIPS
+from skip_data import SKIPS
 
 
 def extract_comments_and_docstrings(script: str) -> Tuple[List, List]:
@@ -145,6 +145,7 @@ def process_dataset(path_to_ds: str) -> None:
         for file_name in ds["file_name"].unique()
     }
     # iterate over groups, and for each group, extract the number of hits for each type of token
+
     for name, group in tqdm.tqdm(grouped_ds):
         # if similarity_metric is function_name, class_name, variable_name, if there is even one 1 in the results column, then count it as a hit
         if name[1] == "class_names":
@@ -242,4 +243,10 @@ if __name__ == "__main__":
         "/Users/ahura/Nexus/TWMC/Runs/Run 10",
     ]
     for path in paths:
-        process_dataset(build_dataset(path))
+        build_dataset(path)
+    print("Datasets built.")
+
+    print("Processing datasets...")
+    for path in paths:
+        process_dataset(os.path.join(path, "dataset.csv"))
+    print("Datasets processed.")
