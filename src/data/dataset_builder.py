@@ -82,11 +82,12 @@ def build_dataset(jsonl_file_path: str) -> None:
     jsonl_file = open(os.path.join(jsonl_file_path, "results.jsonl"), "r")
     results_data = [line for line in jsonl_file]
 
+    series_list = []
     for i, row in tqdm.tqdm(enumerate(results_data), total=len(results_data)):
         file_contents = json.loads(row)
         for entry in file_contents:
             try:
-                file_name = entry["file_path"].split("/")[-1]
+                file_name = entry["file_path"].split("data", 1)[1][1:]
                 level = entry["level"]
                 similarity_metric = entry["similarity_metric"]
                 result = entry["result"]
@@ -96,18 +97,23 @@ def build_dataset(jsonl_file_path: str) -> None:
                 model_output = entry["model_output"]
                 # file_in_training_set = file_labels[file_name]
 
-                dataset.loc[i] = [
-                    file_name,
-                    level,
-                    similarity_metric,
-                    result,
-                    similarity_objective,
-                    model_output,
-                    0,
-                ]
+                series_list.append(
+                    pd.Series(
+                        {
+                            "file_name": file_name,
+                            "level": level,
+                            "similarity_metric": similarity_metric,
+                            "result": result,
+                            "similarity_objective": similarity_objective,
+                            "model_output": model_output,
+                            "trained_on": 0,
+                        }
+                    )
+                )
             except KeyError:
                 # there are some files that we can't calculate ratio for because they have some problems when read by tokenize. we skip them. they're not that many.
                 continue
+    dataset = pd.concat(series_list, axis=1).T
     dataset.to_csv(
         os.path.join(jsonl_file_path, "dataset.csv"),
         index=False,
@@ -213,9 +219,8 @@ def process_dataset(path_to_ds: str) -> None:
     lm_ds = pd.DataFrame.from_dict(lm_dict, orient="index")
 
     for row in lm_ds.iterrows():
-        comment_to_code_ratio_file = comment_to_code_ratio(
-            os.path.join(os.getcwd(), "data", "the_stack", "python", row[0])
-        )
+        path_to_file = os.path.join(os.getcwd(), "data", "data", row[0])
+        comment_to_code_ratio_file = comment_to_code_ratio(path_to_file)
         if comment_to_code_ratio_file == 2:
             lm_ds.loc[row[0], "trained_on"] = 2
 
@@ -231,17 +236,18 @@ def process_dataset(path_to_ds: str) -> None:
 
 
 if __name__ == "__main__":
-    paths = [
-        "/Users/ahura/Nexus/TWMC/Runs/Run 02",
-        "/Users/ahura/Nexus/TWMC/Runs/Run 03",
-        "/Users/ahura/Nexus/TWMC/Runs/Run 04",
-        "/Users/ahura/Nexus/TWMC/Runs/Run 05",
-        "/Users/ahura/Nexus/TWMC/Runs/Run 06",
-        "/Users/ahura/Nexus/TWMC/Runs/Run 07",
-        "/Users/ahura/Nexus/TWMC/Runs/Run 08",
-        "/Users/ahura/Nexus/TWMC/Runs/Run 09",
-        "/Users/ahura/Nexus/TWMC/Runs/Run 10",
-    ]
+    # paths = [
+    #     "/Users/ahura/Nexus/TWMC/Runs/Run 02",
+    #     "/Users/ahura/Nexus/TWMC/Runs/Run 03",
+    #     "/Users/ahura/Nexus/TWMC/Runs/Run 04",
+    #     "/Users/ahura/Nexus/TWMC/Runs/Run 05",
+    #     "/Users/ahura/Nexus/TWMC/Runs/Run 06",
+    #     "/Users/ahura/Nexus/TWMC/Runs/Run 07",
+    #     "/Users/ahura/Nexus/TWMC/Runs/Run 08",
+    #     "/Users/ahura/Nexus/TWMC/Runs/Run 09",
+    #     "/Users/ahura/Nexus/TWMC/Runs/Run 10",
+    # ]
+    paths = ["/Users/ahura/Nexus/TWMC/Runs/TokensRun1"]
     for path in paths:
         build_dataset(path)
     print("Datasets built.")
