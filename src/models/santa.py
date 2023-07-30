@@ -125,7 +125,7 @@ class SantaCoder(InfillModel):
 
         prompts = [
             f"{self.FIM_PREFIX}{prefix}{self.FIM_SUFFIX}{suffix}{self.FIM_MIDDLE}"
-            for infill_obj,prefix, suffix,level in prefix_suffix_tuples
+            for infill_obj, prefix, suffix, level in prefix_suffix_tuples
         ]
         # `return_token_type_ids=False` is essential, or we get nonsense output.
         inputs = self.tokenizer(
@@ -137,16 +137,14 @@ class SantaCoder(InfillModel):
             # dp not even try to generate if the input is too long
             return "too_many_tokens"
         with torch.no_grad():
-            x=len(prefix_suffix_tuples[0][0])
+            x = len(prefix_suffix_tuples[0][0])
             try:
                 outputs = self.model.generate(
                     **inputs,
                     do_sample=True,
                     top_p=top_p,
                     temperature=temperature,
-                    
                     pad_token_id=self.tokenizer.pad_token_id,
-                    
                 )
             except Exception as e:
                 if type(e) == IndexError:
