@@ -37,6 +37,7 @@ model = SantaCoderBlock()
 
 
 def get_model_output_inspector(file_path):
+    global model
     results = []
     file_checker = CheckerBlock(file_path)
     model_inputs = file_checker.prepare_inputs_for_prediction()
