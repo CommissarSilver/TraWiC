@@ -1,4 +1,7 @@
-import os, tqdm, json, logging
+import os, tqdm, json, logging, tokenize
+
+from io import BytesIO
+from typing import Tuple, List
 from datasets import load_dataset
 
 
@@ -97,6 +100,7 @@ def get_thestack_dataset(
         if not os.path.exists(os.path.join(save_directory, "the_stack", language)):
             os.makedirs(os.path.join(save_directory, "the_stack", language))
         data_dir = os.path.join(save_directory, "the_stack", language)
+
         logger.info(f"Succesfully created the directory for saving the scripts")
     except Exception as e:
         logger.exception(f"Error in creating directory for saving the scripts")
@@ -191,7 +195,7 @@ def get_python_repos_info(dataset_list: dict) -> None:
 
         if len(repos.keys()) % 10000 == 0:
             logging.info("processed {} repos".format(len(repos.keys())))
-            json.dump(repos, open("repos_info.json", "w"))
+            json.dump(repos, open(f"repos_info_{len(repos.keys())}.json", "w"))
 
 
 def get_repos() -> None:
@@ -247,28 +251,27 @@ def get_repos() -> None:
 
 if __name__ == "__main__":
     import yaml, logging.config, argparse
+    import pandas as pd
 
     with open(os.path.join(os.getcwd(), "src", "logging_config.yaml"), "r") as f:
         config = yaml.safe_load(f.read())
     logging.config.dictConfig(config)
 
-    parser = argparse.ArgumentParser(description="Trained Without My Consent")
+    parser = argparse.ArgumentParser(
+        description="Trained Without My Consent - Dataset Module"
+    )
     parser.add_argument(
         "--get_scripts",
         type=bool,
-        default=True,
+        default=False,
         help="Whether to download individual scripts or entire repositories",
     )  # programming language
+    args = parser.parse_args()
+
     if args.get_scripts:
         get_thestack_dataset(scripts_num=10**5)
-    elif args.get_repos:
-        repo_info = pd.read_csv(
-            os.path.join(
-                os.getcwd(),
-                "data",
-                "repo_info_more_than_10_less_than_50.csv",
-            )
-        )
+    else:
+        repo_info = json.load(open(os.path.join(os.getcwd(), "data", "repos.json"), "r"))
 
-        get_python_repos_info()
+        get_python_repos_info(repo_info)
         get_repos()
