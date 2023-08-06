@@ -144,6 +144,7 @@ class SantaCoder(InfillModel):
                     do_sample=True,
                     top_p=top_p,
                     temperature=temperature,
+                    max_length=max_length,
                     pad_token_id=self.tokenizer.pad_token_id,
                 )
             except Exception as e:

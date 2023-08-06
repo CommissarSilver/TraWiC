@@ -9,6 +9,6 @@ __pycache__/
 *.csv
 word_count.json
 results.json
-Runs/
+run_results/
 /src/blocks
 /NiCad-6.2

@@ -69,7 +69,15 @@ def get_model_output_inspector(file_path: str, run_num: int):
             model = SantaCoderBlock()
             logging.exception("Problem with CUDA. Reloading model")
 
-    with open(os.path.join(os.getcwd(), f"results_block_{run_num}.jsonl"), "a") as f:
+    with open(
+        os.path.join(
+            os.getcwd(),
+            "run_results",
+            f"BlocksRun{args.run_num}",
+            f"results_block_{run_num}.jsonl",
+        ),
+        "a",
+    ) as f:
         json_results = json.dumps(results)
         f.write(json_results + "\n")
 
@@ -81,6 +89,11 @@ if __name__ == "__main__":
         logging.info(f"GPU is available. Running on {torch.cuda.get_device_name(0)}")
     else:
         logging.info("GPU is not available. Running on CPU")
+
+    if not os.path.exists(
+        os.path.join(os.getcwd(), "run_results", f"BlocksRun{args.run_num}")
+    ):
+        os.mkdir(os.path.join(os.getcwd(), "run_results", f"BlocksRun{args.run_num}"))
 
     dataset_files = []
     for dirpath, dirnames, filenames in os.walk(args.dataset_path):
@@ -96,7 +109,7 @@ if __name__ == "__main__":
         dataset_files.sort()
 
     already_processed = open(
-        os.path.join(os.getcwd(), "generated.txt"), "r"
+        os.path.join(os.getcwd(), "run_results", "generated.txt"), "r"
     ).readlines()  # read already processed files
 
     for file_path in dataset_files:
@@ -105,5 +118,7 @@ if __name__ == "__main__":
             print("\033[91m" + file_path + "\033[0m")
             result = get_model_output_inspector(file_path, args.run_num)
 
-            with open(os.path.join(os.getcwd(), "generated.txt"), "a") as f:
+            with open(
+                os.path.join(os.getcwd(), "run_results", "generated.txt"), "a"
+            ) as f:
                 f.write(file_path + "\n")

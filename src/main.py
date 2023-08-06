@@ -76,7 +76,7 @@ def get_model_output(file_path):
             )
         )
         if model_output == "too_many_tokens":
-            f = open(os.path.join(os.getcwd(), "too_many_tokens.txt"), "a")
+            f = open(os.path.join(os.getcwd(), "run_results", "too_many_tokens.txt"), "a")
             f.write(file_path.split("/")[-1] + "\n")
             return None
         else:
@@ -105,7 +105,12 @@ def get_model_output(file_path):
             except Exception as e:
                 logging.error(e)
                 return None
-    with open(os.path.join(os.getcwd(), "results.jsonl"), "a") as f:
+    with open(
+        os.path.join(
+            os.getcwd(), "run_results", f"TokensRun{args.run_num}", "results.jsonl"
+        ),
+        "a",
+    ) as f:
         json_results = json.dumps(results)
         f.write(json_results)
         f.write("\n")
@@ -121,6 +126,11 @@ if __name__ == "__main__":
     else:
         logging.info("GPU is not available. Running on CPU")
 
+    if not os.path.exists(
+        os.path.join(os.getcwd(), "run_results", f"TokensRun{args.run_num}")
+    ):
+        os.mkdir(os.path.join(os.getcwd(), "run_results", f"TokensRun{args.run_num}"))
+
     dataset_files = []
     for dirpath, dirnames, filenames in os.walk(
         os.path.join(os.getcwd(), args.dataset_path)
@@ -134,11 +144,11 @@ if __name__ == "__main__":
                 ]
             )
     already_processed = open(
-        os.path.join(os.getcwd(), "generated.txt"), "r"
+        os.path.join(os.getcwd(), "run_results", "generated.txt"), "r"
     ).readlines()  # read already processed files
 
     already_generated = open(
-        os.path.join(os.getcwd(), f"generated_{args.run_num}.txt"), "a"
+        os.path.join(os.getcwd(), "run_results", f"generated_{args.run_num}.txt"), "a"
     )
 
     if already_processed:
@@ -150,7 +160,7 @@ if __name__ == "__main__":
         )
 
     for file_path in dataset_files:
-        if file_path.split("/data", 1)[1] in already_processed:
+        if file_path.split("/data", 1)[1] not in already_processed:
             results = []
             print("\033[91m" + file_path + "\033[0m")
             result = get_model_output(file_path)
