@@ -115,35 +115,31 @@ if __name__ == "__main__":
     print(args.sorted)
     print(type(args.run_num))
     print("Available devices: ", torch.cuda.device_count())
+
     if torch.cuda.is_available():
         logging.info(f"GPU is available. Running on {torch.cuda.get_device_name(0)}")
     else:
         logging.info("GPU is not available. Running on CPU")
 
-    # dataset_files = []
-    # for dirpath, dirnames, filenames in os.walk(args.dataset_path):
-    #     python_files = [file for file in filenames if file.endswith(".py")]
-    #     if python_files:
-    #         dataset_files.extend(
-    #             [os.path.join(os.getcwd(), dirpath, file) for file in python_files]
-    #         )
     dataset_files = []
-    for dirpath, dirnames, filenames in os.walk("/home/vamaj/scratch/jenova/data"):
+    for dirpath, dirnames, filenames in os.walk(
+        os.path.join(os.getcwd(), args.dataset_path)
+    ):
         python_files = [file for file in filenames if file.endswith(".py")]
         if python_files:
             dataset_files.extend(
                 [
-                    os.path.join("/scratch/vamaj/jenova/data", dirpath, file)
+                    os.path.join(os.getcwd(), args.dataset_path, dirpath, file)
                     for file in python_files
                 ]
             )
-        # already_processed = open(
-        #     os.path.join(os.getcwd(), "generated.txt"), "r"
-        # ).readlines()  # read already processed files
     already_processed = open(
-        ("/home/vamaj/scratch/jenova/generated.txt"),
-        "r",
-    ).readlines()
+        os.path.join(os.getcwd(), "generated.txt"), "r"
+    ).readlines()  # read already processed files
+
+    already_generated = open(
+        os.path.join(os.getcwd(), f"generated_{args.run_num}.txt"), "a"
+    )
 
     if already_processed:
         already_processed = [i.replace("\n", "") for i in already_processed]
@@ -152,10 +148,8 @@ if __name__ == "__main__":
             if args.sorted
             else sorted(already_processed, reverse=True)
         )
-    # for file_path in dataset_files:
-    #     if file_path in already_processed:
+
     for file_path in dataset_files:
-        # x=file_path.split('/data',1)[1]
         if file_path.split("/data", 1)[1] in already_processed:
             results = []
             print("\033[91m" + file_path + "\033[0m")

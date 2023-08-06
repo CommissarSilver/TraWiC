@@ -12,7 +12,10 @@ with open(os.path.join(os.getcwd(), "src", "logging_config.yaml"), "r") as f:
     config = yaml.safe_load(f.read())
 
 logging.config.dictConfig(config)
-parser = argparse.ArgumentParser(description="Trained Without My Consent")
+
+parser = argparse.ArgumentParser(
+    description="Trained Without My Consent - Block Generator"
+)
 parser.add_argument(
     "--language",
     type=str,
@@ -31,12 +34,20 @@ parser.add_argument(
     default=False,
     help="sort the dataset",
 )
+
+parser.add_argument(
+    "--run_num",
+    type=str,
+    default="0",
+    help="run id for the experiment",
+)
+
 args = parser.parse_args()
 
 model = SantaCoderBlock()
 
 
-def get_model_output_inspector(file_path):
+def get_model_output_inspector(file_path: str, run_num: int):
     global model
     results = []
     file_checker = CheckerBlock(file_path)
@@ -53,15 +64,14 @@ def get_model_output_inspector(file_path):
             from imp import reload
 
             reload(torch)
-            reload(models)
-            from models import SantaCoderBlock
+            from models import SantaCoder, SantaCoderBlock
 
             model = SantaCoderBlock()
+            logging.exception("Problem with CUDA. Reloading model")
 
-    with open(os.path.join(os.getcwd(), "results_block.jsonl"), "a") as f:
+    with open(os.path.join(os.getcwd(), f"results_block_{run_num}.jsonl"), "a") as f:
         json_results = json.dumps(results)
-        f.write(json_results)
-        f.write("\n")
+        f.write(json_results + "\n")
 
 
 if __name__ == "__main__":
@@ -93,6 +103,7 @@ if __name__ == "__main__":
         if file_path not in already_processed:
             results = []
             print("\033[91m" + file_path + "\033[0m")
-            result = get_model_output_inspector(file_path)
+            result = get_model_output_inspector(file_path, args.run_num)
+
             with open(os.path.join(os.getcwd(), "generated.txt"), "a") as f:
                 f.write(file_path + "\n")
