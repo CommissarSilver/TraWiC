@@ -1,9 +1,7 @@
 import json, tqdm, os
 
 BLOCKS_PATH = "/Users/ahura/Nexus/TWMC/src/blocks/"
-results_jsonl = open(
-    "/Users/ahura/Nexus/TWMC/Runs/BlocksRun2/results_block_run_1.jsonl", "r"
-)
+results_jsonl = open("/Users/ahura/Nexus/TWMC/Runs/BlocksRun2/results_block.jsonl", "r")
 results_data = [line for line in results_jsonl]
 
 error_count = 0
@@ -46,7 +44,7 @@ for data in tqdm.tqdm(results_data):
             ) as file:
                 # remove prefix from model_output
 
-                file.write(model_output)
+                file.write(model_output.replace(prefix, ""))
     except Exception as e:
         print(e)
         error_count += 1
