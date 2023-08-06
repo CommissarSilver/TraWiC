@@ -114,6 +114,8 @@ def build_dataset(jsonl_file_path: str) -> None:
                 # there are some files that we can't calculate ratio for because they have some problems when read by tokenize. we skip them. they're not that many.
                 continue
     dataset = pd.concat(series_list, axis=1).T
+    # remove duplicates
+    dataset = dataset.drop_duplicates()
     dataset.to_csv(
         os.path.join(jsonl_file_path, "dataset.csv"),
         index=False,
@@ -219,7 +221,7 @@ def process_dataset(path_to_ds: str) -> None:
     lm_ds = pd.DataFrame.from_dict(lm_dict, orient="index")
 
     for row in lm_ds.iterrows():
-        path_to_file = os.path.join(os.getcwd(), "data", "data", row[0])
+        path_to_file = os.path.join(os.getcwd(), "data", row[0])
         comment_to_code_ratio_file = comment_to_code_ratio(path_to_file)
         if comment_to_code_ratio_file == 2:
             lm_ds.loc[row[0], "trained_on"] = 2
@@ -246,8 +248,18 @@ if __name__ == "__main__":
     #     "/Users/ahura/Nexus/TWMC/Runs/Run 08",
     #     "/Users/ahura/Nexus/TWMC/Runs/Run 09",
     #     "/Users/ahura/Nexus/TWMC/Runs/Run 10",
+    #     "/Users/ahura/Nexus/TWMC/Runs/Run 11",
+    #     "/Users/ahura/Nexus/TWMC/Runs/Run 12",
+    #     "/Users/ahura/Nexus/TWMC/Runs/Run 13",
+    #     "/Users/ahura/Nexus/TWMC/Runs/Run 14",
+    #     "/Users/ahura/Nexus/TWMC/Runs/Run 15",
+    #     "/Users/ahura/Nexus/TWMC/Runs/Run 16",
     # ]
-    paths = ["/Users/ahura/Nexus/TWMC/Runs/TokensRun1"]
+    paths = [
+        "/Users/ahura/Nexus/TWMC/Runs/TokensRun1",
+        "/Users/ahura/Nexus/TWMC/Runs/TokensRun2",
+        "/Users/ahura/Nexus/TWMC/Runs/TokensRun3",
+    ]
     for path in paths:
         build_dataset(path)
     print("Datasets built.")
