@@ -41,7 +41,12 @@ parser.add_argument(
     default=False,
     help="sort the dataset",
 )
-parser.add_argument("--run_num", type=str, default="0")
+parser.add_argument(
+    "--run_num",
+    type=str,
+    default="4",
+    help="run number",
+)
 
 args = parser.parse_args()
 
@@ -77,7 +82,7 @@ def get_model_output(file_path):
         )
         if model_output == "too_many_tokens":
             f = open(os.path.join(os.getcwd(), "run_results", "too_many_tokens.txt"), "a")
-            f.write(file_path.split("/")[-1] + "\n")
+            f.write(file_path + "\n")
             return None
         else:
             try:
