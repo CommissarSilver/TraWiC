@@ -7,12 +7,16 @@
 #SBATCH --mail-user=a.majdinasab@hotmail.com
 #SBATCH --mail-type=ALL
 
+# Set the working directory and run number as variables
+working_dir="/home/vamaj/scratch/TWMC"
+run_num=0
+
 source /home/vamaj/twmc/bin/activate
 cd /home/vamaj/scratch/TWMC
 
 # Loop to keep running the script if exit code is 1
 while true; do
-    python /home/vamaj/scratch/TWMC/src/main_block.py --run_num 1 --working_dir /home/vamaj/scratch/TWMC
+    python /home/vamaj/scratch/TWMC/src/main_block.py --run_num "$run_num" --working_dir "$working_dir"
     if [ $? -ne 1 ]; then
         break
     fi
