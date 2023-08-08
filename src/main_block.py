@@ -86,7 +86,7 @@ def get_model_output_inspector(file_path: str, run_num: int):
                 os.path.join(
                     WORKING_DIR,
                     "run_results",
-                    f"assert_errors_{args.run_num}.txt",
+                    f"assert_errors.txt",
                 ),
                 "a",
             ) as f:
@@ -114,13 +114,13 @@ if __name__ == "__main__":
         logging.info(f"GPU is available. Running on {torch.cuda.get_device_name(0)}")
     else:
         logging.info("GPU is not available. Running on CPU")
-    
+
     # create the directory to store the results
     if not os.path.exists(
         os.path.join(WORKING_DIR, "run_results", f"BlocksRun{args.run_num}")
     ):
         os.makedirs(os.path.join(WORKING_DIR, "run_results", f"BlocksRun{args.run_num}"))
-    
+
     # get all the files in the dataset
     dataset_files = []
     for dirpath, dirnames, filenames in os.walk(
@@ -131,20 +131,20 @@ if __name__ == "__main__":
             dataset_files.extend(
                 [os.path.join(WORKING_DIR, dirpath, file) for file in python_files]
             )
-    
+
     # whether to go through the files in a descending or ascending order
     if args.sorted:
         dataset_files.sort(reverse=True)
     else:
         dataset_files.sort()
-    
+
     # get the files that have already been processed so that we can skip them
     already_processed = open(
         os.path.join(WORKING_DIR, "run_results", "generated.txt"), "r"
     ).readlines()  # read already processed files
     # get the files that caused CUDA errors so that we can skip them
     dangerous_files = open(
-        os.path.join(WORKING_DIR, "run_results", f"assert_errors_{args.run_num}.txt"),
+        os.path.join(WORKING_DIR, "run_results", f"assert_errors.txt"),
         "r",
     ).readlines()
 
