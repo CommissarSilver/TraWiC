@@ -10,6 +10,7 @@
 # Set the working directory and run number as variables
 working_dir="/home/vamaj/scratch/TWMC"
 run_num=0
+sorted="True"
 
 source /home/vamaj/twmc/bin/activate
 cd /home/vamaj/scratch/TWMC
