@@ -57,10 +57,19 @@ model = SantaCoderBlock()
 
 
 def get_model_output_inspector(file_path: str, run_num: int):
+    """
+    Invoke the model to generate outputs for the given script
+
+    Args:
+        file_path (str): path to the file
+        run_num (int): run number id
+    """
     global model
     results = []
-    file_checker = CheckerBlock(file_path)
-    model_inputs = file_checker.prepare_inputs_for_prediction()
+    file_checker = CheckerBlock(file_path)  # initialize the checker
+    model_inputs = (
+        file_checker.prepare_inputs_for_prediction()
+    )  # prepare the inputs for the model
 
     for candidate_input in tqdm(model_inputs):
         try:
@@ -70,8 +79,9 @@ def get_model_output_inspector(file_path: str, run_num: int):
             candidate_input["model_output"] = model_output
             results.append(candidate_input)
         except (RuntimeError, IndexError) as e:
+            #! Wehn a CUDA error occurs, the error cascades and recovery is not possible. Hence, we restart the pipeline
             print("Dreaded CUDA ERROR. No recovery possible. Pipeline restart initiated.")
-
+            # keep track of the files that caused CUDA error so that we can skip them in the next run
             with open(
                 os.path.join(
                     WORKING_DIR,
@@ -83,7 +93,7 @@ def get_model_output_inspector(file_path: str, run_num: int):
                 f.write(file_path + "\n")
 
             sys.exit(2)
-
+    # save the results
     with open(
         os.path.join(
             os.getcwd(),
@@ -104,12 +114,14 @@ if __name__ == "__main__":
         logging.info(f"GPU is available. Running on {torch.cuda.get_device_name(0)}")
     else:
         logging.info("GPU is not available. Running on CPU")
-
+    
+    # create the directory to store the results
     if not os.path.exists(
         os.path.join(WORKING_DIR, "run_results", f"BlocksRun{args.run_num}")
     ):
         os.makedirs(os.path.join(WORKING_DIR, "run_results", f"BlocksRun{args.run_num}"))
-
+    
+    # get all the files in the dataset
     dataset_files = []
     for dirpath, dirnames, filenames in os.walk(
         os.path.join(WORKING_DIR, args.dataset_path)
@@ -119,16 +131,18 @@ if __name__ == "__main__":
             dataset_files.extend(
                 [os.path.join(WORKING_DIR, dirpath, file) for file in python_files]
             )
-
+    
+    # whether to go through the files in a descending or ascending order
     if args.sorted:
         dataset_files.sort(reverse=True)
     else:
         dataset_files.sort()
-
+    
+    # get the files that have already been processed so that we can skip them
     already_processed = open(
         os.path.join(WORKING_DIR, "run_results", "generated.txt"), "r"
     ).readlines()  # read already processed files
-
+    # get the files that caused CUDA errors so that we can skip them
     dangerous_files = open(
         os.path.join(WORKING_DIR, "run_results", f"assert_errors_{args.run_num}.txt"),
         "r",
