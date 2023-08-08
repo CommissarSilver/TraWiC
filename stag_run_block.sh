@@ -6,6 +6,15 @@
 #SBATCH --time=1-00:00
 #SBATCH --mail-user=a.majdinasab@hotmail.com
 #SBATCH --mail-type=ALL
+
 source /home/vamaj/twmc/bin/activate
-cd /home/vamaj/scratch/jenova
-python /home/vamaj/scratch/jenova/src/main_block.py
+cd /home/vamaj/scratch/TWMC
+
+# Loop to keep running the script if exit code is 1
+while true; do
+    python /home/vamaj/scratch/TWMC/src/main_block.py --run_num 1 --working_dir /home/vamaj/scratch/TWMC
+    if [ $? -ne 1 ]; then
+        break
+    fi
+    echo "CUDA error encountered, rerunning script..."
+done
