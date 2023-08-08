@@ -1,4 +1,4 @@
-import os, logging, logging.config, yaml, torch, argparse, random, json, warnings
+import os, logging, logging.config, yaml, torch, argparse, random, json, warnings, sys
 from tqdm import tqdm
 from checker import Checker, CheckerBlock
 from models import SantaCoder, SantaCoderBlock
@@ -41,8 +41,17 @@ parser.add_argument(
     default="0",
     help="run id for the experiment",
 )
-
+parser.add_argument(
+    "--working_dir",
+    type=str,
+    default=os.getcwd(),
+    help="working directory",
+)
 args = parser.parse_args()
+
+
+WORKING_DIR = os.getcwd() if args.working_dir == os.getcwd() else args.working_dir
+print("\033[93m" + f"Working directory: {WORKING_DIR}" + "\033[0m")
 
 model = SantaCoderBlock()
 
@@ -60,14 +69,20 @@ def get_model_output_inspector(file_path: str, run_num: int):
             )
             candidate_input["model_output"] = model_output
             results.append(candidate_input)
-        except RuntimeError as e:
-            from imp import reload
+        except (RuntimeError, IndexError) as e:
+            print("Dreaded CUDA ERROR. No recovery possible. Pipeline restart initiated.")
 
-            reload(torch)
-            from models import SantaCoder, SantaCoderBlock
+            with open(
+                os.path.join(
+                    WORKING_DIR,
+                    "run_results",
+                    f"assert_errors_{args.run_num}.txt",
+                ),
+                "a",
+            ) as f:
+                f.write(file_path + "\n")
 
-            model = SantaCoderBlock()
-            logging.exception("Problem with CUDA. Reloading model")
+            sys.exit(2)
 
     with open(
         os.path.join(
@@ -91,16 +106,18 @@ if __name__ == "__main__":
         logging.info("GPU is not available. Running on CPU")
 
     if not os.path.exists(
-        os.path.join(os.getcwd(), "run_results", f"BlocksRun{args.run_num}")
+        os.path.join(WORKING_DIR, "run_results", f"BlocksRun{args.run_num}")
     ):
-        os.mkdir(os.path.join(os.getcwd(), "run_results", f"BlocksRun{args.run_num}"))
+        os.makedirs(os.path.join(WORKING_DIR, "run_results", f"BlocksRun{args.run_num}"))
 
     dataset_files = []
-    for dirpath, dirnames, filenames in os.walk(args.dataset_path):
+    for dirpath, dirnames, filenames in os.walk(
+        os.path.join(WORKING_DIR, args.dataset_path)
+    ):
         python_files = [file for file in filenames if file.endswith(".py")]
         if python_files:
             dataset_files.extend(
-                [os.path.join(os.getcwd(), dirpath, file) for file in python_files]
+                [os.path.join(WORKING_DIR, dirpath, file) for file in python_files]
             )
 
     if args.sorted:
@@ -109,16 +126,21 @@ if __name__ == "__main__":
         dataset_files.sort()
 
     already_processed = open(
-        os.path.join(os.getcwd(), "run_results", "generated.txt"), "r"
+        os.path.join(WORKING_DIR, "run_results", "generated.txt"), "r"
     ).readlines()  # read already processed files
 
+    dangerous_files = open(
+        os.path.join(WORKING_DIR, "run_results", f"assert_errors_{args.run_num}.txt"),
+        "r",
+    ).readlines()
+
     for file_path in dataset_files:
-        if file_path not in already_processed:
+        if file_path not in already_processed and file_path not in dangerous_files:
             results = []
             print("\033[91m" + file_path + "\033[0m")
             result = get_model_output_inspector(file_path, args.run_num)
 
             with open(
-                os.path.join(os.getcwd(), "run_results", "generated.txt"), "a"
+                os.path.join(WORKING_DIR, "run_results", "generated.txt"), "a"
             ) as f:
                 f.write(file_path + "\n")
