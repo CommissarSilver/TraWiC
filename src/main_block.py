@@ -148,6 +148,9 @@ if __name__ == "__main__":
         "r",
     ).readlines()
 
+    already_processed = [file.rstrip("\n") for file in already_processed]
+    dangerous_files = [file.rstrip("\n") for file in dangerous_files]
+
     for file_path in dataset_files:
         if file_path not in already_processed and file_path not in dangerous_files:
             results = []
