@@ -1,4 +1,4 @@
-import os, re, sys, logging, ast
+import os, re, logging, ast
 from typing import Tuple, List, Dict, Union
 from fuzzywuzzy import fuzz
 
@@ -28,7 +28,7 @@ class Checker:
         # extract the items from the input file
         self.prepare_input()
 
-    def prepare_input(self):
+    def prepare_input(self) -> None:
         """
         Extracts the following items from the input code script:
             - docstrings
