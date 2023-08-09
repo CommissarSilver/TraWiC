@@ -58,7 +58,7 @@ def comment_to_code_ratio(script_path: str) -> float:
         return 2
 
 
-def build_dataset(jsonl_file_path: str) -> None:
+def build_dataset(jsonl_file_path: str) -> str:
     """
     Builds a dataset from a given jsonl file.
     Here we aim on cosolidating all of the data from the jsonl runs.
