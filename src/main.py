@@ -47,8 +47,17 @@ parser.add_argument(
     default="4",
     help="run number",
 )
+parser.add_argument(
+    "--working_dir",
+    type=str,
+    default=os.getcwd(),
+    help="working directory",
+)
 
 args = parser.parse_args()
+
+WORKING_DIR = os.getcwd() if args.working_dir == os.getcwd() else args.working_dir
+print("\033[93m" + f"Working directory: {WORKING_DIR}" + "\033[0m")
 
 model = SantaCoder() if args.model == "santa_coder" else None
 
@@ -138,34 +147,41 @@ if __name__ == "__main__":
 
     dataset_files = []
     for dirpath, dirnames, filenames in os.walk(
-        os.path.join(os.getcwd(), args.dataset_path)
+        os.path.join(WORKING_DIR, args.dataset_path)
     ):
         python_files = [file for file in filenames if file.endswith(".py")]
         if python_files:
             dataset_files.extend(
-                [
-                    os.path.join(os.getcwd(), args.dataset_path, dirpath, file)
-                    for file in python_files
-                ]
+                [os.path.join(WORKING_DIR, dirpath, file) for file in python_files]
             )
-    already_processed = open(
+
+    files_generated_blocks = open(
         os.path.join(os.getcwd(), "run_results", "generated.txt"), "r"
     ).readlines()  # read already processed files
 
-    already_generated = open(
-        os.path.join(os.getcwd(), "run_results", f"generated_{args.run_num}.txt"), "a"
+    files_generated_blocks = [file.rstrip("\n") for file in files_generated_blocks]
+
+    files_generated_blocks = (
+        sorted(files_generated_blocks)
+        if args.sorted
+        else sorted(files_generated_blocks, reverse=True)
     )
 
-    if already_processed:
-        already_processed = [i.replace("\n", "") for i in already_processed]
-        already_processed = (
-            sorted(already_processed)
-            if args.sorted
-            else sorted(already_processed, reverse=True)
-        )
+    already_processed_files = open(
+        os.path.join(os.getcwd(), "run_results", "processed_tokens.txt"), "r"
+    ).readlines()  # read already processed files
+    already_processed_files = [file.rstrip("\n") for file in already_processed_files]
 
     for file_path in dataset_files:
-        if file_path.split("/data", 1)[1] not in already_processed:
+        if (
+            file_path in files_generated_blocks
+            and file_path not in already_processed_files
+        ):
             results = []
             print("\033[91m" + file_path + "\033[0m")
             result = get_model_output(file_path)
+
+            with open(
+                os.path.join(WORKING_DIR, "run_results", "processed_tokens.txt"), "a"
+            ) as f:
+                f.write(file_path + "\n")
