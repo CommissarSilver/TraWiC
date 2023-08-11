@@ -172,10 +172,17 @@ if __name__ == "__main__":
     ).readlines()  # read already processed files
     already_processed_files = [file.rstrip("\n") for file in already_processed_files]
 
+    dangerous_files = open(
+        os.path.join(WORKING_DIR, "run_results", f"assert_errors.txt"),
+        "r",
+    ).readlines()
+    dangerous_files = [file.rstrip("\n") for file in dangerous_files]
+
     for file_path in dataset_files:
         if (
             file_path in files_generated_blocks
             and file_path not in already_processed_files
+            and file_path not in dangerous_files
         ):
             results = []
             print("\033[91m" + file_path + "\033[0m")
