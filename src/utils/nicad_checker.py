@@ -50,7 +50,10 @@ def process_directory(directory):
 
     json.dump(
         nicad_results,
-        open(os.path.join(WORKING_DIR, f"nicad_results_{directory}.json"), "w"),
+        open(
+            os.path.join(WORKING_DIR, "nicad_results", f"nicad_results_{directory}.json"),
+            "w",
+        ),
     )
     systems_directory = os.path.join(NICAD_DIR, "systems")
     for item in os.listdir(systems_directory):
