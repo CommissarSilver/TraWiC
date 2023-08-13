@@ -1,74 +1,78 @@
-import os, time, tqdm, json
+import os
+import json
+import multiprocessing
+import shutil
+from tqdm import tqdm
 
 NICAD_DIR = os.path.join("/", "Users", "ahura", "Downloads", "NiCad-6.2")
 WORKING_DIR = os.path.join(os.getcwd())
-"/Users/ahura/Downloads/NiCad-6.2/"
-# get the directory names to run Nicad for
-directories = {
-    k: {"blocks": [], "orginals": []}
-    for k in os.listdir(os.path.join(os.getcwd(), "src", "blocks"))
-}
-# for each directory, get the list of files in it
-for directory in directories.keys():
-    directories[directory]["blocks"] = [
-        i
-        for i in os.listdir(os.path.join(os.getcwd(), "src", "blocks", directory))
-        if "_block" in i
-    ]
-    directories[directory]["orginals"] = [
-        i
-        for i in os.listdir(os.path.join(os.getcwd(), "src", "blocks", directory))
-        if "_block" not in i
-    ]
 
-# for each block file in directory
-for directory in directories.keys():
-    nicad_results = {k: "" for k in directories[directory]["blocks"]}
-    # for each block file in directory
-    for block_file in tqdm.tqdm(directories[directory]["blocks"]):
-        # copt only the block file alongside all other files in the originals to ./Nicad6/systems/<directory_name>
-        # print directory name in green
-        print("\033[92m" + os.path.join(NICAD_DIR, "systems", directory) + "\033[0m")
-        if not os.path.exists(os.path.join(NICAD_DIR, "systems", directory)):
-            os.makedirs(os.path.join(NICAD_DIR, "systems", directory))
 
-        os.system(
-            f"cp {os.path.join(os.getcwd(),'src','blocks',directory,block_file)} {os.path.join(NICAD_DIR,'systems',directory,block_file)}"
-        )
-        for original_file in directories[directory]["orginals"]:
-            os.system(
-                f"cp {os.path.join(os.getcwd(),'src','blocks',directory,original_file)} {os.path.join(NICAD_DIR,'systems',directory,original_file)}"
-            )
-            # time.sleep(2)
-        # run Nicad on the systems folder
-        os.chdir(NICAD_DIR)
-        os.system(
-            f"arch -x86_64 sh {NICAD_DIR}/nicad6 blocks py {NICAD_DIR}/systems/{directory}"
-        )
-        os.chdir(WORKING_DIR)
-        # open the html file
-        html_files = [
-            file
-            for file in os.listdir(
-                os.path.join(NICAD_DIR, "systems", f"{directory}_blocks-blind-clones")
-            )
-            if file.endswith(".html")
-        ]
-        with open(
+def process_directory(directory):
+    os.chdir(WORKING_DIR)
+    source = os.path.join(os.getcwd(), "src", "blocks", directory)
+    target = os.path.join(NICAD_DIR, "systems")
+
+    print(
+        "\033[92m"
+        + "Moving from TWMC to NICAD ->"
+        + os.path.join(NICAD_DIR, "systems", directory)
+        + "\033[0m"
+    )
+    os.system(f"mkdir -p {target} && cp -r {source} {target}")
+
+    print("\033[93m" + f"Running NiCAD Block on {directory}" + "\033[0m")
+    os.chdir(NICAD_DIR)
+    os.system(
+        f"arch -x86_64 sh {NICAD_DIR}/nicad6 blocks py {NICAD_DIR}/systems/{directory}"
+    )
+
+    html_files = [
+        file
+        for file in os.listdir(
             os.path.join(
                 NICAD_DIR,
                 "systems",
                 f"{directory}_blocks-blind-clones",
-                html_files[0],
             )
-        ) as f:
-            nicad_results[block_file] = f.read()
+        )
+        if file.endswith(".html")
+    ]
+    with open(
+        os.path.join(
+            NICAD_DIR,
+            "systems",
+            f"{directory}_blocks-blind-clones",
+            html_files[0],
+        )
+    ) as f:
+        nicad_results[directory] = f.read()
 
-        # once done, remove the transferred files
     json.dump(
         nicad_results,
         open(os.path.join(WORKING_DIR, f"nicad_results_{directory}.json"), "w"),
     )
-    # delete evetything in the systems folder
+    systems_directory = os.path.join(NICAD_DIR, "systems")
+    for item in os.listdir(systems_directory):
+        item_path = os.path.join(systems_directory, item)
+        if os.path.isfile(item_path):
+            os.remove(item_path)
+        elif os.path.isdir(item_path):
+            shutil.rmtree(item_path)
 
-os.system(f"rm -rf {os.path.join(NICAD_DIR,'systems')}")
+
+if __name__ == "__main__":
+    nicad_results = {}
+    directories = os.listdir(os.path.join(os.getcwd(), "src", "blocks"))
+    for directory in directories:
+        process_directory(directory)
+    # with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
+    #     for _ in tqdm(
+    #         pool.imap_unordered(process_directory, directories),
+    #         total=len(directories),
+    #         desc="Processing",
+    #     ):
+    #         if KeyboardInterrupt:
+    #             pool.terminate()
+    #             pool.join()
+    #             break
