@@ -9,36 +9,38 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
 # read the list of csv files, and combine them all into a single dataframe
-datasets = [
-    "/Users/ahura/Nexus/TWMC/Run 02_processed_dataset.csv",
-    "/Users/ahura/Nexus/TWMC/Run 03_processed_dataset.csv",
-    "/Users/ahura/Nexus/TWMC/Run 04_processed_dataset.csv",
-    "/Users/ahura/Nexus/TWMC/Run 05_processed_dataset.csv",
-    "/Users/ahura/Nexus/TWMC/Run 06_processed_dataset.csv",
-    "/Users/ahura/Nexus/TWMC/Run 07_processed_dataset.csv",
-    "/Users/ahura/Nexus/TWMC/Run 08_processed_dataset.csv",
-    "/Users/ahura/Nexus/TWMC/Run 09_processed_dataset.csv",
-    "/Users/ahura/Nexus/TWMC/Run 10_processed_dataset.csv",
-    "/Users/ahura/Nexus/TWMC/Run 11_processed_dataset.csv",
-]
-datasets = [pd.read_csv(path) for path in datasets]
-combined_ds = pd.concat(datasets)
+# datasets = [
+#     "/Users/ahura/Nexus/TWMC/Run 02_processed_dataset.csv",
+#     "/Users/ahura/Nexus/TWMC/Run 03_processed_dataset.csv",
+#     "/Users/ahura/Nexus/TWMC/Run 04_processed_dataset.csv",
+#     "/Users/ahura/Nexus/TWMC/Run 05_processed_dataset.csv",
+#     "/Users/ahura/Nexus/TWMC/Run 06_processed_dataset.csv",
+#     "/Users/ahura/Nexus/TWMC/Run 07_processed_dataset.csv",
+#     "/Users/ahura/Nexus/TWMC/Run 08_processed_dataset.csv",
+#     "/Users/ahura/Nexus/TWMC/Run 09_processed_dataset.csv",
+#     "/Users/ahura/Nexus/TWMC/Run 10_processed_dataset.csv",
+#     "/Users/ahura/Nexus/TWMC/Run 11_processed_dataset.csv",
+# ]
+# datasets = [pd.read_csv(path) for path in datasets]
+# combined_ds = pd.concat(datasets)
 
-print(combined_ds["trained_on"].value_counts())
+# print(combined_ds["trained_on"].value_counts())
 
-combined_ds.drop(
-    columns=[
-        "class_nums_total",
-        "function_nums_total",
-        "variable_nums_total",
-        "string_nums_total",
-        "comment_nums_total",
-        "docstring_nums_total",
-    ],
-    inplace=True,
+# combined_ds.drop(
+#     columns=[
+#         "class_nums_total",
+#         "function_nums_total",
+#         "variable_nums_total",
+#         "string_nums_total",
+#         "comment_nums_total",
+#         "docstring_nums_total",
+#     ],
+#     inplace=True,
+# )
+# combined_ds.to_csv("combined_ds.csv", index=False)
+combined_ds = pd.read_csv(
+    "/Users/ahura/Nexus/TWMC/run_results/rf_train_ds.csv",
 )
-combined_ds.to_csv("combined_ds.csv", index=False)
-
 # Split the dataset into training and testing datasets
 
 train_ds, test_ds = train_test_split(
@@ -110,3 +112,35 @@ precision, recall, fscore, _ = precision_recall_fscore_support(
 print("Precision:", precision)
 print("Recall:", recall)
 print("F-score:", fscore)
+
+
+datasets_test = [
+    "/Users/ahura/Nexus/TWMC/TokensRun0_processed_dataset.csv",
+    "/Users/ahura/Nexus/TWMC/TokensRun1_processed_dataset.csv",
+    "/Users/ahura/Nexus/TWMC/TokensRun2_processed_dataset.csv",
+    "/Users/ahura/Nexus/TWMC/TokensRun3_processed_dataset.csv",
+]
+datasets_test = [pd.read_csv(path) for path in datasets_test]
+combined_ds_test = pd.concat(datasets_test)
+
+print(combined_ds_test["trained_on"].value_counts())
+
+combined_ds_test.drop(
+    columns=[
+        "class_nums_total",
+        "function_nums_total",
+        "variable_nums_total",
+        "string_nums_total",
+        "comment_nums_total",
+        "docstring_nums_total",
+    ],
+    inplace=True,
+)
+combined_ds_test.to_csv("combined__test_ds.csv", index=False)
+combined_ds_test.drop(columns=["Unnamed: 0"], inplace=True)
+print(f"Features shape: {combined_ds_test.shape}")
+# x_test, y_test = combined_ds_test.iloc[:, :-1].values, combined_ds_test.iloc[:, -1].values
+accuracy_test = clf.score(
+    combined_ds_test.iloc[:, :-1].values, combined_ds_test.iloc[:, -1].values
+)
+print("TEST Accuracy:", accuracy_test)
