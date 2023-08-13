@@ -155,6 +155,10 @@ if __name__ == "__main__":
                 [os.path.join(WORKING_DIR, dirpath, file) for file in python_files]
             )
 
+    dataset_files = (
+        sorted(dataset_files) if args.sorted else sorted(dataset_files, reverse=True)
+    )
+
     files_generated_blocks = open(
         os.path.join(os.getcwd(), "run_results", "generated.txt"), "r"
     ).readlines()  # read already processed files
