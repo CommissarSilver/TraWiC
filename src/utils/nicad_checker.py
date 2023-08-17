@@ -1,6 +1,6 @@
 import os
 import json
-import multiprocessing
+import random
 import shutil
 from tqdm import tqdm
 
@@ -8,10 +8,24 @@ NICAD_DIR = os.path.join("/", "Users", "ahura", "Downloads", "NiCad-6.2")
 WORKING_DIR = os.path.join(os.getcwd())
 
 
-def process_directory(directory):
+def copy_python_files(src, dest):
+    for dirpath, dirnames, filenames in os.walk(src):
+        for filename in filenames:
+            if filename.endswith(".py"):
+                source_item = os.path.join(dirpath, filename)
+                target_item = os.path.join(dest, src.split("/")[-1] + "_" + filename)
+                shutil.copy(source_item, target_item)
+
+
+def process_directory(directory, selected_directories):
     os.chdir(WORKING_DIR)
     source = os.path.join(os.getcwd(), "src", "blocks", directory)
-    target = os.path.join(NICAD_DIR, "systems")
+    target = os.path.join(NICAD_DIR, "systems", "analysis_target")
+
+    random_directory_paths = [
+        os.path.join(os.getcwd(), "src", "blocks", directory)
+        for directory in selected_directories
+    ]
 
     print(
         "\033[92m"
@@ -19,12 +33,14 @@ def process_directory(directory):
         + os.path.join(NICAD_DIR, "systems", directory)
         + "\033[0m"
     )
-    os.system(f"mkdir -p {target} && cp -r {source} {target}")
+    os.makedirs(os.path.join(NICAD_DIR, "systems", "analysis_target"), exist_ok=True)
+    for path in [source] + random_directory_paths:
+        copy_python_files(path, target)
 
     print("\033[93m" + f"Running NiCAD Block on {directory}" + "\033[0m")
     os.chdir(NICAD_DIR)
     os.system(
-        f"arch -x86_64 sh {NICAD_DIR}/nicad6 blocks py {NICAD_DIR}/systems/{directory}"
+        f"arch -x86_64 sh {NICAD_DIR}/nicad6 blocks py {NICAD_DIR}/systems/analysis_target"
     )
 
     html_files = [
@@ -33,7 +49,7 @@ def process_directory(directory):
             os.path.join(
                 NICAD_DIR,
                 "systems",
-                f"{directory}_blocks-blind-clones",
+                f"analysis_target_blocks-blind-clones",
             )
         )
         if file.endswith(".html")
@@ -42,7 +58,7 @@ def process_directory(directory):
         os.path.join(
             NICAD_DIR,
             "systems",
-            f"{directory}_blocks-blind-clones",
+            "analysis_target_blocks-blind-clones",
             html_files[0],
         )
     ) as f:
@@ -51,7 +67,12 @@ def process_directory(directory):
     json.dump(
         nicad_results,
         open(
-            os.path.join(WORKING_DIR, "nicad_results", f"nicad_results_{directory}.json"),
+            os.path.join(
+                WORKING_DIR,
+                "nicad_results",
+                "original",
+                f"nicad_results_{directory}.json",
+            ),
             "w",
         ),
     )
@@ -65,17 +86,11 @@ def process_directory(directory):
 
 
 if __name__ == "__main__":
-    nicad_results = {}
+    NUM_SAMPLES = 20
     directories = os.listdir(os.path.join(os.getcwd(), "src", "blocks"))
     for directory in directories:
-        process_directory(directory)
-    # with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
-    #     for _ in tqdm(
-    #         pool.imap_unordered(process_directory, directories),
-    #         total=len(directories),
-    #         desc="Processing",
-    #     ):
-    #         if KeyboardInterrupt:
-    #             pool.terminate()
-    #             pool.join()
-    #             break
+        selected_directories = random.sample(
+            directories, min(NUM_SAMPLES, len(directories))
+        )
+        nicad_results = {}
+        process_directory(directory, selected_directories)
