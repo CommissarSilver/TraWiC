@@ -18,6 +18,16 @@ def copy_python_files(src, dest):
 
 
 def process_directory(directory, selected_directories):
+    if os.path.exists(
+        os.path.join(
+            WORKING_DIR,
+            "nicad_results",
+            "original",
+            f"nicad_results_{directory}.json",
+        )
+    ):
+        return
+    
     os.chdir(WORKING_DIR)
     source = os.path.join(os.getcwd(), "src", "blocks", directory)
     target = os.path.join(NICAD_DIR, "systems", "analysis_target")

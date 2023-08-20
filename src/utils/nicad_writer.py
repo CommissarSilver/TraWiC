@@ -32,6 +32,35 @@ def parse_clone_classes_and_files(html_content):
     return clone_classes_dict
 
 
+def check_repo(repo_name: str, clone_classes: dict):
+    repo_masks = {
+        key: [repo_name in string for string in string_list]
+        for key, string_list in clone_classes.items()
+    }
+    remain_repo = {
+        key: value for key, value in clone_classes.items() if True in repo_masks[key]
+    }
+    results_count = {
+        key: {
+            "original": sum("original" in string for string in string_list),
+            "generated": sum("generated" in string for string in string_list),
+        }
+        for key, string_list in remain_repo.items()
+    }
+    results = (
+        True
+        if any(
+            [
+                value["original"] * value["generated"] > 0
+                for value in results_count.values()
+            ]
+        )
+        else False
+    )
+
+    return results
+
+
 # Directory containing the original JSON files
 original_directory_path = "/Users/ahura/Nexus/TWMC/nicad_results/original"
 # Directory to save the result JSON files
@@ -49,12 +78,20 @@ for filename in os.listdir(original_directory_path):
 
         # Parse the HTML content and get the result
         result_dict = parse_clone_classes_and_files(html_content)
-
+        repo_detected = check_repo(
+            filename.strip("nicad_results_").strip(".json"), result_dict
+        )
         # Save the result as a JSON file in the results directory
         json_file_path = os.path.join(
             results_directory_path, filename.replace(".json", "_result.json")
         )
         with open(json_file_path, "w") as json_file:
             json.dump(result_dict, json_file)
-
+        if not os.path.exists(os.path.join(os.getcwd(), "NiCAD_results.csv")):
+            with open(os.path.join(os.getcwd(), "NiCAD_results.csv"), "w") as f:
+                f.write("filename,repo_detected\n")
+        with open(os.path.join(os.getcwd(), "NiCAD_results.csv"), "a") as f:
+            f.write(
+                f"{filename.strip('nicad_results_').strip('.json')},{repo_detected}\n"
+            )
         print(f"Processed {filename} and saved results to {json_file_path}")
