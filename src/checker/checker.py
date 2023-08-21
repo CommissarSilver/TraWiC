@@ -15,7 +15,6 @@ class Checker:
         The path to the input file.
     original_input : str
         The original input file contents.
-
     """
 
     def __init__(self, input_path: str) -> None:
@@ -38,7 +37,6 @@ class Checker:
             - variable names
             - strings
         the results are stored in the `processed_input` attribute of the class
-
         """
 
         # use regex to extract the mentioned items
@@ -133,7 +131,6 @@ class Checker:
         except Exception as e:
             logger.exception(f"Error in extracting strings: {e}")
             strings = None
-        logger.debug("*" * 50)
 
         logger.info("Finished preparing input")
 
@@ -159,22 +156,28 @@ class Checker:
         Returns:
             (str, str): the prefix and suffix of the script
         """
-        lines = script_text.split("\n")
-        prefix = "\n".join(
-            lines[: line_number - 1]
-        )  # Prefix contains lines before the specified line number
-        suffix = "\n".join(
-            lines[line_number - 1 :]
-        )  # Suffix contains lines from the specified line number onwards
+        try:
+            lines = script_text.split("\n")
+            prefix = "\n".join(
+                lines[: line_number - 1]
+            )  # Prefix contains lines before the specified line number
+            suffix = "\n".join(
+                lines[line_number - 1 :]
+            )  # Suffix contains lines from the specified line number onwards
 
-        # Find the index of the word in the suffix and where it finishes
-        word_index = suffix.find(word)
-        word_end = word_index + len(word)
+            # Find the index of the word in the suffix and where it finishes
+            word_index = suffix.find(word)
+            word_end = word_index + len(word)
 
-        prefix += suffix[:word_index]
-        suffix = suffix[word_end:]
+            prefix += suffix[:word_index]
+            suffix = suffix[word_end:]
 
-        return prefix, suffix
+            logger.info("Finished separating script")
+
+            return prefix, suffix
+        except Exception as e:
+            logger.exception(f"Error in separating script: {e}. Returning empty strings")
+            return "", ""
 
     def prepare_inputs_for_infill(self, level: str) -> List[Dict]:
         """
@@ -320,6 +323,16 @@ class Checker:
 
 
 class CheckerBlock:
+    """
+    A class for checking blocks of code files.
+
+    Attributes:
+    -----------
+    input_path : str
+        The path to the input file.
+    original_input : str
+        The original input file contents."""
+
     def __init__(self, input_path: str) -> None:
         # read the input file
         if input_path.endswith(".py"):
@@ -372,6 +385,9 @@ class CheckerBlock:
             lines_num = len(function[1].split("\n"))
             tokens_num = len(function[1].split(" "))
             if tokens_num > 2048:
+                logger.debug(
+                    "SantaCoder does not support inputs with more than 2048 tokens. Skipping"
+                )
                 continue
             # break the function into two parts while keeping the tokens intact so that it doesn't cut words in half
             inputs = (
