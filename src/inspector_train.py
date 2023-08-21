@@ -112,35 +112,7 @@ precision, recall, fscore, _ = precision_recall_fscore_support(
 print("Precision:", precision)
 print("Recall:", recall)
 print("F-score:", fscore)
+# save the model
+import pickle
 
-
-datasets_test = [
-    "/Users/ahura/Nexus/TWMC/TokensRun0_processed_dataset.csv",
-    "/Users/ahura/Nexus/TWMC/TokensRun1_processed_dataset.csv",
-    "/Users/ahura/Nexus/TWMC/TokensRun2_processed_dataset.csv",
-    "/Users/ahura/Nexus/TWMC/TokensRun3_processed_dataset.csv",
-]
-datasets_test = [pd.read_csv(path) for path in datasets_test]
-combined_ds_test = pd.concat(datasets_test)
-
-print(combined_ds_test["trained_on"].value_counts())
-
-combined_ds_test.drop(
-    columns=[
-        "class_nums_total",
-        "function_nums_total",
-        "variable_nums_total",
-        "string_nums_total",
-        "comment_nums_total",
-        "docstring_nums_total",
-    ],
-    inplace=True,
-)
-combined_ds_test.to_csv("combined__test_ds.csv", index=False)
-combined_ds_test.drop(columns=["Unnamed: 0"], inplace=True)
-print(f"Features shape: {combined_ds_test.shape}")
-# x_test, y_test = combined_ds_test.iloc[:, :-1].values, combined_ds_test.iloc[:, -1].values
-accuracy_test = clf.score(
-    combined_ds_test.iloc[:, :-1].values, combined_ds_test.iloc[:, -1].values
-)
-print("TEST Accuracy:", accuracy_test)
+pickle.dump(clf, open("rf_model.sav", "wb"))
