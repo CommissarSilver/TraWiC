@@ -25,16 +25,23 @@ handlers:
     formatter: simpleFormatter
     filename: logs/data_trail.log
     encoding: utf-8
+  
+  errorHandler:
+    class: logging.FileHandler
+    level: ERROR
+    formatter: simpleFormatter
+    filename: logs/error.log
+    encoding: utf-8
 
 loggers:
   process_scripts:
     level: DEBUG
-    handlers: [ fileHandler]
+    handlers: [ fileHandler, errorHandler]
     propagate: false
 
   model:
     level: DEBUG
-    handlers: [ dataHandler, fileHandler]
+    handlers: [ dataHandler, fileHandler, errorHandler]
     propagate: false
 
   data:
@@ -44,7 +51,7 @@ loggers:
   
   checker:
     level: DEBUG
-    handlers: [ dataHandler, fileHandler]
+    handlers: [ dataHandler, fileHandler, errorHandler]
     propagate: false
 
 root:
