@@ -4,6 +4,8 @@
 *.pyc
 *.jsonl
 *.csv
+*.pkl
+*.sav
 
 word_count.json
 results.json
