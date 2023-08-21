@@ -12,13 +12,10 @@ def parse_repo_and_trained_on(token_results: pd.DataFrame):
         repo_name = row["Unnamed: 0"].split("/")[0]
 
         # Check if the repository name is already in the dictionary
-        if repo_name not in repo_dict:
+        if repo_name not in repo_dict.keys():
             # If not, add the repository name to the dictionary with the value from "trained_on"
             repo_dict[repo_name] = row["trained_on"]
-        else:
-            # If the repository name is already in the dictionary and the current "trained_on" value is 1, set the value to 1
-            if row["trained_on"] == 1:
-                repo_dict[repo_name] = 1
+
     return repo_dict
 
 
@@ -35,6 +32,9 @@ files = [
         "/Users/ahura/Nexus/TWMC/TokensRun7_processed_dataset.csv",
         "/Users/ahura/Nexus/TWMC/TokensRun8_processed_dataset.csv",
         "/Users/ahura/Nexus/TWMC/TokensRun9_processed_dataset.csv",
+        "/Users/ahura/Nexus/TWMC/TokensRun10_processed_dataset.csv",
+        "/Users/ahura/Nexus/TWMC/TokensRun11_processed_dataset.csv",
+        "/Users/ahura/Nexus/TWMC/TokensRun12_processed_dataset.csv",
     ]
 ]
 final_df = pd.concat(files)
