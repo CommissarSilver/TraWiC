@@ -203,23 +203,23 @@ def process_dataset(
     for name, group in tqdm.tqdm(grouped_ds):
         # if similarity_metric is function_name, class_name, variable_name, if there is even one 1 in the results column, then count it as a hit
         if name[1] == "class_names":
-            lm_dict[name[0]]["class_hits"] += group["result"].values
+            lm_dict[name[0]]["class_hits"] += group["result"].values[0]
             lm_dict[name[0]]["class_nums_total"] += 1
         elif name[1] == "function_names":
-            lm_dict[name[0]]["function_hits"] += group["result"].values
+            lm_dict[name[0]]["function_hits"] += group["result"].values[0]
             lm_dict[name[0]]["function_nums_total"] += 1
         elif name[1] == "variable_names":
-            lm_dict[name[0]]["variable_hits"] += group["result"].values
+            lm_dict[name[0]]["variable_hits"] += group["result"].values[0]
             lm_dict[name[0]]["variable_nums_total"] += 1
         # if similarity_metric is string, comment, docstring, if there is even one entry with an L-distance score more than 60, then count it as a hit
         elif name[1] == "strings":
-            lm_dict[name[0]]["string_hits"] += group["result"].values
+            lm_dict[name[0]]["string_hits"] += group["result"].values[0]
             lm_dict[name[0]]["string_nums_total"] += 1
         elif name[1] == "comments":
-            lm_dict[name[0]]["comment_hits"] += group["result"].values
+            lm_dict[name[0]]["comment_hits"] += group["result"].values[0]
             lm_dict[name[0]]["comment_nums_total"] += 1
         elif name[1] == "docstrings":
-            lm_dict[name[0]]["docstring_hits"] += group["result"].values
+            lm_dict[name[0]]["docstring_hits"] += group["result"].values[0]
             lm_dict[name[0]]["docstring_nums_total"] += 1
         lm_dict[name[0]]["trained_on"] = 1 if 1 in group["trained_on"].values else 0
     # normalize the number of hits by the total number of tokens
