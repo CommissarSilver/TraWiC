@@ -6,6 +6,7 @@
 *.csv
 *.pkl
 *.sav
+*.png
 
 word_count.json
 results.json
