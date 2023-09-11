@@ -4,6 +4,7 @@ import tqdm
 from io import BytesIO
 from typing import List, Tuple
 from skip_data import SKIPS
+from fuzzywuzzy import fuzz
 
 
 def extract_comments_and_docstrings(script: str) -> Tuple[List, List]:
@@ -123,16 +124,61 @@ def build_dataset(jsonl_file_path: str) -> str:
     return os.path.join(jsonl_file_path, "dataset.csv")
 
 
-def process_dataset(path_to_ds: str) -> None:
+def check_similarity(
+    row: pd.Series,
+    similairty_threshold: int = 60,
+) -> int:
+    """
+    Checks the syntax similarity of a given model output with the similarity objective as ground truth.
+
+    Args:
+        row (pd.Series): row of the dataset to check similarity for.
+        similairty_threshold (int, optional): threshold for considering similarity a success or not. Defaults to 60.
+    """
+    # if (
+    #     row["file_name"] == "zzxzshiyf/FLyFLowerAPI/wsgi.py"
+    #     and row["similarity_objective"] == "application"
+    # ):
+    #     print("hi")
+    similarity_objective = (
+        row["similarity_objective"].strip("\n").strip("\t").strip(" ")
+        if not pd.isna(row["similarity_objective"])
+        else ""
+    )
+    model_output = (
+        row["model_output"].strip("\n").strip("\t").strip(" ")
+        if not pd.isna(row["model_output"])
+        else ""
+    )
+    similarity = fuzz.ratio(similarity_objective, model_output)
+
+    return 1 if similarity >= similairty_threshold else 0
+
+
+def process_dataset(
+    path_to_ds: str,
+    syntax_threshold: int = 100,
+    semantic_threshold: int = 60,
+) -> None:
     """
     processes the csv dataset from build_dataset function and creates a final csv dataset that is ready to be used for training.
 
     Args:
         path_to_ds (str): path to dataset from build_dataset function.
+        syntax_threshold (float, optional): threshold for syntax similarity. Defaults to 1.0.
+        semantic_threshold (int, optional): threshold for semantic similarity. Defaults to 60.
     """
     ds = pd.read_csv(path_to_ds)
+    ds["result"] = ds.apply(
+        lambda row: check_similarity(row, syntax_threshold)
+        if row["level"] in ["function_names", "class_names", "variable_names"]
+        else check_similarity(row, semantic_threshold),
+        axis=1,
+    )
     # group the dataset by file_name, level, similarity_metric
-    grouped_ds = ds.groupby(["file_name", "level", "similarity_objective"])
+    grouped_ds = ds.groupby(
+        ["file_name", "level", "similarity_objective", "model_output"]
+    )
 
     lm_dict = {
         file_name: {
@@ -157,29 +203,23 @@ def process_dataset(path_to_ds: str) -> None:
     for name, group in tqdm.tqdm(grouped_ds):
         # if similarity_metric is function_name, class_name, variable_name, if there is even one 1 in the results column, then count it as a hit
         if name[1] == "class_names":
-            lm_dict[name[0]]["class_hits"] += 1 if 1 in group["result"].values else 0
+            lm_dict[name[0]]["class_hits"] += group["result"].values[0]
             lm_dict[name[0]]["class_nums_total"] += 1
         elif name[1] == "function_names":
-            lm_dict[name[0]]["function_hits"] += 1 if 1 in group["result"].values else 0
+            lm_dict[name[0]]["function_hits"] += group["result"].values[0]
             lm_dict[name[0]]["function_nums_total"] += 1
         elif name[1] == "variable_names":
-            lm_dict[name[0]]["variable_hits"] += 1 if 1 in group["result"].values else 0
+            lm_dict[name[0]]["variable_hits"] += group["result"].values[0]
             lm_dict[name[0]]["variable_nums_total"] += 1
         # if similarity_metric is string, comment, docstring, if there is even one entry with an L-distance score more than 60, then count it as a hit
         elif name[1] == "strings":
-            lm_dict[name[0]]["string_hits"] += (
-                1 if any(i > 60 for i in group["result"].values) else 0
-            )
+            lm_dict[name[0]]["string_hits"] += group["result"].values[0]
             lm_dict[name[0]]["string_nums_total"] += 1
         elif name[1] == "comments":
-            lm_dict[name[0]]["comment_hits"] += (
-                1 if any(i > 60 for i in group["result"].values) else 0
-            )
+            lm_dict[name[0]]["comment_hits"] += group["result"].values[0]
             lm_dict[name[0]]["comment_nums_total"] += 1
         elif name[1] == "docstrings":
-            lm_dict[name[0]]["docstring_hits"] += (
-                1 if any(i > 60 for i in group["result"].values) else 0
-            )
+            lm_dict[name[0]]["docstring_hits"] += group["result"].values[0]
             lm_dict[name[0]]["docstring_nums_total"] += 1
         lm_dict[name[0]]["trained_on"] = 1 if 1 in group["trained_on"].values else 0
     # normalize the number of hits by the total number of tokens
@@ -225,7 +265,6 @@ def process_dataset(path_to_ds: str) -> None:
         comment_to_code_ratio_file = comment_to_code_ratio(path_to_file)
         if comment_to_code_ratio_file == 2:
             lm_ds.loc[row[0], "trained_on"] = 2
-
         elif 0.01 < comment_to_code_ratio_file < 0.8:
             lm_ds.loc[row[0], "trained_on"] = 1
         else:
@@ -234,7 +273,9 @@ def process_dataset(path_to_ds: str) -> None:
     lm_ds = lm_ds[lm_ds["trained_on"] != 2]
 
     # save the dataframe to a csv file
-    lm_ds.to_csv(f"{path_to_ds.split('/')[-2]}_processed_dataset.csv")
+    lm_ds.to_csv(
+        f"{path_to_ds.split('/')[-2]}_v_{syntax_threshold}_{semantic_threshold}_processed_dataset.csv"
+    )
 
 
 if __name__ == "__main__":
@@ -256,9 +297,16 @@ if __name__ == "__main__":
     #     "/Users/ahura/Nexus/TWMC/Runs/Run 16",
     # ]
     paths = [
-        "/Users/ahura/Nexus/TWMC/Runs/TokensRun1",
-        "/Users/ahura/Nexus/TWMC/Runs/TokensRun2",
-        "/Users/ahura/Nexus/TWMC/Runs/TokensRun3",
+        "/home/vamaj/scratch/TWMC/run_results/TokensRun1",
+        "/home/vamaj/scratch/TWMC/run_results/TokensRun2",
+        "/home/vamaj/scratch/TWMC/run_results/TokensRun3",
+        "/home/vamaj/scratch/TWMC/run_results/TokensRun4",
+        "/home/vamaj/scratch/TWMC/run_results/TokensRun5",
+        "/home/vamaj/scratch/TWMC/run_results/TokensRun6",
+        "/home/vamaj/scratch/TWMC/run_results/TokensRun7",
+        "/home/vamaj/scratch/TWMC/run_results/TokensRun8",
+        "/home/vamaj/scratch/TWMC/run_results/TokensRun9",
+        "/home/vamaj/scratch/TWMC/run_results/TokensRun10",
     ]
     for path in paths:
         build_dataset(path)
@@ -266,5 +314,7 @@ if __name__ == "__main__":
 
     print("Processing datasets...")
     for path in paths:
-        process_dataset(os.path.join(path, "dataset.csv"))
+        process_dataset(
+            os.path.join(path, "dataset.csv"), syntax_threshold=80, semantic_threshold=70
+        )
     print("Datasets processed.")
