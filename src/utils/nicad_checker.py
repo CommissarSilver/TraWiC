@@ -2,11 +2,13 @@ import os
 import json
 import random
 import shutil
+import re
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 from typing import Dict, List
+import multiprocessing as mp
 
-NICAD_DIR = os.path.join("/", "Users", "ahura", "Downloads", "NiCad-6.2")
+NICAD_DIR = os.path.join("/", "store", "travail", "vamaj", "TXL2", "NiCad-6.2")
 WORKING_DIR = os.path.join(os.getcwd())
 
 
@@ -27,7 +29,9 @@ def copy_python_files(src: str, dest: str) -> None:
                 shutil.copy(source_item, target_item)
 
 
-def process_directory(directory: str, selected_directories: list) -> None:
+def process_directory(
+    directory: str, selected_directories: list, core_number: int
+) -> None:
     """
     Processes the files in a directory by running the NiCAD colne detector on them.
 
@@ -54,31 +58,43 @@ def process_directory(directory: str, selected_directories: list) -> None:
 
     # change the working directory to the NiCAD directory
     os.chdir(WORKING_DIR)
-    source = os.path.join(os.getcwd(), "src", "blocks", directory)
-    target = os.path.join(NICAD_DIR, "systems", "analysis_target")
+    source = os.path.join(os.getcwd(), "blocks", directory)
+    target = os.path.join(NICAD_DIR, "systems", f"analysis_target_{core_number}")
 
     # get the full paths of the randomly selected directories
     random_directory_paths = [
-        os.path.join(os.getcwd(), "src", "blocks", directory)
+        os.path.join(os.getcwd(), "blocks", directory)
         for directory in selected_directories
     ]
-
+    # align the prints so that they are easier to read
     print(
         "\033[92m"
-        + "Moving from TWMC to NICAD ->"
-        + os.path.join(NICAD_DIR, "systems", directory)
+        + f"{core_number}".ljust(2)
+        + " - "
+        + "Moving from TWMC to NICAD -> ".ljust(30)
+        + os.path.join(NICAD_DIR, "systems", directory).ljust(50)
         + "\033[0m"
     )
     # make a directory named analysis_target which will contain all the files to be analyzed
-    os.makedirs(os.path.join(NICAD_DIR, "systems", "analysis_target"), exist_ok=True)
+    os.makedirs(
+        os.path.join(NICAD_DIR, "systems", f"analysis_target_{core_number}"),
+        exist_ok=True,
+    )
     for path in [source] + random_directory_paths:
         copy_python_files(path, target)
 
     # change the working directory to the NiCAD directory and run NiCAD
-    print("\033[93m" + f"Running NiCAD Block on {directory}" + "\033[0m")
+    print(
+        "\033[93m"
+        + f"{core_number}".ljust(2)
+        + " - "
+        + f"Running NiCAD Block on {directory}".ljust(50)
+        + "\033[0m"
+    )
     os.chdir(NICAD_DIR)
+    # no need to display terminal output
     os.system(
-        f"arch -x86_64 sh {NICAD_DIR}/nicad6 blocks py {NICAD_DIR}/systems/analysis_target"
+        f"sh {NICAD_DIR}/nicad6 blocks py {NICAD_DIR}/systems/analysis_target_{core_number} > /dev/null 2>&1",
     )
     # NiCAD produces results as an html file, so we read the html file and save it as a json file. The reason for storing them and not processing them outright is to have a record of the results in case something goes wrong.
     html_files = [
@@ -87,20 +103,39 @@ def process_directory(directory: str, selected_directories: list) -> None:
             os.path.join(
                 NICAD_DIR,
                 "systems",
-                f"analysis_target_blocks-blind-clones",
+                f"analysis_target_{core_number}_blocks-blind-clones",
             )
         )
         if file.endswith(".html")
     ]
+    nicad_results = {}
+    # read the original html file, process it and save it as a json file
     with open(
         os.path.join(
             NICAD_DIR,
             "systems",
-            "analysis_target_blocks-blind-clones",
+            f"analysis_target_{core_number}_blocks-blind-clones",
             html_files[0],
         )
     ) as f:
         nicad_results[directory] = f.read()
+        result_dict = parse_clone_classes_and_files(nicad_results[directory])
+
+        results_directory_path = "/store/travail/vamaj/TWMC/nicad_results/results"
+        json_file_path = os.path.join(
+            results_directory_path, f"{directory}_result.json"
+        )
+
+        with open(json_file_path, "w") as json_file:
+            json.dump(result_dict, json_file)
+
+        print(
+            "\033[93m"
+            + f"{core_number}".ljust(2)
+            + " - "
+            + f"Read HTML files on {directory}".ljust(50)
+            + "\033[0m"
+        )
 
     json.dump(
         nicad_results,
@@ -116,12 +151,22 @@ def process_directory(directory: str, selected_directories: list) -> None:
     )
     # remove the files from the NiCAD directory for the next iteration
     systems_directory = os.path.join(NICAD_DIR, "systems")
+    pattern = f"analysis_target_{core_number}"
     for item in os.listdir(systems_directory):
-        item_path = os.path.join(systems_directory, item)
-        if os.path.isfile(item_path):
-            os.remove(item_path)
-        elif os.path.isdir(item_path):
-            shutil.rmtree(item_path)
+        if re.match(pattern, item):
+            item_path = os.path.join(systems_directory, item)
+            if os.path.isfile(item_path):
+                os.remove(item_path)
+            elif os.path.isdir(item_path):
+                shutil.rmtree(item_path)
+            
+            print(
+                "\033[93m"
+                + f"{core_number}".ljust(2)
+                + " - "
+                + f"Removed files on {directory}-{item}".ljust(50)
+                + "\033[0m"
+            )
 
 
 def parse_clone_classes_and_files(html_content: str) -> Dict[str, List[str]]:
@@ -200,22 +245,41 @@ def check_repo(repo_name: str, clone_classes: dict) -> bool:
     return results
 
 
+def worker_function(args):
+    NUM_SAMPLES = 20
+    # number of randomly selected directories to run clone detection against
+    
+    directories_chunk, cpu_core_number = args
+
+    directories = os.listdir(os.path.join(os.getcwd(), "blocks"))
+
+    for directory in directories_chunk:
+        selected_directories = random.sample(directories, NUM_SAMPLES)
+
+        process_directory(directory, selected_directories, cpu_core_number)
+
+
 if __name__ == "__main__":
-    NUM_SAMPLES = (
-        20  # number of randomly selected directories to run clone detection against
-    )
-    directories = os.listdir(os.path.join(os.getcwd(), "src", "blocks"))
-    for directory in directories:
-        selected_directories = random.sample(
-            directories, min(NUM_SAMPLES, len(directories))
-        )
-        nicad_results = {}
-        process_directory(directory, selected_directories)
+    num_cores = mp.cpu_count()
+    directories = os.listdir(os.path.join(os.getcwd(), "blocks"))
+    
+    chunk_size = len(directories) // num_cores
+    directories_chunks = [
+        directories[i : i + chunk_size] for i in range(0, len(directories), chunk_size)
+    ]
+    directories_with_core_numbers = [
+        (chunk, i) for i, chunk in enumerate(directories_chunks)
+    ]
+    
+    with mp.Pool(num_cores) as pool:
+        pool.map(worker_function, directories_with_core_numbers)
+        pool.close()
+        pool.join()
 
     # Directory containing the original JSON files
-    original_directory_path = "/Users/ahura/Nexus/TWMC/nicad_results/original"
+    original_directory_path = "/store/travail/vamaj/TWMC/nicad_results/original"
     # Directory to save the result JSON files
-    results_directory_path = "/Users/ahura/Nexus/TWMC/nicad_results/results"
+    results_directory_path = "/store/travail/vamaj/TWMC/nicad_results/results"
 
     # Create the results directory if it doesn't exist
     os.makedirs(results_directory_path, exist_ok=True)
