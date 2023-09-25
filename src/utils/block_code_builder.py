@@ -1,8 +1,8 @@
 import json, tqdm, os
 
-BLOCKS_PATH = "/Users/ahura/Nexus/TWMC/src/blocks/"
+BLOCKS_PATH = "/store/travail/vamaj/TWMC/blocks/"
 results_jsonl = open(
-    "/Users/ahura/Nexus/TWMC/run_results/BlocksRun2/results_block_2.jsonl", "r"
+    "/store/travail/vamaj/TWMC/run_results/BlocksRun6/results_block_6.jsonl", "r"
 )
 results_data = [line for line in results_jsonl]
 
