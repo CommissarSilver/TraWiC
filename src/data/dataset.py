@@ -205,7 +205,7 @@ def get_repos() -> None:
     Raises:
         e: error in connecting to HuggingFace's TheStack dataset
     """
-    x = open(os.path.join(os.getcwd(), "data", "repos_info.json"), "r").read()
+    x = open(os.path.join(os.getcwd(), "data", "repos_alot.json"), "r").read()
     repos_info = json.loads(x)
 
     try:
@@ -271,7 +271,7 @@ if __name__ == "__main__":
     if args.get_scripts:
         get_thestack_dataset(scripts_num=10**5)
     else:
-        repo_info = json.load(open(os.path.join(os.getcwd(), "data", "repos.json"), "r"))
+        # repo_info = json.load(open(os.path.join(os.getcwd(), "data", "repos.json"), "r"))
 
-        get_python_repos_info(repo_info)
+        # get_python_repos_info(repo_info)
         get_repos()
