@@ -1,3 +1,4 @@
+import os
 from models import InspectorModel, InspectorModelRF
 import torch
 import pandas as pd
@@ -8,39 +9,13 @@ from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
-# read the list of csv files, and combine them all into a single dataframe
-# datasets = [
-#     "/Users/ahura/Nexus/TWMC/Run 02_processed_dataset.csv",
-#     "/Users/ahura/Nexus/TWMC/Run 03_processed_dataset.csv",
-#     "/Users/ahura/Nexus/TWMC/Run 04_processed_dataset.csv",
-#     "/Users/ahura/Nexus/TWMC/Run 05_processed_dataset.csv",
-#     "/Users/ahura/Nexus/TWMC/Run 06_processed_dataset.csv",
-#     "/Users/ahura/Nexus/TWMC/Run 07_processed_dataset.csv",
-#     "/Users/ahura/Nexus/TWMC/Run 08_processed_dataset.csv",
-#     "/Users/ahura/Nexus/TWMC/Run 09_processed_dataset.csv",
-#     "/Users/ahura/Nexus/TWMC/Run 10_processed_dataset.csv",
-#     "/Users/ahura/Nexus/TWMC/Run 11_processed_dataset.csv",
-# ]
-# datasets = [pd.read_csv(path) for path in datasets]
-# combined_ds = pd.concat(datasets)
+syntactic_threshold=100
+semantic_threshold=40
 
-# print(combined_ds["trained_on"].value_counts())
-
-# combined_ds.drop(
-#     columns=[
-#         "class_nums_total",
-#         "function_nums_total",
-#         "variable_nums_total",
-#         "string_nums_total",
-#         "comment_nums_total",
-#         "docstring_nums_total",
-#     ],
-#     inplace=True,
-# )
-# combined_ds.to_csv("combined_ds.csv", index=False)
-combined_ds = pd.read_csv(
-    "/Users/ahura/Nexus/TWMC/run_results/rf_train_ds.csv",
-)
+combined_ds = pd.read_csv(os.path.join(os.getcwd(),
+                                       'rf_data',
+                                       f"syn{syntactic_threshold}_sem{semantic_threshold}",
+                                       'train.csv'))
 # Split the dataset into training and testing datasets
 
 train_ds, test_ds = train_test_split(
@@ -70,13 +45,13 @@ clf.fit(x, y)
 fig = plt.figure(figsize=(10, 10))
 ax = fig.add_subplot(111)
 ax.barh(train_ds.columns[:-1], clf.feature_importances_)
-plt.savefig("feature_importance.png", dpi=300)
+plt.savefig(f"feature_importance__syn{syntactic_threshold}_sem{semantic_threshold}.png", dpi=300)
 
 #### Correlation Matrix ####
 fig = plt.figure(figsize=(10, 10))
 ax = fig.add_subplot(111)
 sns.heatmap(train_ds.corr(), annot=True, fmt=".2f", ax=ax)
-plt.savefig("correlation_matrix.png", dpi=300)
+plt.savefig(f"correlation_matrix__syn{syntactic_threshold}_sem{semantic_threshold}.png", dpi=300)
 
 # plot the first decision tree
 plt.figure(figsize=(40, 40))
@@ -87,7 +62,7 @@ tree.plot_tree(
     filled=True,
     fontsize=10,
 )
-plt.savefig("decision_tree.png", dpi=300)
+plt.savefig(f"decision_tree__syn{syntactic_threshold}_sem{semantic_threshold}.png", dpi=300)
 # print the number of 1s and 0s in the dataset
 print("Number of 1s and 0s in the train dataset:", train_ds["trained_on"].value_counts())
 print("Number of 1s and 0s in the test dataset:", test_ds["trained_on"].value_counts())
@@ -115,4 +90,4 @@ print("F-score:", fscore)
 # save the model
 import pickle
 
-pickle.dump(clf, open("rf_model.sav", "wb"))
+pickle.dump(clf, open(f"rf_model__syn{syntactic_threshold}_sem{semantic_threshold}.sav", "wb"))
