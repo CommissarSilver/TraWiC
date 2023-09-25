@@ -16,7 +16,7 @@ __pycache__/
 /logs
 /.vscode
 run_results/
-/src/blocks
+/blocks
 /NiCad-6.2
 /nicad_results
 run_results_sep_third.tar.gz
