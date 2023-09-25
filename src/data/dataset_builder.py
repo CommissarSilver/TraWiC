@@ -279,34 +279,10 @@ def process_dataset(
 
 
 if __name__ == "__main__":
-    # paths = [
-    #     "/Users/ahura/Nexus/TWMC/Runs/Run 02",
-    #     "/Users/ahura/Nexus/TWMC/Runs/Run 03",
-    #     "/Users/ahura/Nexus/TWMC/Runs/Run 04",
-    #     "/Users/ahura/Nexus/TWMC/Runs/Run 05",
-    #     "/Users/ahura/Nexus/TWMC/Runs/Run 06",
-    #     "/Users/ahura/Nexus/TWMC/Runs/Run 07",
-    #     "/Users/ahura/Nexus/TWMC/Runs/Run 08",
-    #     "/Users/ahura/Nexus/TWMC/Runs/Run 09",
-    #     "/Users/ahura/Nexus/TWMC/Runs/Run 10",
-    #     "/Users/ahura/Nexus/TWMC/Runs/Run 11",
-    #     "/Users/ahura/Nexus/TWMC/Runs/Run 12",
-    #     "/Users/ahura/Nexus/TWMC/Runs/Run 13",
-    #     "/Users/ahura/Nexus/TWMC/Runs/Run 14",
-    #     "/Users/ahura/Nexus/TWMC/Runs/Run 15",
-    #     "/Users/ahura/Nexus/TWMC/Runs/Run 16",
-    # ]
     paths = [
-        "/home/vamaj/scratch/TWMC/run_results/TokensRun1",
-        "/home/vamaj/scratch/TWMC/run_results/TokensRun2",
-        "/home/vamaj/scratch/TWMC/run_results/TokensRun3",
-        "/home/vamaj/scratch/TWMC/run_results/TokensRun4",
-        "/home/vamaj/scratch/TWMC/run_results/TokensRun5",
-        "/home/vamaj/scratch/TWMC/run_results/TokensRun6",
-        "/home/vamaj/scratch/TWMC/run_results/TokensRun7",
-        "/home/vamaj/scratch/TWMC/run_results/TokensRun8",
-        "/home/vamaj/scratch/TWMC/run_results/TokensRun9",
-        "/home/vamaj/scratch/TWMC/run_results/TokensRun10",
+        os.path.join(os.getcwd(), "run_results", path)
+        for path in os.listdir(os.path.join(os.getcwd(), "run_results"))
+        if "TokensRun" in path
     ]
     for path in paths:
         build_dataset(path)
@@ -315,6 +291,6 @@ if __name__ == "__main__":
     print("Processing datasets...")
     for path in paths:
         process_dataset(
-            os.path.join(path, "dataset.csv"), syntax_threshold=80, semantic_threshold=70
+            os.path.join(path, "dataset.csv"), syntax_threshold=100, semantic_threshold=50,
         )
     print("Datasets processed.")
