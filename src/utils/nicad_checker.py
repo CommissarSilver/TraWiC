@@ -1,12 +1,13 @@
-import os
 import json
+import multiprocessing as mp
+import os
 import random
-import shutil
 import re
+import shutil
+from typing import Dict, List
+
 from bs4 import BeautifulSoup
 from tqdm import tqdm
-from typing import Dict, List
-import multiprocessing as mp
 
 NICAD_DIR = os.path.join("/", "store", "travail", "vamaj", "TXL2", "NiCad-6.2")
 WORKING_DIR = os.path.join(os.getcwd())
@@ -19,8 +20,8 @@ def copy_python_files(src: str, dest: str) -> None:
     Args:
         src (str): Source directory
         dest (str): Destination directory
-
     """
+
     for dirpath, dirnames, filenames in os.walk(src):
         for filename in filenames:
             if filename.endswith(".py"):
@@ -122,9 +123,7 @@ def process_directory(
         result_dict = parse_clone_classes_and_files(nicad_results[directory])
 
         results_directory_path = "/store/travail/vamaj/TWMC/nicad_results/results"
-        json_file_path = os.path.join(
-            results_directory_path, f"{directory}_result.json"
-        )
+        json_file_path = os.path.join(results_directory_path, f"{directory}_result.json")
 
         with open(json_file_path, "w") as json_file:
             json.dump(result_dict, json_file)
@@ -159,7 +158,7 @@ def process_directory(
                 os.remove(item_path)
             elif os.path.isdir(item_path):
                 shutil.rmtree(item_path)
-            
+
             print(
                 "\033[93m"
                 + f"{core_number}".ljust(2)
@@ -248,7 +247,7 @@ def check_repo(repo_name: str, clone_classes: dict) -> bool:
 def worker_function(args):
     NUM_SAMPLES = 20
     # number of randomly selected directories to run clone detection against
-    
+
     directories_chunk, cpu_core_number = args
 
     directories = os.listdir(os.path.join(os.getcwd(), "blocks"))
@@ -262,7 +261,8 @@ def worker_function(args):
 if __name__ == "__main__":
     num_cores = mp.cpu_count()
     directories = os.listdir(os.path.join(os.getcwd(), "blocks"))
-    
+
+    # divide the directories into chunks and assign each chunk to a core
     chunk_size = len(directories) // num_cores
     directories_chunks = [
         directories[i : i + chunk_size] for i in range(0, len(directories), chunk_size)
@@ -270,16 +270,21 @@ if __name__ == "__main__":
     directories_with_core_numbers = [
         (chunk, i) for i, chunk in enumerate(directories_chunks)
     ]
-    
+
     with mp.Pool(num_cores) as pool:
+        #! Number of repo samples is set inside the worker function
         pool.map(worker_function, directories_with_core_numbers)
         pool.close()
         pool.join()
 
     # Directory containing the original JSON files
-    original_directory_path = "/store/travail/vamaj/TWMC/nicad_results/original"
+    original_directory_path = os.path.join(
+        "/store", "travail", "vamaj", "TWMC", "nicad_results", "original"
+    )
     # Directory to save the result JSON files
-    results_directory_path = "/store/travail/vamaj/TWMC/nicad_results/results"
+    results_directory_path = os.path.join(
+        "/store", "travail", "vamaj", "TWMC", "nicad_results", "results"
+    )
 
     # Create the results directory if it doesn't exist
     os.makedirs(results_directory_path, exist_ok=True)
@@ -301,9 +306,11 @@ if __name__ == "__main__":
             )
             with open(json_file_path, "w") as json_file:
                 json.dump(result_dict, json_file)
+
             if not os.path.exists(os.path.join(os.getcwd(), "NiCAD_results.csv")):
                 with open(os.path.join(os.getcwd(), "NiCAD_results.csv"), "w") as f:
                     f.write("filename,repo_detected\n")
+
             with open(os.path.join(os.getcwd(), "NiCAD_results.csv"), "a") as f:
                 f.write(
                     f"{filename.strip('nicad_results_').strip('.json')},{repo_detected}\n"
