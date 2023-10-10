@@ -7,8 +7,8 @@ import pickle
 from sklearn.ensemble import RandomForestClassifier
 
 # load the model
-
 clf = pickle.load(open("/Users/ahura/Nexus/TWMC/rf_model.sav", "rb"))
+
 ds_s = pd.read_csv("/Users/ahura/Nexus/TWMC/all_test.csv")
 ds_s.drop(
     columns=[
@@ -33,7 +33,7 @@ false_positives = 0
 true_negatives = 0
 false_negatives = 0
 
-with open("/Users/ahura/Nexus/TWMC/inspector_test_repo_level_detail.csv", "w") as f:
+with open("/Users/ahura/Nexus/TWMC/inspector_test_per_script.csv", "w") as f:
     f.write("repo_name,actual,predicted\n")
     accuracy = 0
     recall = 0
@@ -75,7 +75,7 @@ with open("/Users/ahura/Nexus/TWMC/inspector_test_repo_level_detail.csv", "w") a
     print("True Negatives: ", true_negatives)
     print("False Negatives: ", false_negatives)
 
-with open("/Users/ahura/Nexus/TWMC/inspector_test.csv", "w") as f:
+with open("/Users/ahura/Nexus/TWMC/inspector_test_repo_min_thresh.csv", "w") as f:
     f.write("repo_name,predicted,actual\n")
     for k, v in final_repo_result.items():
         f.write(f"{k},{1 if v>0 else 0},{final_repo_ground_truth[k]}\n")
@@ -85,8 +85,10 @@ repo_false_positives = 0
 repo_true_negatives = 0
 repo_false_negatives = 0
 accuracy = 0
-threshold = 0.4
-with open("/Users/ahura/Nexus/TWMC/inspector_test_repo_level.csv", "w") as f:
+threshold = 0.4  # if more than 40% of the files in a repo are predicted as 1, then the whole repo is predicted as 1
+with open(
+    f"/Users/ahura/Nexus/TWMC/inspector_test_repo_level_thresh_{threshold}.csv", "w"
+) as f:
     f.write("repo_name,predicted,actual\n")
     for k, v in final_repo_result.items():
         f.write(f"{k},{1 if v/final_repo_total[k]>threshold else 0},1\n")
