@@ -1,9 +1,19 @@
-import os, logging, logging.config, yaml, torch, argparse, random, json, warnings, sys
+import argparse
+import json
+import logging
+import logging.config
+import os
+import random
+import sys
+import warnings
+
+import pandas as pd
+import torch
+import yaml
 from tqdm import tqdm
+
 from checker import Checker, CheckerBlock
 from models import SantaCoder, SantaCoderBlock
-import pandas as pd
-
 
 # Disable all warnings
 warnings.filterwarnings("ignore")
