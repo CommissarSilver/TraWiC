@@ -6,12 +6,16 @@ import pandas as pd
 import seaborn as sns
 from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
+from sklearn.metrics import (
+    confusion_matrix,
+    precision_recall_fscore_support,
+    accuracy_score,
+)
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import GridSearchCV
 
 syntactic_threshold = 100  # threshold for considering syntactic similarity
-semantic_threshold = 100  # threshold for considering semantic similarity
+semantic_threshold = 80  # threshold for considering semantic similarity
 
 combined_ds = pd.read_csv(
     os.path.join(
@@ -95,15 +99,18 @@ print("Number of 1s and 0s in the train dataset:", train_ds["trained_on"].value_
 print("Number of 1s and 0s in the test dataset:", test_ds["trained_on"].value_counts())
 
 # create a confusion matrix and print it
-print("Confusion matrix:")
+tn, fp, fn, tp = confusion_matrix(
+    test_ds.iloc[:, -1].values,
+    clf.predict(test_ds.iloc[:, 1:].values),
+).ravel()
 print(
-    confusion_matrix(
-        test_ds.iloc[:, -1].values,
-        clf.predict(test_ds.iloc[:, 1:].values),
-    )
+    f"True Negatives: {tn}, False Positives: {fp}, False Negatives: {fn}, True Positives: {tp}"
 )
 # print the accuracy
-accuracy = clf.score(test_ds.iloc[:, :-1].values, test_ds.iloc[:, -1].values)
+accuracy = accuracy_score(
+    test_ds.iloc[:, -1].values,
+    clf.predict(test_ds.iloc[:, :-1].values),
+)
 print("Accuracy:", accuracy)
 
 # calcualte the precision and recall
@@ -115,7 +122,6 @@ precision, recall, fscore, _ = precision_recall_fscore_support(
 print("Precision:", precision)
 print("Recall:", recall)
 print("F-score:", fscore)
-
 # save the model
 pickle.dump(
     clf, open(f"rf_model__syn{syntactic_threshold}_sem{semantic_threshold}.sav", "wb")
