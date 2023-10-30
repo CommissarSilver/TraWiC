@@ -23,3 +23,8 @@ run_results/
 run_results_sep_third.tar.gz
 stag_run_block.sh
 stag_run_token.sh
+.idea/modules.xml
+.idea/TWMC.iml
+.idea/vcs.xml
+.idea/workspace.xml
+.idea/inspectionProfiles/profiles_settings.xml
