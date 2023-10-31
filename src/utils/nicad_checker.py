@@ -245,9 +245,12 @@ def check_repo(repo_name: str, clone_classes: dict) -> bool:
 
 
 def worker_function(args):
-    NUM_SAMPLES = 20
     # number of randomly selected directories to run clone detection against
-
+    NUM_SAMPLES = int(0.1* len(os.listdir(os.path.join(os.getcwd(), "blocks"))))
+    print(f"Number of samples: {NUM_SAMPLES}")
+    # 0.05 equals to 68 repos
+    # 0.09 equals to 122 repos
+    # 0.1 equals to 136 repos
     directories_chunk, cpu_core_number = args
 
     directories = os.listdir(os.path.join(os.getcwd(), "blocks"))
@@ -270,7 +273,7 @@ if __name__ == "__main__":
     directories_with_core_numbers = [
         (chunk, i) for i, chunk in enumerate(directories_chunks)
     ]
-
+    # process_directory(directories[0], directories[1:3], 0)
     with mp.Pool(num_cores) as pool:
         #! Number of repo samples is set inside the worker function
         pool.map(worker_function, directories_with_core_numbers)
