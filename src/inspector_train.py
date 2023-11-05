@@ -15,7 +15,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import GridSearchCV
 
 syntactic_threshold = 100  # threshold for considering syntactic similarity
-semantic_threshold = 40  # threshold for considering semantic similarity
+semantic_threshold = 60  # threshold for considering semantic similarity
 
 combined_ds = pd.read_csv(
     os.path.join(
@@ -55,7 +55,7 @@ print(f"Target Snippet: {y[:1]}")
 
 clf = RandomForestClassifier()
 grid_search = GridSearchCV(
-    estimator=clf, param_grid=param_grid, cv=5, n_jobs=-1, verbose=2, scoring="accuracy"
+    estimator=clf, param_grid=param_grid, cv=5, n_jobs=-1, verbose=2, scoring="f1"
 )
 grid_search.fit(x, y)
 best_params = grid_search.best_params_
