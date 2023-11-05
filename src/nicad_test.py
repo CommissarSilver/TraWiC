@@ -107,9 +107,7 @@ for row in nicad_ds.iterrows():
         else:
             false_negatives += 1
 
-accuracy = (true_positives + true_negatives) / (
-    true_positives + true_negatives + false_positives + false_negatives
-)
+accuracy = (true_positives + true_negatives) / (true_positives + true_negatives + false_positives + false_negatives)
 recall = true_positives / (true_positives + false_negatives)
 precision = true_positives / (true_positives + false_positives)
 f1 = 2 * (precision * recall) / (precision + recall)
@@ -118,7 +116,5 @@ print(f"Accuracy: {accuracy}")
 print(f"Recall: {recall}")
 print(f"Precision: {precision}")
 print(f"F1: {f1}")
-print(f"TP: {true_positives}")
-print(f"FP: {false_positives}")
-print(f"TN: {true_negatives}")
-print(f"FN: {false_negatives}")
+print(f"sensitivity: {true_positives / (true_positives + false_negatives)}")
+print(f"specificity: {true_negatives / (true_negatives + false_positives)}")
