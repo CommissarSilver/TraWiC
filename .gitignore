@@ -20,6 +20,8 @@ run_results/
 /blocks
 /NiCad-6.2
 /nicad_results
+\pictures
+
 run_results_sep_third.tar.gz
 stag_run_block.sh
 stag_run_token.sh
