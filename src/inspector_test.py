@@ -70,12 +70,15 @@ with open(
         final_repo_total[repo_name] = final_repo_total.get(repo_name, 0) + 1
         final_repo_ground_truth[repo_name] = actual_value
 
-print('precision - file: ', true_positives / (true_positives + false_positives))
-print('accuracy - file: ', (true_positives + true_negatives) / len(x))
-print('f-score - file: ', 2 * true_positives / (2 * true_positives + false_positives + false_negatives))
+print("precision - file: ", true_positives / (true_positives + false_positives))
+print("accuracy - file: ", (true_positives + true_negatives) / len(x))
+print(
+    "f-score - file: ",
+    2 * true_positives / (2 * true_positives + false_positives + false_negatives),
+)
 
 print("sensitivity - file: ", true_positives / (true_positives + false_negatives))
-print('specificity - file: ', true_negatives / (true_negatives + false_positives))
+print("specificity - file: ", true_negatives / (true_negatives + false_positives))
 
 print("*" * 100)
 
@@ -119,7 +122,10 @@ print(
     "precision - 0.4: ",
     repo_true_positives / (repo_true_positives + repo_false_positives),
 )
-print("accuracy - 0.4: ", (repo_true_positives + repo_true_negatives) / len(list(final_repo_total.keys())))
+print(
+    "accuracy - 0.4: ",
+    (repo_true_positives + repo_true_negatives) / len(list(final_repo_total.keys())),
+)
 print(
     "f-score - 0.4: ",
     2
@@ -127,8 +133,14 @@ print(
     / (2 * repo_true_positives + repo_false_positives + repo_false_negatives),
 )
 
-print('sensitivity - repo - 0.4: ', repo_true_positives / (repo_true_positives + repo_false_negatives))
-print('specificity - repo - 0.4: ', repo_true_negatives / (repo_true_negatives + repo_false_positives))
+print(
+    "sensitivity - repo - 0.4: ",
+    repo_true_positives / (repo_true_positives + repo_false_negatives),
+)
+print(
+    "specificity - repo - 0.4: ",
+    repo_true_negatives / (repo_true_negatives + repo_false_positives),
+)
 
 print("*" * 100)
 
@@ -162,12 +174,21 @@ print(
     "precision - 0.6: ",
     repo_true_positives / (repo_true_positives + repo_false_positives),
 )
-print("accuracy - 0.6: ", (repo_true_positives +repo_true_negatives) / len(list(final_repo_total.keys())))
+print(
+    "accuracy - 0.6: ",
+    (repo_true_positives + repo_true_negatives) / len(list(final_repo_total.keys())),
+)
 print(
     "f-score - 0.6: ",
     2
     * repo_true_positives
     / (2 * repo_true_positives + repo_false_positives + repo_false_negatives),
 )
-print('sensitivity - repo - 0.6: ', repo_true_positives / (repo_true_positives + repo_false_negatives))
-print('specificity - repo - 0.6: ', repo_true_negatives / (repo_true_negatives + repo_false_positives))
+print(
+    "sensitivity - repo - 0.6: ",
+    repo_true_positives / (repo_true_positives + repo_false_negatives),
+)
+print(
+    "specificity - repo - 0.6: ",
+    repo_true_negatives / (repo_true_negatives + repo_false_positives),
+)

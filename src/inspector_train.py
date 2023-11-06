@@ -66,13 +66,14 @@ print(f"Best Score: {best_score}")
 clf = grid_search.best_estimator_
 
 import seaborn as sns
+
 sns.set_theme(style="dark")
 
 fig, ax = plt.subplots(figsize=(12, 12))
 
 # Adjust font sizes
 ax.tick_params(labelsize=27)
-ax.set_xlabel("Importance", fontsize=20,fontdict={'weight': 'bold'})
+ax.set_xlabel("Importance", fontsize=20, fontdict={"weight": "bold"})
 # ax.set_ylabel("Features", fontsize=10)
 
 # Horizontal bar chart with feature importances
@@ -82,7 +83,9 @@ ax.barh(train_ds.columns[:-1], clf.feature_importances_)
 plt.yticks(rotation=0)
 plt.tight_layout()
 # Save the figure with a descriptive filename
-plt.savefig(f"feature_importance__syn{syntactic_threshold}_sem{semantic_threshold}.png", dpi=300)
+plt.savefig(
+    f"feature_importance__syn{syntactic_threshold}_sem{semantic_threshold}.png", dpi=300
+)
 
 #### Correlation Matrix ####
 # Increase the figure size if you have many features.

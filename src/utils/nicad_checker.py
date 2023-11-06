@@ -246,7 +246,7 @@ def check_repo(repo_name: str, clone_classes: dict) -> bool:
 
 def worker_function(args):
     # number of randomly selected directories to run clone detection against
-    NUM_SAMPLES = int(0.1* len(os.listdir(os.path.join(os.getcwd(), "blocks"))))
+    NUM_SAMPLES = int(0.1 * len(os.listdir(os.path.join(os.getcwd(), "blocks"))))
     print(f"Number of samples: {NUM_SAMPLES}")
     # 0.05 equals to 68 repos
     # 0.09 equals to 122 repos

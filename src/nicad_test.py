@@ -53,16 +53,19 @@ def comment_to_code_ratio(script_path: str) -> float:
         comments, docstrings = extract_comments_and_docstrings(script)
 
         comment_lines = len(comments)
-        number_of_comment_chars= sum([len(comment) for comment in comments])
-        
+        number_of_comment_chars = sum([len(comment) for comment in comments])
+
         docstring_lines = len(docstrings)
         number_of_docstring_chars = sum([len(docstring) for docstring in docstrings])
-        
-        code_lines = len(script.split("\n"))
-        number_of_code_chars = len(script) - number_of_comment_chars - number_of_docstring_chars
-        
 
-        return (number_of_comment_chars + number_of_docstring_chars) / number_of_code_chars
+        code_lines = len(script.split("\n"))
+        number_of_code_chars = (
+            len(script) - number_of_comment_chars - number_of_docstring_chars
+        )
+
+        return (
+            number_of_comment_chars + number_of_docstring_chars
+        ) / number_of_code_chars
     except Exception as e:
         return 0
 
@@ -107,7 +110,9 @@ for row in nicad_ds.iterrows():
         else:
             false_negatives += 1
 
-accuracy = (true_positives + true_negatives) / (true_positives + true_negatives + false_positives + false_negatives)
+accuracy = (true_positives + true_negatives) / (
+    true_positives + true_negatives + false_positives + false_negatives
+)
 recall = true_positives / (true_positives + false_negatives)
 precision = true_positives / (true_positives + false_positives)
 f1 = 2 * (precision * recall) / (precision + recall)
