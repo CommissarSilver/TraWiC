@@ -1,12 +1,13 @@
+import multiprocessing
 import os
+import pickle
 import tokenize
 from io import BytesIO
-import multiprocessing
-from tqdm import tqdm
 from typing import List, Tuple
+
 import pandas as pd
-import pickle
 from sklearn.ensemble import RandomForestClassifier
+from tqdm import tqdm
 
 
 def extract_comments_and_docstrings(script: str) -> Tuple[List, List]:

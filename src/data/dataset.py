@@ -1,9 +1,12 @@
-import os, tqdm, json, logging, tokenize
-
+import json
+import logging
+import os
+import tokenize
 from io import BytesIO
-from typing import Tuple, List
-from datasets import load_dataset
+from typing import List, Tuple
 
+import tqdm
+from datasets import load_dataset
 
 logger = logging.getLogger("process_scripts")
 
@@ -256,8 +259,11 @@ def get_repos() -> None:
 
 
 if __name__ == "__main__":
-    import yaml, logging.config, argparse
+    import argparse
+    import logging.config
+
     import pandas as pd
+    import yaml
 
     with open(os.path.join(os.getcwd(), "src", "logging_config.yaml"), "r") as f:
         config = yaml.safe_load(f.read())

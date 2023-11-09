@@ -1,10 +1,13 @@
-import tokenize, json, os
-import pandas as pd
-import tqdm
+import json
+import os
+import tokenize
 from io import BytesIO
 from typing import List, Tuple
-from skip_data import SKIPS
+
+import pandas as pd
+import tqdm
 from fuzzywuzzy import fuzz
+from skip_data import SKIPS
 
 
 def extract_comments_and_docstrings(script: str) -> Tuple[List, List]:

@@ -1,5 +1,9 @@
-import os, re, logging, ast
-from typing import Tuple, List, Dict, Union
+import ast
+import logging
+import os
+import re
+from typing import Dict, List, Tuple, Union
+
 from fuzzywuzzy import fuzz
 
 logger = logging.getLogger("checker")

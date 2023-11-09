@@ -1,4 +1,7 @@
-import json, tqdm, os
+import json
+import os
+
+import tqdm
 
 BLOCKS_PATH = "/store/travail/vamaj/TWMC/blocks/"
 results_jsonl = open(

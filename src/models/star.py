@@ -1,6 +1,7 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer
 import os
 import time
+
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 os.environ["TRANSFORMERS_CACHE"] = "/store/travail/vamaj/hf_cache"
 checkpoint = "bigcode/starcoder"

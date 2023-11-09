@@ -1,8 +1,17 @@
-import os, logging, logging.config, yaml, torch, argparse, random, json
+import argparse
+import json
+import logging
+import logging.config
+import os
+import random
+
+import pandas as pd
+import torch
+import yaml
 from tqdm import tqdm
+
 from checker import Checker
 from models import SantaCoder
-import pandas as pd
 
 # load logging configuration
 with open(os.path.join(os.getcwd(), "src", "logging_config.yaml"), "r") as f:

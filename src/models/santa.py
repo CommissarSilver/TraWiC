@@ -1,8 +1,11 @@
-import torch, inspect, logging
+import inspect
+import logging
 from typing import Tuple
-from models.model import InfillModel
+
+import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
+from models.model import InfillModel
 
 logger = logging.getLogger("model")
 

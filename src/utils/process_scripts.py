@@ -1,5 +1,10 @@
-import os, tqdm, json, keyword, logging
+import json
+import keyword
+import logging
 import multiprocessing as mp
+import os
+
+import tqdm
 
 logger = logging.getLogger("process_scripts")
 
@@ -156,7 +161,9 @@ def remove_keywords(word_count: dict):
 
 
 if __name__ == "__main__":
-    import yaml, logging.config
+    import logging.config
+
+    import yaml
 
     with open(os.path.join(os.getcwd(), "src", "logging_config.yaml"), "r") as f:
         config = yaml.safe_load(f.read())

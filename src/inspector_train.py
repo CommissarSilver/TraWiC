@@ -6,13 +6,9 @@ import pandas as pd
 import seaborn as sns
 from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import (
-    confusion_matrix,
-    precision_recall_fscore_support,
-    accuracy_score,
-)
-from sklearn.model_selection import train_test_split
-from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import (accuracy_score, confusion_matrix,
+                             precision_recall_fscore_support)
+from sklearn.model_selection import GridSearchCV, train_test_split
 
 syntactic_threshold = 100  # threshold for considering syntactic similarity
 semantic_threshold = 60  # threshold for considering semantic similarity

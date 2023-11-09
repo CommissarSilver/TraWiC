@@ -1,10 +1,10 @@
-import os
 import multiprocessing
-from tqdm import tqdm
+import os
+import pickle
 
 import pandas as pd
-import pickle
 from sklearn.ensemble import RandomForestClassifier
+from tqdm import tqdm
 
 syntactic_threshold = 100  # threshold for considering syntactic similarity
 semantic_threshold = 60  # threshold for considering semantic similarity

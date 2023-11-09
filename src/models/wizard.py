@@ -1,8 +1,10 @@
-import torch, inspect, logging
+import inspect
+import logging
 from typing import Tuple
 
+import torch
 # Load model directly
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 tokenizer = AutoTokenizer.from_pretrained("WizardLM/WizardCoder-15B-V1.0")
 model = AutoModelForCausalLM.from_pretrained("WizardLM/WizardCoder-15B-V1.0").to("cuda")
