@@ -20,6 +20,8 @@ results.json
 /src/blocks
 /blocks
 /nicad_results
+/rf_data
+/rf_models
 /pictures
 
 run_results_sep_third.tar.gz
