@@ -14,6 +14,7 @@ results.json
 
 __pycache__/
 /logs
+/data/**
 /.vscode
 run_results/
 /src/blocks
