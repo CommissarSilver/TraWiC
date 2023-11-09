@@ -7,12 +7,12 @@
 *.pkl
 *.sav
 *.png
+*.zip
 
 word_count.json
 results.json
 
 __pycache__/
-/data
 /logs
 /.vscode
 run_results/
