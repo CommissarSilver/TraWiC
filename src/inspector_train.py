@@ -6,17 +6,21 @@ import pandas as pd
 import seaborn as sns
 from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import (accuracy_score, confusion_matrix,
-                             precision_recall_fscore_support)
+from sklearn.metrics import (
+    accuracy_score,
+    confusion_matrix,
+    precision_recall_fscore_support,
+)
 from sklearn.model_selection import GridSearchCV, train_test_split
 
 syntactic_threshold = 100  # threshold for considering syntactic similarity
-semantic_threshold = 60  # threshold for considering semantic similarity
+semantic_threshold = 40  # threshold for considering semantic similarity
 
 combined_ds = pd.read_csv(
     os.path.join(
         os.getcwd(),
         "rf_data",
+        "training",
         f"syn{syntactic_threshold}_sem{semantic_threshold}",
         "train.csv",
     )
@@ -61,6 +65,7 @@ print(f"Best Parameters: {best_params}")
 print(f"Best Score: {best_score}")
 clf = grid_search.best_estimator_
 
+#### Visalizations ####
 import seaborn as sns
 
 sns.set_theme(style="dark")
@@ -84,41 +89,34 @@ plt.savefig(
 )
 
 #### Correlation Matrix ####
-# Increase the figure size if you have many features.
 fig, ax = plt.subplots(figsize=(12, 12))
-
 # Create the heatmap, ensuring square cells and other configurations
 sns.heatmap(train_ds.corr(), annot=True, fmt=".2f", ax=ax, square=True)
-
 # Adjusting the Y-axis limit
 ax.set_ylim(len(train_ds.columns), 0)
-
-# Adjust the tick parameters if necessary
 ax.tick_params(labelsize=12)
-
-# Apply a tight layout with padding (if needed adjust the pad size)
 plt.tight_layout(pad=2)
-
-
 plt.savefig(
     f"correlation_matrix__syn{syntactic_threshold}_sem{semantic_threshold}.png", dpi=300
 )
 
 # plot the first decision tree
-plt.figure(figsize=(40, 40))
-tree.plot_tree(
-    clf.estimators_[0],
-    feature_names=train_ds.columns[:-1],
-    class_names=["0", "1"],
-    filled=True,
-    fontsize=10,
-)
-plt.savefig(
-    f"decision_tree__syn{syntactic_threshold}_sem{semantic_threshold}.png", dpi=300
-)
+# plt.figure(figsize=(40, 40))
+# tree.plot_tree(
+#     clf.estimators_[0],
+#     feature_names=train_ds.columns[:-1],
+#     class_names=["0", "1"],
+#     filled=True,
+#     fontsize=10,
+# )
+# plt.savefig(
+#     f"decision_tree__syn{syntactic_threshold}_sem{semantic_threshold}.png", dpi=300
+# )
 
 # print the number of 1s and 0s in the dataset
-print("Number of 1s and 0s in the train dataset:", train_ds["trained_on"].value_counts())
+print(
+    "Number of 1s and 0s in the train dataset:", train_ds["trained_on"].value_counts()
+)
 print("Number of 1s and 0s in the test dataset:", test_ds["trained_on"].value_counts())
 
 # create a confusion matrix and print it
@@ -134,8 +132,6 @@ accuracy = accuracy_score(
     test_ds.iloc[:, -1].values,
     clf.predict(test_ds.iloc[:, :-1].values),
 )
-print("Accuracy:", accuracy)
-
 # calcualte the precision and recall
 precision, recall, fscore, _ = precision_recall_fscore_support(
     test_ds.iloc[:, -1].values,
@@ -143,9 +139,12 @@ precision, recall, fscore, _ = precision_recall_fscore_support(
     average="weighted",
 )
 print("Precision:", precision)
-print("Recall:", recall)
+print("Accuracy:", accuracy)
 print("F-score:", fscore)
+print("Sensitivity:", recall)
+print("Specificity:", tn / (tn + fp))
+
 # save the model
-pickle.dump(
-    clf, open(f"rf_model__syn{syntactic_threshold}_sem{semantic_threshold}.sav", "wb")
-)
+# pickle.dump(
+#     clf, open(f"rf_model__syn{syntactic_threshold}_sem{semantic_threshold}.sav", "wb")
+# )
