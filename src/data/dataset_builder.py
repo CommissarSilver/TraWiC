@@ -12,7 +12,7 @@ from skip_data import SKIPS
 
 sensitivity = True
 sensitivity_threshold = 0.9
-sem_thresh = 70
+sem_thresh = 80
 syn_thresh = 100
 
 
@@ -153,11 +153,6 @@ def check_similarity(
         row (pd.Series): row of the dataset to check similarity for.
         similairty_threshold (int, optional): threshold for considering similarity a success or not. Defaults to 60.
     """
-    # if (
-    #     row["file_name"] == "zzxzshiyf/FLyFLowerAPI/wsgi.py"
-    #     and row["similarity_objective"] == "application"
-    # ):
-    #     print("hi")
     similarity_objective = (
         row["similarity_objective"].strip("\n").strip("\t").strip(" ")
         if not pd.isna(row["similarity_objective"])
