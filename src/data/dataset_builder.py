@@ -11,7 +11,7 @@ from fuzzywuzzy import fuzz
 from skip_data import SKIPS
 
 sensitivity = True
-sensitivity_threshold = 0.7
+sensitivity_threshold = 0.9
 sem_thresh = 70
 syn_thresh = 100
 
