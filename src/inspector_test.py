@@ -7,7 +7,7 @@ from sklearn.ensemble import RandomForestClassifier
 from tqdm import tqdm
 
 syntactic_threshold = 100  # threshold for considering syntactic similarity
-semantic_threshold = 60  # threshold for considering semantic similarity
+semantic_threshold = 10  # threshold for considering semantic similarity
 
 # load the model
 clf = pickle.load(
@@ -22,7 +22,7 @@ ds_s = pd.read_csv(
         os.getcwd(),
         "rf_data",
         f"syn{syntactic_threshold}_sem{semantic_threshold}",
-        "train.csv",
+        "test.csv",
     )
 )
 
