@@ -1,5 +1,6 @@
 import json
 import os
+import random
 import tokenize
 from io import BytesIO
 from typing import List, Tuple
@@ -8,6 +9,11 @@ import pandas as pd
 import tqdm
 from fuzzywuzzy import fuzz
 from skip_data import SKIPS
+
+sensitivity = True
+sensitivity_threshold = 0.7
+sem_thresh = 70
+syn_thresh = 100
 
 
 def extract_comments_and_docstrings(script: str) -> Tuple[List, List]:
@@ -167,6 +173,29 @@ def check_similarity(
     return 1 if similarity >= similairty_threshold else 0
 
 
+def check_similarity_sensitive(
+    row: pd.Series,
+    similairty_threshold: int = 60,
+) -> int:
+    similarity_objective = (
+        row["similarity_objective"].strip("\n").strip("\t").strip(" ")
+        if not pd.isna(row["similarity_objective"])
+        else ""
+    )
+    model_output = (
+        row["model_output"].strip("\n").strip("\t").strip(" ")
+        if not pd.isna(row["model_output"])
+        else ""
+    )
+    similarity = fuzz.ratio(similarity_objective, model_output)
+
+    # If the similarity score is 100 (exact match), only count as a hit with certain probability
+    if similarity == 100:
+        return 1 if random.random() < sensitivity_threshold else 0
+    else:
+        return 1 if similarity >= similairty_threshold else 0
+
+
 def process_dataset(
     path_to_ds: str,
     syntax_threshold: int = 100,
@@ -181,12 +210,21 @@ def process_dataset(
         semantic_threshold (int, optional): threshold for semantic similarity. Defaults to 60.
     """
     ds = pd.read_csv(path_to_ds)
-    ds["result"] = ds.apply(
-        lambda row: check_similarity(row, syntax_threshold)
-        if row["level"] in ["function_names", "class_names", "variable_names"]
-        else check_similarity(row, semantic_threshold),
-        axis=1,
-    )
+    if not sensitivity:
+        ds["result"] = ds.apply(
+            lambda row: check_similarity(row, syntax_threshold)
+            if row["level"] in ["function_names", "class_names", "variable_names"]
+            else check_similarity(row, semantic_threshold),
+            axis=1,
+        )
+    else:
+        ds["result"] = ds.apply(
+            lambda row: check_similarity_sensitive(row, syntax_threshold)
+            if row["level"] in ["function_names", "class_names", "variable_names"]
+            else check_similarity(row, semantic_threshold),
+            axis=1,
+        )
+
     # group the dataset by file_name, level, similarity_metric
     grouped_ds = ds.groupby(
         ["file_name", "level", "similarity_objective", "model_output"]
@@ -286,9 +324,14 @@ def process_dataset(
     lm_ds = lm_ds[lm_ds["trained_on"] != 2]
 
     # save the dataframe to a csv file
-    lm_ds.to_csv(
-        f"{path_to_ds.split('/')[-2]}_v_{syntax_threshold}_{semantic_threshold}_processed_dataset.csv"
-    )
+    if not sensitivity:
+        lm_ds.to_csv(
+            f"{path_to_ds.split('/')[-2]}_v_{syntax_threshold}_{semantic_threshold}_processed_dataset.csv"
+        )
+    else:
+        lm_ds.to_csv(
+            f"{path_to_ds.split('/')[-2]}_v_{syntax_threshold}_{semantic_threshold}_processed_dataset_sensitive{sensitivity_threshold}.csv"
+        )
 
 
 if __name__ == "__main__":
@@ -305,7 +348,7 @@ if __name__ == "__main__":
     for path in paths:
         process_dataset(
             os.path.join(path, "dataset.csv"),
-            syntax_threshold=100,
-            semantic_threshold=50,
+            syntax_threshold=syn_thresh,
+            semantic_threshold=sem_thresh,
         )
     print("Datasets processed.")
