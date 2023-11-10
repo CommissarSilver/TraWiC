@@ -32,3 +32,4 @@ stag_run_token.sh
 .idea/vcs.xml
 .idea/workspace.xml
 .idea/inspectionProfiles/profiles_settings.xml
+rf_data/training/train_test_builder.py
