@@ -11,7 +11,7 @@ from fuzzywuzzy import fuzz
 from skip_data import SKIPS
 
 sensitivity = True
-sensitivity_threshold = 0.9
+sensitivity_threshold = 0.3
 sem_thresh = 20
 syn_thresh = 100
 
@@ -370,7 +370,7 @@ if __name__ == "__main__":
                     f"syn{syn_thresh}_sem{sem_thresh}",
                     "train.csv",
                 ),
-                index=False,
+
             )
             test_df.to_csv(
                 os.path.join(
@@ -379,7 +379,7 @@ if __name__ == "__main__":
                     f"syn{syn_thresh}_sem{sem_thresh}",
                     "test.csv",
                 ),
-                index=False,
+
             )
 
         else:
@@ -405,7 +405,7 @@ if __name__ == "__main__":
                     f"syn{syn_thresh}_sem{sem_thresh}_sen{sensitivity_threshold}",
                     "train.csv",
                 ),
-                index=False,
+
             )
             test_df.to_csv(
                 os.path.join(
@@ -414,6 +414,6 @@ if __name__ == "__main__":
                     f"syn{syn_thresh}_sem{sem_thresh}_sen{sensitivity_threshold}",
                     "test.csv",
                 ),
-                index=False,
+
             )
         print("Datasets processed.")
