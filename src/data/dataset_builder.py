@@ -186,7 +186,7 @@ def check_similarity_sensitive(
 
     # If the similarity score is 100 (exact match), only count as a hit with certain probability
     if similarity == 100:
-        return 1 if random.random() < sensitivity_threshold else 0
+        return 1 if random.random() > sensitivity_threshold else 0
     else:
         return 1 if similarity >= similairty_threshold else 0
 
