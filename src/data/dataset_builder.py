@@ -12,7 +12,7 @@ from skip_data import SKIPS
 
 sensitivity = True
 sensitivity_threshold = 0.9
-sem_thresh = 80
+sem_thresh = 20
 syn_thresh = 100
 
 
@@ -318,15 +318,7 @@ def process_dataset(
     # drop the rows that their trained_on value is 2
     lm_ds = lm_ds[lm_ds["trained_on"] != 2]
 
-    # save the dataframe to a csv file
-    if not sensitivity:
-        lm_ds.to_csv(
-            f"{path_to_ds.split('/')[-2]}_v_{syntax_threshold}_{semantic_threshold}_processed_dataset.csv"
-        )
-    else:
-        lm_ds.to_csv(
-            f"{path_to_ds.split('/')[-2]}_v_{syntax_threshold}_{semantic_threshold}_processed_dataset_sensitive{sensitivity_threshold}.csv"
-        )
+    return lm_ds
 
 
 if __name__ == "__main__":
@@ -340,10 +332,88 @@ if __name__ == "__main__":
     print("Datasets built.")
 
     print("Processing datasets...")
-    for path in paths:
-        process_dataset(
-            os.path.join(path, "dataset.csv"),
-            syntax_threshold=syn_thresh,
-            semantic_threshold=sem_thresh,
-        )
-    print("Datasets processed.")
+    for sem_thresh in [20, 40, 60, 70, 80]:
+        processed_datasets = []
+        for path in paths:
+            processed_datasets.append(
+                process_dataset(
+                    os.path.join(path, "dataset.csv"),
+                    syntax_threshold=syn_thresh,
+                    semantic_threshold=sem_thresh,
+                )
+            )
+        final_dataset = pd.concat(processed_datasets)
+
+        train_df = final_dataset.iloc[: int(0.8 * len(final_dataset))]
+        test_df = final_dataset.iloc[int(0.8 * len(final_dataset)) :]
+
+        if not sensitivity:
+            if not os.path.exists(
+                os.path.join(
+                    os.getcwd(),
+                    "rf_data",
+                    f"syn{syntax_threshold}_sem{semantic_threshold}",
+                )
+            ):
+                os.mkdir(
+                    os.path.join(
+                        os.getcwd(),
+                        "rf_data",
+                        f"syn{syntax_threshold}_sem{semantic_threshold}",
+                    )
+                )
+
+            train_df.to_csv(
+                os.path.join(
+                    os.getcwd(),
+                    "rf_data",
+                    f"syn{syn_thresh}_sem{sem_thresh}",
+                    "train.csv",
+                ),
+                index=False,
+            )
+            test_df.to_csv(
+                os.path.join(
+                    os.getcwd(),
+                    "rf_data",
+                    f"syn{syn_thresh}_sem{sem_thresh}",
+                    "test.csv",
+                ),
+                index=False,
+            )
+
+        else:
+            if not os.path.exists(
+                os.path.join(
+                    os.getcwd(),
+                    "rf_data",
+                    f"syn{syn_thresh}_sem{sem_thresh}_sen{sensitivity_threshold}",
+                )
+            ):
+                os.mkdir(
+                    os.path.join(
+                        os.getcwd(),
+                        "rf_data",
+                        f"syn{syn_thresh}_sem{sem_thresh}_sen{sensitivity_threshold}",
+                    )
+                )
+
+            train_df.to_csv(
+                os.path.join(
+                    os.getcwd(),
+                    "rf_data",
+                    f"syn{syn_thresh}_sem{sem_thresh}_sen{sensitivity_threshold}",
+                    "train.csv",
+                ),
+                index=False,
+            )
+            test_df.to_csv(
+                os.path.join(
+                    os.getcwd(),
+                    "rf_data",
+                    f"syn{syn_thresh}_sem{sem_thresh}_sen{sensitivity_threshold}",
+                    "test.csv",
+                ),
+                index=False,
+            )
+        print("Datasets processed.")
