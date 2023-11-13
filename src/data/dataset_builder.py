@@ -11,8 +11,7 @@ from fuzzywuzzy import fuzz
 from skip_data import SKIPS
 
 sensitivity = True
-sensitivity_threshold = 0.3
-sem_thresh = 20
+sensitivity_threshold = 0.9
 syn_thresh = 100
 
 
@@ -185,10 +184,14 @@ def check_similarity_sensitive(
     similarity = fuzz.ratio(similarity_objective, model_output)
 
     # If the similarity score is 100 (exact match), only count as a hit with certain probability
-    if similarity == 100:
-        return 1 if random.random() > sensitivity_threshold else 0
+
+    if similarity >= similairty_threshold:
+        if random.random() > sensitivity_threshold:
+            return 1
+        else:
+            return 0
     else:
-        return 1 if similarity >= similairty_threshold else 0
+        return 0
 
 
 def process_dataset(
@@ -216,7 +219,7 @@ def process_dataset(
         ds["result"] = ds.apply(
             lambda row: check_similarity_sensitive(row, syntax_threshold)
             if row["level"] in ["function_names", "class_names", "variable_names"]
-            else check_similarity(row, semantic_threshold),
+            else check_similarity_sensitive(row, semantic_threshold),
             axis=1,
         )
 
@@ -327,9 +330,9 @@ if __name__ == "__main__":
         for path in os.listdir(os.path.join(os.getcwd(), "run_results"))
         if "TokensRun" in path
     ]
-    for path in paths:
-        build_dataset(path)
-    print("Datasets built.")
+    # for path in paths:
+    #     build_dataset(path)
+    # print("Datasets built.")
 
     print("Processing datasets...")
     for sem_thresh in [20, 40, 60, 70, 80]:
@@ -370,7 +373,6 @@ if __name__ == "__main__":
                     f"syn{syn_thresh}_sem{sem_thresh}",
                     "train.csv",
                 ),
-
             )
             test_df.to_csv(
                 os.path.join(
@@ -379,7 +381,6 @@ if __name__ == "__main__":
                     f"syn{syn_thresh}_sem{sem_thresh}",
                     "test.csv",
                 ),
-
             )
 
         else:
@@ -405,7 +406,6 @@ if __name__ == "__main__":
                     f"syn{syn_thresh}_sem{sem_thresh}_sen{sensitivity_threshold}",
                     "train.csv",
                 ),
-
             )
             test_df.to_csv(
                 os.path.join(
@@ -414,6 +414,5 @@ if __name__ == "__main__":
                     f"syn{syn_thresh}_sem{sem_thresh}_sen{sensitivity_threshold}",
                     "test.csv",
                 ),
-
             )
         print("Datasets processed.")
