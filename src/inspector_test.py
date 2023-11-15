@@ -1,32 +1,70 @@
 import multiprocessing
 import os
 import pickle
-
+from argparse import ArgumentParser
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
+from sklearn import svm
+import xgboost as xgb
 from tqdm import tqdm
 
-syntactic_threshold = 100  # threshold for considering syntactic similarity
-semantic_threshold = 10  # threshold for considering semantic similarity
 
-# load the model
-clf = pickle.load(
-    open(
-        f"/store/travail/vamaj/TWMC/rf_model__syn{syntactic_threshold}_sem{semantic_threshold}.sav",
-        "rb",
-    )
+class Colors:
+    GREEN = "\033[92m"  # GREEN
+    YELLOW = "\033[93m"  # YELLOW
+    BLUE = "\033[94m"  # BLUE
+    END = "\033[0m"  # reset to the default color
+
+
+arg_parse = ArgumentParser()
+arg_parse.add_argument(
+    "--classifier",
+    type=str,
+    choices=["rf", "svm", "xgb"],
+    default="xgb",
+)
+arg_parse.add_argument(
+    "--syntactic_threshold",
+    type=int,
+    default=100,
+)
+arg_parse.add_argument(
+    "--semantic_threshold",
+    type=int,
+    default=80,
 )
 
-ds_s = pd.read_csv(
+args = arg_parse.parse_args()
+
+combined_ds = pd.read_csv(
     os.path.join(
         os.getcwd(),
         "rf_data",
-        f"syn{syntactic_threshold}_sem{semantic_threshold}",
+        f"syn{args.syntactic_threshold}_sem{args.semantic_threshold}",
         "test.csv",
     )
 )
 
-x, y = ds_s.iloc[:, 1:-1].values, ds_s.iloc[:, -1].values
+x, y = combined_ds.iloc[:, 1:-1].values, combined_ds.iloc[:, -1].values
+
+if args.classifier == "rf":
+    clf = RandomForestClassifier()
+
+elif args.classifier == "svm":
+    clf = svm.SVC()
+
+elif args.classifier == "xgb":
+    clf = xgb.XGBClassifier(objective="binary:logistic")
+
+# load the model
+clf = pickle.load(
+    open(
+        f"{args.classifier}_model__syn{args.syntactic_threshold}_sem{args.semantic_threshold}.sav",
+        "rb",
+    )
+)
+
+
 # calculate the accuracy, recall, precision, f1-score
 final_repo_result = {}
 final_repo_ground_truth = {}
@@ -38,8 +76,17 @@ false_positives = 0
 true_negatives = 0
 false_negatives = 0
 
+# final results file
+results_file = open(
+    f"clf_{args.classifier}.csv",
+    "a",
+)
+results_file.write(
+    "semantic threshold,syntactic threshold,inclusion criterion,precision,accuracy,f1-score,sensitivity,specificity\n"
+)
+
 with open(
-    f"/store/travail/vamaj/TWMC/inspector_test_per_script__syn{syntactic_threshold}_sem{semantic_threshold}.csv",
+    f"inspector_test_file_level_clf_{args.classifier}__syn{args.syntactic_threshold}_sem{args.semantic_threshold}.csv",
     "w",
 ) as f:
     f.write("repo_name,actual,predicted\n")
@@ -61,8 +108,8 @@ with open(
             else:
                 false_negatives += 1
 
-        f.write(f"{ds_s.iloc[i, 0]},{actual_value,{predicted_value}}\n")
-        repo_name = ds_s.iloc[i, 0].split("/")[0]
+        f.write(f"{combined_ds.iloc[i, 0]},{actual_value,{predicted_value}}\n")
+        repo_name = combined_ds.iloc[i, 0].split("/")[0]
         # if even one repo is predicted as 1, then the whole repo is predicted as 1
         final_repo_result[repo_name] = (
             final_repo_result.get(repo_name, 0) + predicted_value
@@ -70,34 +117,25 @@ with open(
         final_repo_total[repo_name] = final_repo_total.get(repo_name, 0) + 1
         final_repo_ground_truth[repo_name] = actual_value
 
-print("precision - file: ", true_positives / (true_positives + false_positives))
-print("accuracy - file: ", (true_positives + true_negatives) / len(x))
-print(
-    "f-score - file: ",
-    2 * true_positives / (2 * true_positives + false_positives + false_negatives),
+    precision = true_positives / (true_positives + false_positives)
+    accuracy = (true_positives + true_negatives) / len(x)
+    f1 = 2 * true_positives / (2 * true_positives + false_positives + false_negatives)
+    sensitivity = true_positives / (true_positives + false_negatives)
+    specificity = true_negatives / (true_negatives + false_positives)
+
+results_file.write(
+    f"{args.semantic_threshold},{args.syntactic_threshold},single file,{precision},{accuracy},{f1},{sensitivity},{specificity}\n"
 )
 
-print("sensitivity - file: ", true_positives / (true_positives + false_negatives))
-print("specificity - file: ", true_negatives / (true_negatives + false_positives))
-
-print("*" * 100)
-
-with open(
-    f"/store/travail/vamaj/TWMC/inspector_test_repo_min_thresh__syn{syntactic_threshold}_sem{semantic_threshold}.csv",
-    "w",
-) as f:
-    f.write("repo_name,predicted,actual\n")
-    for k, v in final_repo_result.items():
-        f.write(f"{k},{1 if v>0 else 0},{final_repo_ground_truth[k]}\n")
 
 repo_true_positives = 0
 repo_false_positives = 0
 repo_true_negatives = 0
 repo_false_negatives = 0
-accuracy = 0
+
 threshold = 0.4  # if more than 40% of the files in a repo are predicted as 1, then the whole repo is predicted as 1
 with open(
-    f"/store/travail/vamaj/TWMC/inspector_test_repo_level_thresh_{threshold}__syn{syntactic_threshold}_sem{semantic_threshold}.csv",
+    f"inspector_test_repo_level_0.4_clf_{args.classifier}__syn{args.syntactic_threshold}_sem{args.semantic_threshold}.csv",
     "w",
 ) as f:
     f.write("repo_name,predicted,actual\n")
@@ -116,33 +154,21 @@ with open(
             repo_true_negatives += 1
         elif predicted == 0 and actual == 1:
             repo_false_negatives += 1
-
-
-print(
-    "precision - 0.4: ",
-    repo_true_positives / (repo_true_positives + repo_false_positives),
-)
-print(
-    "accuracy - 0.4: ",
-    (repo_true_positives + repo_true_negatives) / len(list(final_repo_total.keys())),
-)
-print(
-    "f-score - 0.4: ",
-    2
-    * repo_true_positives
-    / (2 * repo_true_positives + repo_false_positives + repo_false_negatives),
+    precision = repo_true_positives / (repo_true_positives + repo_false_positives)
+    accuracy = (repo_true_positives + repo_true_negatives) / len(
+        list(final_repo_total.keys())
+    )
+    f1 = (
+        2
+        * repo_true_positives
+        / (2 * repo_true_positives + repo_false_positives + repo_false_negatives)
+    )
+    sensitivity = repo_true_positives / (repo_true_positives + repo_false_negatives)
+    specificity = repo_true_negatives / (repo_true_negatives + repo_false_positives)
+results_file.write(
+    f"{args.semantic_threshold},{args.syntactic_threshold},repo 0.4,{precision},{accuracy},{f1},{sensitivity},{specificity}\n"
 )
 
-print(
-    "sensitivity - repo - 0.4: ",
-    repo_true_positives / (repo_true_positives + repo_false_negatives),
-)
-print(
-    "specificity - repo - 0.4: ",
-    repo_true_negatives / (repo_true_negatives + repo_false_positives),
-)
-
-print("*" * 100)
 
 repo_true_positives = 0
 repo_false_positives = 0
@@ -151,7 +177,7 @@ repo_false_negatives = 0
 
 threshold = 0.6  # if more than 40% of the files in a repo are predicted as 1, then the whole repo is predicted as 1
 with open(
-    f"/store/travail/vamaj/TWMC/inspector_test_repo_level_thresh_{threshold}__syn{syntactic_threshold}_sem{semantic_threshold}.csv",
+    f"inspector_test_repo_level_0.6_clf_{args.classifier}__syn{args.syntactic_threshold}_sem{args.semantic_threshold}.csv",
     "w",
 ) as f:
     f.write("repo_name,predicted,actual\n")
@@ -170,25 +196,17 @@ with open(
             repo_true_negatives += 1
         elif predicted == 0 and actual == 1:
             repo_false_negatives += 1
-print(
-    "precision - 0.6: ",
-    repo_true_positives / (repo_true_positives + repo_false_positives),
-)
-print(
-    "accuracy - 0.6: ",
-    (repo_true_positives + repo_true_negatives) / len(list(final_repo_total.keys())),
-)
-print(
-    "f-score - 0.6: ",
-    2
-    * repo_true_positives
-    / (2 * repo_true_positives + repo_false_positives + repo_false_negatives),
-)
-print(
-    "sensitivity - repo - 0.6: ",
-    repo_true_positives / (repo_true_positives + repo_false_negatives),
-)
-print(
-    "specificity - repo - 0.6: ",
-    repo_true_negatives / (repo_true_negatives + repo_false_positives),
+    precision = repo_true_positives / (repo_true_positives + repo_false_positives)
+    accuracy = (repo_true_positives + repo_true_negatives) / len(
+        list(final_repo_total.keys())
+    )
+    f1 = (
+        2
+        * repo_true_positives
+        / (2 * repo_true_positives + repo_false_positives + repo_false_negatives)
+    )
+    sensitivity = repo_true_positives / (repo_true_positives + repo_false_negatives)
+    specificity = repo_true_negatives / (repo_true_negatives + repo_false_positives)
+results_file.write(
+    f"{args.semantic_threshold},{args.syntactic_threshold},repo 0.6,{precision},{accuracy},{f1},{sensitivity},{specificity}\n"
 )
