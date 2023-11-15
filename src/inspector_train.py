@@ -1,11 +1,12 @@
 import os
 import pickle
 from argparse import ArgumentParser
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-from sklearn import tree
-from sklearn import svm
+import xgboost as xgb
+from sklearn import svm, tree
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import (
     accuracy_score,
@@ -13,7 +14,6 @@ from sklearn.metrics import (
     precision_recall_fscore_support,
 )
 from sklearn.model_selection import GridSearchCV, train_test_split
-import xgboost as xgb
 
 
 class Colors:

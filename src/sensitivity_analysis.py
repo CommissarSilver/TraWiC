@@ -1,15 +1,16 @@
-import pickle
 import os
-import pandas as pd
-from tqdm import tqdm
-from sklearn.metrics import (
-    precision_score,
-    accuracy_score,
-    f1_score,
-    recall_score,
-    confusion_matrix,
-)
+import pickle
 from typing import List
+
+import pandas as pd
+from sklearn.metrics import (
+    accuracy_score,
+    confusion_matrix,
+    f1_score,
+    precision_score,
+    recall_score,
+)
+from tqdm import tqdm
 
 # specify the semantic, syntactic, and similarity thresholds
 semantic_thresholds = [20, 40, 60, 70, 80]

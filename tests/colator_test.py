@@ -1,5 +1,6 @@
 import unittest
 from unittest.mock import MagicMock
+
 from checker import process_input
 
 
