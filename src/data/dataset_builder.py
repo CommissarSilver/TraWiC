@@ -171,6 +171,13 @@ def check_similarity_sensitive(
     row: pd.Series,
     similairty_threshold: int = 60,
 ) -> int:
+    """
+    Simulate noise in the model output by checking the similarity of a given model output with the similarity objective as ground truth.
+
+    args:
+        row (pd.Series): row of the dataset to check similarity for.
+        similairty_threshold (int, optional): threshold for considering similarity a success or not. Defaults to 60.
+    """
     similarity_objective = (
         row["similarity_objective"].strip("\n").strip("\t").strip(" ")
         if not pd.isna(row["similarity_objective"])
@@ -183,8 +190,7 @@ def check_similarity_sensitive(
     )
     similarity = fuzz.ratio(similarity_objective, model_output)
 
-    # If the similarity score is 100 (exact match), only count as a hit with certain probability
-
+    #! This simulates noise only for the combined scenario
     if similarity >= similairty_threshold:
         if random.random() > sensitivity_threshold:
             return 1
@@ -318,7 +324,7 @@ def process_dataset(
             lm_ds.loc[row[0], "trained_on"] = 1
         else:
             lm_ds.loc[row[0], "trained_on"] = 0
-    # drop the rows that their trained_on value is 2
+    # drop the rows that their trained_on value is 2. a value of 2 means that there was a problem with the file when calculating the comment to code ratio.
     lm_ds = lm_ds[lm_ds["trained_on"] != 2]
 
     return lm_ds
@@ -335,84 +341,84 @@ if __name__ == "__main__":
     # print("Datasets built.")
 
     print("Processing datasets...")
-    for sem_thresh in [20, 40, 60, 70, 80]:
-        processed_datasets = []
-        for path in paths:
-            processed_datasets.append(
-                process_dataset(
-                    os.path.join(path, "dataset.csv"),
-                    syntax_threshold=syn_thresh,
-                    semantic_threshold=sem_thresh,
-                )
+    processed_datasets = [
+        process_dataset(
+            os.path.join(path, "dataset.csv"),
+            syntax_threshold=syn_thresh,
+            semantic_threshold=sem_thresh,
+        )
+        for sem_thresh in [20, 40, 60, 70, 80]
+        for path in paths
+    ]
+
+    final_dataset = pd.concat(processed_datasets)
+
+    train_df = final_dataset.iloc[: int(0.8 * len(final_dataset))]
+    test_df = final_dataset.iloc[int(0.8 * len(final_dataset)) :]
+
+    if not sensitivity:
+        if not os.path.exists(
+            os.path.join(
+                os.getcwd(),
+                "rf_data",
+                f"syn{syntax_threshold}_sem{semantic_threshold}",
             )
-        final_dataset = pd.concat(processed_datasets)
-
-        train_df = final_dataset.iloc[: int(0.8 * len(final_dataset))]
-        test_df = final_dataset.iloc[int(0.8 * len(final_dataset)) :]
-
-        if not sensitivity:
-            if not os.path.exists(
+        ):
+            os.mkdir(
                 os.path.join(
                     os.getcwd(),
                     "rf_data",
                     f"syn{syntax_threshold}_sem{semantic_threshold}",
                 )
-            ):
-                os.mkdir(
-                    os.path.join(
-                        os.getcwd(),
-                        "rf_data",
-                        f"syn{syntax_threshold}_sem{semantic_threshold}",
-                    )
-                )
-
-            train_df.to_csv(
-                os.path.join(
-                    os.getcwd(),
-                    "rf_data",
-                    f"syn{syn_thresh}_sem{sem_thresh}",
-                    "train.csv",
-                ),
-            )
-            test_df.to_csv(
-                os.path.join(
-                    os.getcwd(),
-                    "rf_data",
-                    f"syn{syn_thresh}_sem{sem_thresh}",
-                    "test.csv",
-                ),
             )
 
-        else:
-            if not os.path.exists(
+        train_df.to_csv(
+            os.path.join(
+                os.getcwd(),
+                "rf_data",
+                f"syn{syn_thresh}_sem{sem_thresh}",
+                "train.csv",
+            ),
+        )
+        test_df.to_csv(
+            os.path.join(
+                os.getcwd(),
+                "rf_data",
+                f"syn{syn_thresh}_sem{sem_thresh}",
+                "test.csv",
+            ),
+        )
+
+    else:
+        if not os.path.exists(
+            os.path.join(
+                os.getcwd(),
+                "rf_data",
+                f"syn{syn_thresh}_sem{sem_thresh}_sen{sensitivity_threshold}",
+            )
+        ):
+            os.mkdir(
                 os.path.join(
                     os.getcwd(),
                     "rf_data",
                     f"syn{syn_thresh}_sem{sem_thresh}_sen{sensitivity_threshold}",
                 )
-            ):
-                os.mkdir(
-                    os.path.join(
-                        os.getcwd(),
-                        "rf_data",
-                        f"syn{syn_thresh}_sem{sem_thresh}_sen{sensitivity_threshold}",
-                    )
-                )
+            )
 
-            train_df.to_csv(
-                os.path.join(
-                    os.getcwd(),
-                    "rf_data",
-                    f"syn{syn_thresh}_sem{sem_thresh}_sen{sensitivity_threshold}",
-                    "train.csv",
-                ),
-            )
-            test_df.to_csv(
-                os.path.join(
-                    os.getcwd(),
-                    "rf_data",
-                    f"syn{syn_thresh}_sem{sem_thresh}_sen{sensitivity_threshold}",
-                    "test.csv",
-                ),
-            )
-        print("Datasets processed.")
+        train_df.to_csv(
+            os.path.join(
+                os.getcwd(),
+                "rf_data",
+                f"syn{syn_thresh}_sem{sem_thresh}_sen{sensitivity_threshold}",
+                "train.csv",
+            ),
+        )
+        test_df.to_csv(
+            os.path.join(
+                os.getcwd(),
+                "rf_data",
+                f"syn{syn_thresh}_sem{sem_thresh}_sen{sensitivity_threshold}",
+                "test.csv",
+            ),
+        )
+    print("Datasets processed.")
