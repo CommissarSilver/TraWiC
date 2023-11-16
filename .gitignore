@@ -33,3 +33,7 @@ stag_run_token.sh
 .idea/workspace.xml
 .idea/inspectionProfiles/profiles_settings.xml
 rf_data/training/train_test_builder.py
+
+latex_gen.py
+sample.tex
+table_sample.tex
