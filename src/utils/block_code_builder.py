@@ -3,9 +3,16 @@ import os
 
 import tqdm
 
-BLOCKS_PATH = "/store/travail/vamaj/TWMC/blocks/"
+BLOCKS_PATH = os.path.join(os.getcwd(), "blocks")
+
 results_jsonl = open(
-    "/store/travail/vamaj/TWMC/run_results/BlocksRun6/results_block_6.jsonl", "r"
+    os.path.join(
+        os.getcwd(),
+        "run_results",
+        "BlocksRun6",
+        "results_block_6.jsonl",
+    ),
+    "r",
 )
 results_data = [line for line in results_jsonl]
 
