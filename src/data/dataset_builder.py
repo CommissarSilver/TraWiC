@@ -340,9 +340,9 @@ if __name__ == "__main__":
         for path in os.listdir(os.path.join(os.getcwd(), "run_results"))
         if "TokensRun" in path
     ]
-    # for path in paths:
-    #     build_dataset(path)
-    # print("Datasets built.")
+    for path in paths:
+        build_dataset(path)
+    print("Datasets built.")
 
     print("Processing datasets...")
     processed_datasets = [
