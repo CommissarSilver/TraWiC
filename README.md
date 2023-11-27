@@ -75,9 +75,9 @@ In order to train the classifier, run the following command:
 python src/inspector_train.py --classifier {classifier_name} --syntactic_threshold {syntactic_threshold} --semantic_threshold {semantic_threshold} 
 ```
 Where `{classifier_name}` is the name of the classifier you want to train. The available classifiers are:
-- `rf` for Random Forest
-- `svm` for Support Vector Machine
-- `xgb` for XGBoost
+- `rf` for Random Forest.
+- `svm` for Support Vector Machine.
+- `xgb` for XGBoost.
 
 The `{syntactic_threshold}` and `{semantic_threshold}` are the thresholds for the syntactic and semantic similarity respectively. The default values are `100` and `80` respectively. 
 
@@ -86,7 +86,7 @@ Please ensure that you have NiCad installed by following the instructions in the
 ```bash
 python utils/nicad_checker.py
 ```
-PLEASE NOTE: You need to set the path for NiCad's exe file in the script, manually.
+***PLEASE NOTE: You need to manually set the path for NiCad's exe file in the script.***
 
 This will take a long time to run. The results will be saved in the `nicad_results` directory.
 
