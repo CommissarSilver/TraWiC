@@ -82,7 +82,7 @@ if args.classifier == "rf":
     param_grid = {
         "n_estimators": [50, 100, 200],
         "max_features": ["sqrt", "log2"],
-        "max_depth": [10, 20, 30, None],
+        "max_depth": [10, 20, 30],
         "criterion": ["gini", "entropy"],
     }
 
