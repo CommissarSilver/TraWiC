@@ -8,7 +8,11 @@ from typing import List, Tuple
 import pandas as pd
 import tqdm
 from fuzzywuzzy import fuzz
-from skip_data import SKIPS
+
+try:
+    from skip_data import SKIPS
+except ImportError:
+    from src.data.skip_data import SKIPS
 
 sensitivity = True
 sensitivity_threshold = 0.9
