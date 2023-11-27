@@ -1,3 +1,5 @@
+This repository contains the codes and artefacts for Our papaer, TraWiC: Trained Without My Consent.
+
 ```plaintext
 Blessed be the Omnissiah and His wisdom,
 May this code execute with sacred precision, devoid of flaws,
