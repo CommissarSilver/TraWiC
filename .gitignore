@@ -35,5 +35,4 @@ stag_run_token.sh
 rf_data/training/train_test_builder.py
 
 latex_gen.py
-sample.tex
-table_sample.tex
+*.tex
