@@ -8,6 +8,17 @@
 *.sav
 *.png
 *.zip
+*.tex
+
+run_results_sep_third.tar.gz
+stag_run_block.sh
+stag_run_token.sh
+.idea/modules.xml
+.idea/TWMC.iml
+.idea/vcs.xml
+.idea/workspace.xml
+.idea/inspectionProfiles/profiles_settings.xml
+rf_data/training/train_test_builder.py
 
 word_count.json
 results.json
@@ -24,15 +35,6 @@ results.json
 /rf_models
 /pictures
 
-run_results_sep_third.tar.gz
-stag_run_block.sh
-stag_run_token.sh
-.idea/modules.xml
-.idea/TWMC.iml
-.idea/vcs.xml
-.idea/workspace.xml
-.idea/inspectionProfiles/profiles_settings.xml
-rf_data/training/train_test_builder.py
 
-latex_gen.py
-*.tex
+
+
