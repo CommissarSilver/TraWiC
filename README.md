@@ -1,19 +1,12 @@
-This repository contains the codes and artefacts for our papaer, TraWiC: Trained Without My Consent.
+This repository contains the codes and artifacts for our paper, TraWiC: Trained Without My Consent.
 
-```plaintext
-Blessed be the Omnissiah and His wisdom,
-May this code execute with sacred precision, devoid of flaws,
-May the Machine Spirit infuse it with hallowed efficiency.
+`TraWiC` is a tool designed for dataset inclusion detection in the training dataset of large language models trained on code using membership inference attacks.
 
-Praise be the Omnissiah, sovereign of the Machine, Keeper of perfect logic,
-May His sacred protocols sanctify this script,
-May He guide it to computational purity.
-```
 # How to Run
 
 ## 1 - Dependencies
 The experiments were carried out using Python 3.10.
-Install the dpendencies with:
+Install the dependencies with:
 ```bash
 pip install -r requirements.txt
 ```
@@ -22,7 +15,7 @@ huggingface-cli is required for downloading the dataset. Please install it with:
 ```bash
 pip install huggingface-hub[cli]
 ```
-In order to have access to [TheStack](https://huggingface.co/datasets/bigcode/the-stack), you need to login with you HuggingFace account as outlined in the [documentation](https://huggingface.co/docs/huggingface_hub/main/guides/cli).
+In order to have access to [TheStack](https://huggingface.co/datasets/bigcode/the-stack), you need to login with your HuggingFace account as outlined in the [documentation](https://huggingface.co/docs/huggingface_hub/main/guides/cli).
 
 ## 2 - Download The Dataset
 In order to download the dataset used for this study, run the following command:
@@ -38,7 +31,7 @@ python src/run_tests.py
 ```
 
 ## 4 - Run The Experiments
-There are two modes for running the experiments. `single script` mode and `block` mode. The former runs the experiments for detecting token similarity and is used for TraWiC itself. The latter runs the experiments for generating the data for clone detection usign NiCad.
+There are two modes for running the experiments. `single script` mode and `block` mode. The former runs the experiments for detecting token similarity and is used for TraWiC itself. The latter runs the experiments for generating the data for clone detection using NiCad.
 
 - For generating the data for TraWiC, run the following command:
     ```bash
