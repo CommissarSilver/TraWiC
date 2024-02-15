@@ -27,7 +27,7 @@ This will download the dataset and save it in the `data` directory. The dataset 
 ## 3 - Run The Tests
 After getting the dataset, check that everything works and the directories are as they are supposed to be by running the following command:
 ```bash
-python src/run_tests.py
+python src/data/run_tests.py
 ```
 
 ## 4 - Run The Experiments
