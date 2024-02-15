@@ -1,4 +1,4 @@
-This repository contains the codes and artifacts for our paper, TraWiC: Trained Without My Consent.
+This repository contains the codes and artifacts for our paper, [TraWiC: Trained Without My Consent](https://arxiv.org/abs/2402.09299).
 
 `TraWiC` is a tool designed for dataset inclusion detection in the training dataset of large language models trained on code using membership inference attacks.
 
@@ -92,3 +92,14 @@ python src/nicad_test.py
 
 # How to Cite
 If you use this code in your research, please cite the following paper:
+
+```
+@misc{majdinasab2024trained,
+      title={Trained Without My Consent: Detecting Code Inclusion In Language Models Trained on Code}, 
+      author={Vahid Majdinasab and Amin Nikanjam and Foutse Khomh},
+      year={2024},
+      eprint={2402.09299},
+      archivePrefix={arXiv},
+      primaryClass={cs.SE}
+}
+```
