@@ -9,7 +9,6 @@ from models.model import InfillModel
 
 logger = logging.getLogger("model")
 
-
 class SantaCoder(InfillModel):
     """
     interface for interacting with the SantaCoder model
