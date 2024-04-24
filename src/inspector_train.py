@@ -38,12 +38,12 @@ arg_parse.add_argument(
 arg_parse.add_argument(
     "--semantic_threshold",
     type=int,
-    default=80,
+    default=60,
 )
 arg_parse.add_argument(
     "--visualisation",
     type=bool,
-    default=False,
+    default=True,
 )
 args = arg_parse.parse_args()
 
@@ -168,6 +168,11 @@ pickle.dump(
     ),
 )
 
+# aclculate multicollinearity usign VIF
+import statsmodels.api as sm
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+
+
 if args.visualisation:
     sns.set_theme(style="dark")
 
@@ -186,19 +191,27 @@ if args.visualisation:
     plt.tight_layout()
     # Save the figure with a descriptive filename
     plt.savefig(
-        f"feature_importance__syn{syntactic_threshold}_sem{semantic_threshold}.png",
+        f"feature_importance__syn{args.syntactic_threshold}_sem{args.semantic_threshold}.png",
         dpi=300,
     )
-
+    # calcualte the distriutino of each feature
+    train_ds.hist(figsize=(20, 20))
+    plt.tight_layout()
+    plt.savefig(
+        f"feature_distribution__syn{args.syntactic_threshold}_sem{args.semantic_threshold}.png",
+        dpi=300,
+    )
     #### Correlation Matrix ####
     fig, ax = plt.subplots(figsize=(12, 12))
     # Create the heatmap, ensuring square cells and other configurations
-    sns.heatmap(train_ds.corr(), annot=True, fmt=".2f", ax=ax, square=True)
+    sns.heatmap(
+        train_ds.corr(method="spearman"), annot=True, fmt=".2f", ax=ax, square=True
+    )
     # Adjusting the Y-axis limit
     ax.set_ylim(len(train_ds.columns), 0)
     ax.tick_params(labelsize=12)
     plt.tight_layout(pad=2)
     plt.savefig(
-        f"correlation_matrix__syn{syntactic_threshold}_sem{semantic_threshold}.png",
+        f"correlation_matrix__syn{args.syntactic_threshold}_sem{args.semantic_threshold}.png",
         dpi=300,
     )

@@ -16,7 +16,6 @@ class SantaCoder(InfillModel):
     """
 
     def __init__(self):
-        # @TODO: #2 move these to a config file
         self.FIM_PREFIX = "<fim-prefix>"
         self.FIM_MIDDLE = "<fim-middle>"
         self.FIM_SUFFIX = "<fim-suffix>"
@@ -211,13 +210,6 @@ class SantaCoderBlock(InfillModel):
         """
 
         try:
-            # inputs: torch.Tensor = self.tokenizer(
-            #     input_text, return_tensors="pt", padding=True, return_token_type_ids=False
-            # ).to(self.device)
-            # max_length = inputs.input_ids[0].size(0) + max_tokens
-            # if max_length > 2048:
-            #     # dp not even try to generate if the input is too long
-            #     return "too_many_tokens"
             inputs: torch.Tensor = self.tokenizer.encode(
                 input_text, return_tensors="pt"
             ).to(self.device)
