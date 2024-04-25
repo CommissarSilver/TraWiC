@@ -432,15 +432,7 @@ class CheckerBlock:
 
 
 if __name__ == "__main__":
-    checker = Checker(
-        os.path.join(
-            os.getcwd(),
-            "data",
-            "the_stack",
-            "python",
-            "the_stack_python_script_0.py",
-        )
-    )
+    checker = Checker("/store/travail/vamaj/TWMC/data/0az/b2-sdk-python/chained.py")
     checker.prepare_input()
     x = checker.prepare_inputs_for_infill("strings")
     print(x)
