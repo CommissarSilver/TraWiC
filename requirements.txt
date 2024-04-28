@@ -43,9 +43,14 @@ tokenizers==0.13.3
 tomli==2.0.1
 torch==2.0.0
 tqdm==4.65.0
-transformers==4.28.1
 typing_extensions==4.5.0
 tzdata==2023.3
 urllib3==2.0.2
 xxhash==3.2.0
 yarl==1.9.2
+accelerate==0.21.0 
+peft==0.4.0 
+bitsandbytes==0.40.2 
+transformers==4.31.0 
+trl==0.4.7
+scipy
