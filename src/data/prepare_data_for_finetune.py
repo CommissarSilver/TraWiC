@@ -34,7 +34,14 @@ for checker in tqdm(checkers, desc="Processing checkers", total=len(checkers)):
         )
     ]
     all_candidates += [
-        candidate for sublist in candidates for candidate in sublist if candidate
+        {
+            "infill": str(candidate["infill"]),
+            "prefix": str(candidate["prefix"]),
+            "suffix": str(candidate["suffix"]),
+        }
+        for sublist in candidates
+        for candidate in sublist
+        if candidate
     ]
 
 num_records_per_json = 2000
