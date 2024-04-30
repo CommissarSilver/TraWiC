@@ -1,4 +1,4 @@
-from checker import Checker
+from src.checker.checker import Checker
 import json
 import os
 from tqdm import tqdm
@@ -11,11 +11,19 @@ def get_python_files_list(dir_path):
         python_files += [
             os.path.join(dirpath, file) for file in filenames if file.endswith(".py")
         ]
+        if len(python_files)==10000:
+            break
     return python_files
 
 
 all_files = get_python_files_list(os.path.join(os.getcwd(), "data", "repos"))
-checkers = [Checker(file) for file in all_files][:10000] # only 10000 samples are enough
+print("number of python files:", len(all_files))
+checkers=[]
+for file in all_files:
+    checkers.append(Checker(file))
+    if len(checkers)==10000:
+        break
+# checkers = [Checker(file) for file in all_files][:10000] # only 10000 samples are enough
 all_candidates = []
 for checker in tqdm(checkers, desc="Processing checkers", total=len(checkers)):
     candidates = [
