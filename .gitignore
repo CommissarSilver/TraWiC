@@ -36,6 +36,7 @@ results.json
 /pictures
 /repos
 /llms
-
+/results
+/mistral_fim
 
 git_access_token
