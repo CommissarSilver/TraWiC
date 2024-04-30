@@ -13,10 +13,12 @@ from transformers import (
 from peft import LoraConfig, PeftModel
 from trl import SFTTrainer
 
-model_name = "mistralai/Mistral-7B-v0.1"
+#### code from: https://mlabonne.github.io/blog/posts/Fine_Tune_Your_Own_Llama_2_Model_in_a_Colab_Notebook.html
+
+model_name = os.path.join("/home/vamaj/scratch/TraWiC/llms/mistral")
 
 # Fine-tuned model name
-new_model = "mistral_fim"
+new_model = "/home/vamaj/scratch/TraWiC/llms/mistral_fim"
 
 #######################
 # QLoRA parameters
@@ -59,7 +61,7 @@ num_train_epochs = 1
 
 # Enable fp16/bf16 training (set bf16 to True with an A100)
 fp16 = False
-bf16 = False
+bf16 = True
 
 # Batch size per GPU for training
 per_device_train_batch_size = 4
@@ -135,10 +137,12 @@ def json_to_prompt(prefix, suffix, infill):
     return prompt
 
 
-datafiles = get_jsons_list("/Users/ahvra/Nexus/TWMC/data/finetune_ds")
+datafiles = get_jsons_list("/home/vamaj/scratch/TraWiC/data/finetune_ds")[:1]
 
-dataset = load_dataset("json", data_files=datafiles)
-dataset = dataset.map(lambda x: {"text": json_to_prompt(x["prefix"], x["suffix"], x["infill"])})
+dataset = load_dataset("json", data_files=datafiles, split="train[:10]")
+dataset = dataset.map(
+    lambda x: {"text": json_to_prompt(x["prefix"], x["suffix"], x["infill"])}
+)
 
 # Load tokenizer and model with QLoRA configuration
 compute_dtype = getattr(torch, bnb_4bit_compute_dtype)
@@ -160,13 +164,20 @@ if compute_dtype == torch.float16 and use_4bit:
 
 # Load base model
 model = AutoModelForCausalLM.from_pretrained(
-    model_name, quantization_config=bnb_config, device_map=device_map
+    model_name,
+    quantization_config=bnb_config,
+    device_map=device_map,
+    local_files_only=True,
 )
 model.config.use_cache = False
 model.config.pretraining_tp = 1
 
 # Load LLaMA tokenizer
-tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+tokenizer = AutoTokenizer.from_pretrained(
+    model_name,
+    trust_remote_code=True,
+    local_files_only=True,
+)
 tokenizer.pad_token = tokenizer.eos_token
 tokenizer.padding_side = "right"  # Fix weird overflow issue with fp16 training
 
@@ -184,6 +195,25 @@ num_added_special_tokens = tokenizer.add_special_tokens(
 
 model.resize_token_embeddings(len(tokenizer))
 
+
+def find_target_modules(model):
+    # Initialize a Set to Store Unique Layers
+    unique_layers = set()
+
+    # Iterate Over All Named Modules in the Model
+    for name, module in model.named_modules():
+        # Check if the Module Type Contains 'Linear4bit'
+        if "Linear4bit" in str(type(module)):
+            # Extract the Type of the Layer
+            layer_type = name.split(".")[-1]
+
+            # Add the Layer Type to the Set of Unique Layers
+            unique_layers.add(layer_type)
+
+    # Return the Set of Unique Layers Converted to a List
+    return list(unique_layers)
+
+
 # Load LoRA configuration
 peft_config = LoraConfig(
     lora_alpha=lora_alpha,
@@ -191,7 +221,9 @@ peft_config = LoraConfig(
     r=lora_r,
     bias="none",
     task_type="CAUSAL_LM",
+    target_modules=find_target_modules(model),
 )
+
 
 # Set training parameters
 training_arguments = TrainingArguments(
@@ -214,6 +246,7 @@ training_arguments = TrainingArguments(
     report_to="tensorboard",
 )
 
+
 # Set supervised fine-tuning parameters
 trainer = SFTTrainer(
     model=model,
@@ -231,3 +264,17 @@ trainer.train()
 
 # Save trained model
 trainer.model.save_pretrained(new_model)
+
+base_model = AutoModelForCausalLM.from_pretrained(
+    model_name,
+    device_map=device_map,
+    local_files_only=True,
+)
+new_model = PeftModel.from_pretrained(
+    base_model,
+    os.path.join(os.getcwd(), "llms", "mistral_fim"),
+)
+model = new_model.merge_and_unload()
+merged_model_path = os.path.join(os.getcwd(), "llms", "mistral_fim")
+model.save_pretrained(merged_model_path)
+tokenizer.save_pretrained(merged_model_path)
