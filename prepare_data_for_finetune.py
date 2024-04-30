@@ -14,8 +14,8 @@ def get_python_files_list(dir_path):
     return python_files
 
 
-all_files = get_python_files_list("/Users/ahvra/Nexus/TWMC/repos")
-checkers = [Checker(file) for file in all_files]
+all_files = get_python_files_list(os.path.join(os.getcwd(), "data", "repos"))
+checkers = [Checker(file) for file in all_files][:10000] # only 10000 samples are enough
 all_candidates = []
 for checker in tqdm(checkers, desc="Processing checkers", total=len(checkers)):
     candidates = [
@@ -52,8 +52,11 @@ for i in range(num_jsons):
     end_index = min((i + 1) * num_records_per_json, len(all_candidates))
     json_data = all_candidates[start_index:end_index]
 
-    json_filename = (
-        f"/Users/ahvra/Nexus/TWMC/data/finetune_ds/finetune_candidates_{i+1}.json"
+    json_filename = os.path.join(
+        os.getcwd(),
+        "data",
+        "finetune_ds",
+        f"finetune_candidates_{i+1}.json",
     )
     with open(json_filename, "w") as f:
         json.dump(json_data, f)
