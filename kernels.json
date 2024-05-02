@@ -1,0 +1,14 @@
+{
+ "argv": [
+  "/home/vamaj/scratch/twmc/bin/python",
+  "-m",
+  "ipykernel_launcher",
+  "-f",
+  "{connection_file}"
+ ],
+ "display_name": "Python TWMC Kernel",
+ "language": "python",
+ "metadata": {
+  "debugger": true
+ }
+}

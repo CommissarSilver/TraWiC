@@ -1,0 +1,1 @@
+['/home/vamaj/scratch/TraWiC/data/finetune_ds/finetune_candidates_439.json', '/home/vamaj/scratch/TraWiC/data/finetune_ds/finetune_candidates_472.json', '/home/vamaj/scratch/TraWiC/data/finetune_ds/finetune_candidates_282.json', '/home/vamaj/scratch/TraWiC/data/finetune_ds/finetune_candidates_165.json', '/home/vamaj/scratch/TraWiC/data/finetune_ds/finetune_candidates_220.json']

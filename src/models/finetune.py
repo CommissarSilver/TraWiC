@@ -137,8 +137,8 @@ def json_to_prompt(prefix, suffix, infill):
     return prompt
 
 
-datafiles = get_jsons_list("/home/vamaj/scratch/TraWiC/data/finetune_ds")[:1]
-
+datafiles = get_jsons_list("/home/vamaj/scratch/TraWiC/data/finetune_ds")[:5]
+print(datafiles)
 dataset = load_dataset(
     "json",
     data_files=datafiles,
