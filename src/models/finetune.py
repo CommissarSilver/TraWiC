@@ -137,9 +137,12 @@ def json_to_prompt(prefix, suffix, infill):
     return prompt
 
 
-datafiles = get_jsons_list("/home/vamaj/scratch/TraWiC/data/finetune_ds")[:8]
+datafiles = get_jsons_list("/home/vamaj/scratch/TraWiC/data/finetune_ds")[:1]
 
-dataset = load_dataset("json", data_files=datafiles,)
+dataset = load_dataset(
+    "json",
+    data_files=datafiles,
+)
 dataset = dataset.map(
     lambda x: {"text": json_to_prompt(x["prefix"], x["suffix"], x["infill"])}
 )
@@ -250,7 +253,7 @@ training_arguments = TrainingArguments(
 # Set supervised fine-tuning parameters
 trainer = SFTTrainer(
     model=model,
-    train_dataset=dataset['train'],
+    train_dataset=dataset["train"],
     peft_config=peft_config,
     dataset_text_field="text",
     max_seq_length=max_seq_length,
@@ -265,16 +268,16 @@ trainer.train()
 # Save trained model
 trainer.model.save_pretrained(new_model)
 
-base_model = AutoModelForCausalLM.from_pretrained(
-    model_name,
-    device_map=device_map,
-    local_files_only=True,
-)
-new_model = PeftModel.from_pretrained(
-    base_model,
-    os.path.join(os.getcwd(), "llms", "mistral_fim"),
-)
-model = new_model.merge_and_unload()
-merged_model_path = os.path.join(os.getcwd(), "llms", "mistral_fim")
-model.save_pretrained(merged_model_path)
-tokenizer.save_pretrained(merged_model_path)
+# base_model = AutoModelForCausalLM.from_pretrained(
+#     model_name,
+#     device_map=device_map,
+#     local_files_only=True,
+# )
+# new_model = PeftModel.from_pretrained(
+#     base_model,
+#     os.path.join(os.getcwd(), "llms", "mistral_fim"),
+# )
+# model = new_model.merge_and_unload()
+# merged_model_path = os.path.join(os.getcwd(), "llms", "mistral_fim")
+# model.save_pretrained(merged_model_path)
+# tokenizer.save_pretrained(merged_model_path)
