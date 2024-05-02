@@ -1,15 +1,26 @@
 # Load model directly
-import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
-
-from peft import PeftModel
+import torch
+from models.model import InfillModel
+from peft import LoraConfig, PeftModel
 import logging
 from typing import Tuple
 
 logger = logging.getLogger("model")
+tokenizer = AutoTokenizer.from_pretrained("mistralai/Mistral-7B-v0.1")
+model = AutoModelForCausalLM.from_pretrained("mistralai/Mistral-7B-v0.1")
+
+input_text = "<fim-prefix>def fib(n):<fim-suffix>    else:\n        return fib(n - 2) + fib(n - 1)<fim-middle>"
+inputs = tokenizer.encode(
+    input_text,
+    return_tensors="pt",
+    return_token_type_ids=False,
+).to(device)
+outputs = model.generate(inputs, max_new_tokens=100)
+print(tokenizer.decode(outputs[0]))
 
 
-class MistralCoder:
+class MistralCoder(InfillModel):
     def __init__(self) -> None:
         # toknizer config
         self.FIM_PREFIX = "<fim-prefix>"
@@ -22,10 +33,8 @@ class MistralCoder:
             trust_remote_code=True,
             local_files_only=True,
         )
-        self.tokenizer.pad_token = self.tokenizer.eos_token
-        self.tokenizer.padding_side = (
-            "right"  # Fix weird overflow issue with fp16 training
-        )
+        tokenizer.pad_token = tokenizer.eos_token
+        tokenizer.padding_side = "right"  # Fix weird overflow issue with fp16 training
         self.tokenizer.add_special_tokens(
             {
                 "additional_special_tokens": [
@@ -50,7 +59,7 @@ class MistralCoder:
                 base_model,
                 adapter_path,
             )
-            self.model.resize_token_embeddings(len(self.tokenizer))
+            self.model.resize_token_embeddings(len(tokenizer))
             logger.info(f"Mistral-FIM model successfuly loaded")
         except Exception as e:
             logger.exception(f"Error in loading the Mistral-FIM model")
@@ -138,7 +147,7 @@ class MistralCoder:
         # `return_token_type_ids=False` is essential, or we get nonsense output.
         inputs = self.tokenizer(
             prompts, return_tensors="pt", padding=True, return_token_type_ids=False
-        ).to("cuda")
+        ).to(self.device)
 
         max_length = inputs.input_ids[0].size(0) + max_tokens
         if max_length > 2048:
