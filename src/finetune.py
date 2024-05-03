@@ -10,7 +10,7 @@ from transformers import (
     pipeline,
     logging,
 )
-from peft import LoraConfig, PeftModel
+from peft import LoraConfig, PeftModel, PeftConfig
 from trl import SFTTrainer
 import argparse
 
@@ -280,15 +280,26 @@ def find_target_modules(model):
     return list(unique_layers)
 
 
-# Load LoRA configuration
-peft_config = LoraConfig(
-    lora_alpha=args.lora_alpha,
-    lora_dropout=args.lora_dropout,
-    r=args.lora_r,
-    bias="none",
-    task_type="CAUSAL_LM",
-    target_modules=find_target_modules(model),
-)
+if os.path.exists(args.new_model):
+    peft_config = PeftConfig.from_pretrained(args.new_model)
+    model = PeftModel.from_pretrained(
+        model,
+        args.new_model,
+        is_trainable=True
+    )
+    print("merged model")
+    model.print_trainable_parameters()
+
+else:
+    # Load LoRA configuration
+    peft_config = LoraConfig(
+        lora_alpha=args.lora_alpha,
+        lora_dropout=args.lora_dropout,
+        r=args.lora_r,
+        bias="none",
+        task_type="CAUSAL_LM",
+        target_modules=find_target_modules(model),
+    )
 
 
 # Set training parameters
@@ -307,7 +318,7 @@ training_arguments = TrainingArguments(
     max_grad_norm=args.max_grad_norm,
     max_steps=args.max_steps,
     warmup_ratio=args.warmup_ratio,
-    group_by_length=args.roup_by_length,
+    group_by_length=args.group_by_length,
     lr_scheduler_type=args.lr_scheduler_type,
     report_to="tensorboard",
 )
