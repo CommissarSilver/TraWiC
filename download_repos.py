@@ -3,9 +3,9 @@ import os
 
 
 def get_repos_list():
-    with open(os.path.join(os.getcwd(), "repos.json"), "r") as f:
+    with open(os.path.join(os.getcwd(), "repos_fim.json"), "r") as f:
         repos = json.load(f)
-    with open(os.path.join(os.getcwd(), "discard.json"), "r") as f:
+    with open(os.path.join(os.getcwd(), "discard_fim.json"), "r") as f:
         discard_repos = json.load(f)
     merged_repos = repos + discard_repos
     return merged_repos
