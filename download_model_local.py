@@ -11,9 +11,9 @@ mistral_path = snapshot_download(
     local_dir=os.path.join(base_dir, "llms", "mistral"),
 )
 
-# # Download Llama with a unique cache directory
-# llama_path = snapshot_download(
-#     repo_id="meta-llama/Llama-2-7b",
-#     cache_dir=os.path.join(base_dir, "llms", "cache_llama"),
-#     local_dir=os.path.join(base_dir, "llms", "llama"),
-# )
+# Download Llama with a unique cache directory
+llama_path = snapshot_download(
+    repo_id="meta-llama/Llama-2-7b",
+    cache_dir=os.path.join(base_dir, "llms", "cache_llama"),
+    local_dir=os.path.join(base_dir, "llms", "llama"),
+)
