@@ -10,7 +10,7 @@ import torch
 import yaml
 from tqdm import tqdm
 
-from checker import Checker
+from checker import Checker, MistralChecker
 from models import MistralCoder
 
 # load logging configuration
@@ -75,7 +75,7 @@ model = MistralCoder() if args.model == "mistral_coder" else None
 
 def get_model_output(file_path):
     results = []
-    file_checker = Checker(file_path)
+    file_checker = MistralChecker(file_path)
     model_inputs = [
         file_checker.prepare_inputs_for_infill(level=i)
         for i in [
