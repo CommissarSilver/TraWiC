@@ -39,7 +39,7 @@ class MistralCoder:
         # model config
         self.device_map = {"": 0}
         base_model_path = "/home/vamaj/scratch/TraWiC/llms/mistral"
-        adapter_path = "/home/vamaj/scratch/TraWiC/llms/mistral_fim"
+        adapter_path = "/home/vamaj/scratch/TraWiC/llms/mistral_fim_epoch_3"
         try:
             base_model = AutoModelForCausalLM.from_pretrained(
                 base_model_path,

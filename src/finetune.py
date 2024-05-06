@@ -22,14 +22,14 @@ parser = argparse.ArgumentParser(description="Argument Parser for Model Configur
 parser.add_argument(
     "--model_name",
     type=str,
-    default=os.path.join("/home/vamaj/scratch/TraWiC/llms/mistral"),
+    default=os.path.join("/home/vamaj/scratch/TraWiC/llms/llama"),
     help="Path to the model",
 )
 
 parser.add_argument(
     "--new_model",
     type=str,
-    default="/home/vamaj/scratch/TraWiC/llms/mistral_fim",
+    default="/home/vamaj/scratch/TraWiC/llms/llama_fim",
     help="Path to the fine-tuned model",
 )
 
