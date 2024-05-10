@@ -22,14 +22,14 @@ parser = argparse.ArgumentParser(description="Argument Parser for Model Configur
 parser.add_argument(
     "--model_name",
     type=str,
-    default=os.path.join("/home/vamaj/scratch/TraWiC/llms/llama"),
+    default=os.path.join("/home/vamaj/scratch/TraWiC/llms/mistral"),
     help="Path to the model",
 )
 
 parser.add_argument(
     "--new_model",
     type=str,
-    default="/home/vamaj/scratch/TraWiC/llms/llama_fim",
+    default="/home/vamaj/scratch/TraWiC/llms/mistral_fim",
     help="Path to the fine-tuned model",
 )
 
@@ -282,11 +282,7 @@ def find_target_modules(model):
 
 if os.path.exists(args.new_model):
     peft_config = PeftConfig.from_pretrained(args.new_model)
-    model = PeftModel.from_pretrained(
-        model,
-        args.new_model,
-        is_trainable=True
-    )
+    model = PeftModel.from_pretrained(model, args.new_model, is_trainable=True)
     print("merged model")
     model.print_trainable_parameters()
 
