@@ -139,7 +139,10 @@ def get_model_output(file_path):
                 return None
     with open(
         os.path.join(
-            args.working_dir, "run_results", f"TokensRun{args.run_num}", "results.jsonl"
+            args.working_dir,
+            "run_results",
+            f"TokensRun_mistral_{args.run_num}_1",
+            "results.jsonl",
         ),
         "a",
     ) as f:
@@ -159,10 +162,14 @@ if __name__ == "__main__":
         logging.info("GPU is not available. Running on CPU")
 
     if not os.path.exists(
-        os.path.join(args.working_dir, "run_results", f"TokensRun{args.run_num}")
+        os.path.join(
+            args.working_dir, "run_results", f"TokensRun_mistral_{args.run_num}_1"
+        )
     ):
         os.mkdir(
-            os.path.join(args.working_dir, "run_results", f"TokensRun{args.run_num}")
+            os.path.join(
+                args.working_dir, "run_results", f"TokensRun_mistral_{args.run_num}_1"
+            )
         )
 
     dataset_files = []
@@ -181,7 +188,7 @@ if __name__ == "__main__":
     print(len(dataset_files))
     try:
         files_generated_blocks = open(
-            os.path.join(args.working_dir, "run_results", "generated.txt"), "r"
+            os.path.join(args.working_dir, "run_results", "generated_mistral.txt"), "r"
         ).readlines()  # read already processed files
 
         files_generated_blocks = [file.rstrip("\n") for file in files_generated_blocks]
@@ -196,7 +203,12 @@ if __name__ == "__main__":
 
     try:
         already_processed_files = open(
-            os.path.join(args.working_dir, "run_results", "processed_tokens.txt"), "r"
+            os.path.join(
+                args.working_dir,
+                "run_results",
+                "processed_tokens_mistral.txt",
+            ),
+            "r",
         ).readlines()  # read already processed files
         already_processed_files = [
             file.rstrip("\n") for file in already_processed_files
@@ -206,7 +218,11 @@ if __name__ == "__main__":
 
     try:
         dangerous_files = open(
-            os.path.join(args.working_dir, "run_results", f"assert_errors.txt"),
+            os.path.join(
+                args.working_dir,
+                "run_results",
+                f"assert_errors_mistral.txt",
+            ),
             "r",
         ).readlines()
         dangerous_files = [file.rstrip("\n") for file in dangerous_files]
@@ -223,7 +239,11 @@ if __name__ == "__main__":
             result = get_model_output(file_path)
 
             with open(
-                os.path.join(args.working_dir, "run_results", "processed_tokens.txt"),
+                os.path.join(
+                    args.working_dir,
+                    "run_results",
+                    "processed_tokens_mistral.txt",
+                ),
                 "a",
             ) as f:
                 f.write(file_path + "\n")
