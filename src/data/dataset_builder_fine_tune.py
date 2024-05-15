@@ -17,68 +17,7 @@ except ImportError:
 sensitivity = False
 sensitivity_threshold = 0.9
 syn_thresh = 100
-sem_thresh = 20
-
-
-def extract_comments_and_docstrings(script: str) -> Tuple[List, List]:
-    """
-    Extracts comments and docstrings from a given script.
-
-    Args:
-        script (str): The script to extract comments and docstrings from.
-
-    Returns:
-        Tuple(List, List): A tuple containing a list of comments and a list of docstrings.
-    """
-    comments = []
-    docstrings = []
-    tokens = tokenize.tokenize(BytesIO(script.encode("utf-8")).readline)
-
-    for token in tokens:
-        if token.type == tokenize.COMMENT:
-            comments.append(token.string.strip())
-        elif token.type == tokenize.STRING and token.string.startswith(('"""', "'''")):
-            docs = token.string.strip().split("\n")
-            # remove the """ or ''' from the first and last lines
-            docs = docs[1:-1]
-            # append every element of docs to docstrings
-            for element in docs:
-                docstrings.append(element.strip())
-
-    return comments, docstrings
-
-
-def comment_to_code_ratio(script_path: str) -> float:
-    """
-    Calculates the ratio of comments and docstrings to code in a given script.
-
-    Args:
-        script_path (str): Path to the script to calculate the ratio for.
-
-    Returns:
-        float: ratio of comments and docstrings to code in the script.
-    """
-    try:
-        script = open(script_path, "r").read()
-
-        comments, docstrings = extract_comments_and_docstrings(script)
-
-        comment_lines = len(comments)
-        number_of_comment_chars = sum([len(comment) for comment in comments])
-
-        docstring_lines = len(docstrings)
-        number_of_docstring_chars = sum([len(docstring) for docstring in docstrings])
-
-        code_lines = len(script.split("\n"))
-        number_of_code_chars = (
-            len(script) - number_of_comment_chars - number_of_docstring_chars
-        )
-
-        return (
-            number_of_comment_chars + number_of_docstring_chars
-        ) / number_of_code_chars
-    except Exception as e:
-        return 2
+sem_thresh = 70
 
 
 def build_dataset(jsonl_file_path: str) -> str:
@@ -129,7 +68,9 @@ def build_dataset(jsonl_file_path: str) -> str:
                             "result": result,
                             "similarity_objective": similarity_objective,
                             "model_output": model_output,
-                            "trained_on": 1,
+                            "trained_on": (
+                                0 if "not_trained_on" in jsonl_file_path else 1
+                            ),
                         }
                     )
                 )
@@ -330,85 +271,97 @@ def process_dataset(
 
 
 if __name__ == "__main__":
-    path = "/home/vamaj/scratch/TraWiC/run_results/mistral_epoch_1/trained_on"
-    # for path in paths:
-    build_dataset(path)
-    print("Datasets built.")
+    model_name = "llama"
+    paths = [
+        f"/home/vamaj/scratch/TraWiC/run_results/{model_name}_epoch_1",
+        f"/home/vamaj/scratch/TraWiC/run_results/{model_name}_epoch_2",
+        f"/home/vamaj/scratch/TraWiC/run_results/{model_name}_epoch_3",
+    ]
+    for path_num, path in enumerate(paths):
+        # build_dataset(path)
+        processed_datasets = process_dataset(
+            os.path.join(path, "dataset.csv"),
+            syntax_threshold=syn_thresh,
+            semantic_threshold=sem_thresh,
+        )
+        print("Datasets built.")
 
-    print("Processing datasets...")
-    processed_datasets = process_dataset(
-        os.path.join(path, "dataset.csv"),
-        syntax_threshold=syn_thresh,
-        semantic_threshold=sem_thresh,
-    )
+        final_dataset = processed_datasets
+        train_df = final_dataset.iloc[: int(0.8 * len(final_dataset))]
+        test_df = final_dataset.iloc[int(0.8 * len(final_dataset)) :]
+        print("Processing datasets...")
 
-    final_dataset = processed_datasets
-
-    train_df = final_dataset.iloc[: int(0.8 * len(final_dataset))]
-    test_df = final_dataset.iloc[int(0.8 * len(final_dataset)) :]
-
-    if not sensitivity:
-        if not os.path.exists(
-            os.path.join(
-                "/home/vamaj/scratch/TraWiC/",
-                "rf_data",
-                f"syn{syn_thresh}_sem{sem_thresh}",
-            )
-        ):
-            os.mkdir(
+        if not sensitivity:
+            if not os.path.exists(
                 os.path.join(
                     "/home/vamaj/scratch/TraWiC/",
                     "rf_data",
+                    f"{model_name}",
                     f"syn{syn_thresh}_sem{sem_thresh}",
                 )
-            )
+            ):
+                os.mkdir(
+                    os.path.join(
+                        "/home/vamaj/scratch/TraWiC/",
+                        "rf_data",
+                        f"{model_name}",
+                        f"syn{syn_thresh}_sem{sem_thresh}",
+                    )
+                )
 
-        train_df.to_csv(
-            os.path.join(
-                "/home/vamaj/scratch/TraWiC/" "rf_data",
-                f"syn{syn_thresh}_sem{sem_thresh}",
-                "train.csv",
-            ),
-        )
-        test_df.to_csv(
-            os.path.join(
-                "/home/vamaj/scratch/TraWiC/",
-                "rf_data",
-                f"syn{syn_thresh}_sem{sem_thresh}",
-                "test.csv",
-            ),
-        )
-
-    else:
-        if not os.path.exists(
-            os.path.join(
-                os.getcwd(),
-                "rf_data",
-                f"syn{syn_thresh}_sem{sem_thresh}_sen{sensitivity_threshold}",
-            )
-        ):
-            os.mkdir(
+            train_df.to_csv(
                 os.path.join(
-                    os.getcwd(),
+                    "/home/vamaj/scratch/TraWiC/",
                     "rf_data",
+                    f"{model_name}",
+                    f"syn{syn_thresh}_sem{sem_thresh}",
+                    f"train_{path_num+1}.csv",
+                ),
+            )
+            test_df.to_csv(
+                os.path.join(
+                    "/home/vamaj/scratch/TraWiC/",
+                    "rf_data",
+                    f"{model_name}",
+                    f"syn{syn_thresh}_sem{sem_thresh}",
+                    f"test_{path_num+1}.csv",
+                ),
+            )
+
+        else:
+            if not os.path.exists(
+                os.path.join(
+                    "/home/vamaj/scratch/TraWiC/",
+                    "rf_data",
+                    f"{model_name}",
                     f"syn{syn_thresh}_sem{sem_thresh}_sen{sensitivity_threshold}",
                 )
-            )
+            ):
+                os.mkdir(
+                    os.path.join(
+                        "/home/vamaj/scratch/TraWiC/",
+                        "rf_data",
+                        f"{model_name}",
+                        f"syn{syn_thresh}_sem{sem_thresh}_sen{sensitivity_threshold}",
+                    )
+                )
 
-        train_df.to_csv(
-            os.path.join(
-                os.getcwd(),
-                "rf_data",
-                f"syn{syn_thresh}_sem{sem_thresh}_sen{sensitivity_threshold}",
-                "train.csv",
-            ),
-        )
-        test_df.to_csv(
-            os.path.join(
-                os.getcwd(),
-                "rf_data",
-                f"syn{syn_thresh}_sem{sem_thresh}_sen{sensitivity_threshold}",
-                "test.csv",
-            ),
-        )
-    print("Datasets processed.")
+            train_df.to_csv(
+                os.path.join(
+                    "/home/vamaj/scratch/TraWiC/",
+                    "rf_data",
+                    f"{model_name}",
+                    f"syn{syn_thresh}_sem{sem_thresh}_sen{sensitivity_threshold}",
+                    f"train_{path_num+1}.csv",
+                ),
+            )
+            test_df.to_csv(
+                os.path.join(
+                    "/home/vamaj/scratch/TraWiC/",
+                    "rf_data",
+                    f"{model_name}",
+                    f"syn{syn_thresh}_sem{sem_thresh}",
+                    f"test_{path_num+1}.csv",
+                ),
+            )
+        print("Datasets processed.")

@@ -28,7 +28,7 @@ arg_parse.add_argument(
     "--classifier",
     type=str,
     choices=["rf", "svm", "xgb"],
-    default="xgb",
+    default="rf",
 )
 arg_parse.add_argument(
     "--syntactic_threshold",
@@ -38,7 +38,7 @@ arg_parse.add_argument(
 arg_parse.add_argument(
     "--semantic_threshold",
     type=int,
-    default=60,
+    default=20,
 )
 arg_parse.add_argument(
     "--visualisation",
@@ -49,7 +49,7 @@ args = arg_parse.parse_args()
 
 combined_ds = pd.read_csv(
     os.path.join(
-        os.getcwd(),
+        "/home/vamaj/scratch/TraWiC/",
         "rf_data",
         f"syn{args.syntactic_threshold}_sem{args.semantic_threshold}",
         "train.csv",

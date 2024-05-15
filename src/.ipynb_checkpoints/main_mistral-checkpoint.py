@@ -31,7 +31,7 @@ parser.add_argument(
 parser.add_argument(
     "--dataset_path",
     type=str,
-    default="data/repos/01",
+    default="data/repos",
     help="path to the dataset",
 )
 parser.add_argument(

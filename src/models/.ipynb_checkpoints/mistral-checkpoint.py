@@ -9,7 +9,7 @@ from typing import Tuple
 logger = logging.getLogger("model")
 
 
-class LlamaCoder:
+class MistralCoder:
     def __init__(self) -> None:
         # toknizer config
         self.FIM_PREFIX = "<fim-prefix>"
@@ -18,7 +18,7 @@ class LlamaCoder:
         self.FIM_PAD = "<fim-pad>"
         self.ENDOFTEXT = "<|endoftext|>"
         self.tokenizer = AutoTokenizer.from_pretrained(
-            "/home/vamaj/scratch/TraWiC/llms/llama",
+            "/home/vamaj/scratch/TraWiC/llms/mistral",
             trust_remote_code=True,
             local_files_only=True,
         )
@@ -38,8 +38,8 @@ class LlamaCoder:
         )
         # model config
         self.device_map = {"": 0}
-        base_model_path = "/home/vamaj/scratch/TraWiC/llms/llama"
-        adapter_path = "/home/vamaj/scratch/TraWiC/llms/llama_fim_epoch_3"
+        base_model_path = "/home/vamaj/scratch/TraWiC/llms/mistral"
+        adapter_path = "/home/vamaj/scratch/TraWiC/llms/mistral_fim_epoch_3"
         try:
             base_model = AutoModelForCausalLM.from_pretrained(
                 base_model_path,
@@ -51,10 +51,10 @@ class LlamaCoder:
                 adapter_path,
             )
             self.model.resize_token_embeddings(len(self.tokenizer))
-            logger.info(f"Llama-FIM model successfuly loaded")
+            logger.info(f"Mistral-FIM model successfuly loaded")
         except Exception as e:
-            logger.exception(f"Error in loading the Llama-FIM model")
-            raise Exception("Problem in initializing Llama-FIM Model")
+            logger.exception(f"Error in loading the Mistral-FIM model")
+            raise Exception("Problem in initializing Mistral-FIM Model")
 
     def predict(self, input_text: str) -> str:
         """
@@ -78,11 +78,11 @@ class LlamaCoder:
                 outputs: torch.Tensor = self.model.generate(inputs)
 
             logger.debug(
-                f"Llama-FIM Invoked - input = ( {input_text} ) - output = ( {self.tokenizer.decode(outputs[0])} )"
+                f"Mistral-FIM Invoked - input = ( {input_text} ) - output = ( {self.tokenizer.decode(outputs[0])} )"
             )
             return self.tokenizer.decode(outputs[0])
         except Exception as e:
-            logger.exception(f"Error in generating code snippet from Llama-FIM")
+            logger.exception(f"Error in generating code snippet from Mistral-FIM")
             raise e
 
     def extract_fim_part(self, s: str):
@@ -104,7 +104,7 @@ class LlamaCoder:
             return s[start:stop]
 
         except Exception as e:
-            logger.exception(f"Error in extracting fim part from Llama-FIM output")
+            logger.exception(f"Error in extracting fim part from Mistral-FIM output")
             raise e
 
     def infill(
@@ -158,12 +158,12 @@ class LlamaCoder:
             except Exception as e:
                 if type(e) == IndexError:
                     logger.exception(
-                        f"Error in generating code snippet from Llama-FIM with an IndexError.",
+                        f"Error in generating code snippet from Mistral-FIM with an IndexError.",
                     )
                     return "too_many_tokens"
                 else:
                     logger.exception(
-                        f"Error in generating code snippet from Llama-FIM {e}"
+                        f"Error in generating code snippet from Mistral-FIM {e}"
                     )
                 outputs = None
         try:
@@ -175,7 +175,7 @@ class LlamaCoder:
                     for tensor in outputs
                 ]
                 logger.debug(
-                    f"Llama-FIM Invoked - input = ( {prefix_suffix_tuples} ) - output = {result}"
+                    f"Mistral-FIM Invoked - input = ( {prefix_suffix_tuples} ) - output = {result}"
                 )
                 return result if output_list else result[0]
             else:

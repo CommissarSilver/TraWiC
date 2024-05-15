@@ -31,7 +31,7 @@ parser.add_argument(
 parser.add_argument(
     "--dataset_path",
     type=str,
-    default="data/repos",
+    default="data/repos/01",
     help="path to the dataset",
 )
 parser.add_argument(
@@ -141,7 +141,7 @@ def get_model_output(file_path):
         os.path.join(
             args.working_dir,
             "run_results",
-            f"TokensRun_llama_{args.run_num}_3",
+            f"TokensRun_llama_{args.run_num}_4",
             "results.jsonl",
         ),
         "a",
@@ -165,14 +165,14 @@ if __name__ == "__main__":
         os.path.join(
             args.working_dir,
             "run_results",
-            f"TokensRun_llama_{args.run_num}_3",
+            f"TokensRun_llama_{args.run_num}_4",
         )
     ):
         os.mkdir(
             os.path.join(
                 args.working_dir,
                 "run_results",
-                f"TokensRun_llama_{args.run_num}_3",
+                f"TokensRun_llama_{args.run_num}_4",
             )
         )
 
