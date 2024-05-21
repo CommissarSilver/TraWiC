@@ -25,7 +25,6 @@ results.json
 
 /__pycache__/
 /logs
-/data/**
 /.vscode
 /run_results/
 /src/blocks
@@ -38,5 +37,5 @@ results.json
 /llms
 /results
 /mistral_fim
-
+/systems
 git_access_token
