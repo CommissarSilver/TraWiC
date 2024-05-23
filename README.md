@@ -25,7 +25,7 @@ python src/data/dataset.py
 ```
 This will download the dataset and save it in the `data` directory. The dataset is extremely large. Therefore, ensure that you have enough space in your disk.
 
-The list of reposotories mined from GitHub is provided in the `data/repos_fim.json` and `data/descard_fim` with the former being used for finetuning Mistral and Llama-2. You can clone each repository by running the following command:
+The list of reposotories mined from GitHub is provided in the `data/repos_fim.json` and `data/discard_fim` with the former being used for finetuning Mistral and Llama-2. You can clone each repository by running the following command:
 
 ```bash
 git clone {repo_url} data/repos/{repo_name}
