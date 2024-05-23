@@ -197,13 +197,27 @@ def process_directory(
             axis=1,
         )
         # Calculate metrics
-        precision = true_positives.sum() / (true_positives.sum() + false_positives.sum())
+        precision = true_positives.sum() / (
+            true_positives.sum() + false_positives.sum()
+        )
         recall = true_positives.sum() / (true_positives.sum() + false_negatives.sum())
         f1 = 2 * (precision * recall) / (precision + recall)
-        accuracy = (true_positives.sum() + true_negatives.sum()) / (true_positives.sum() + false_positives.sum() + false_negatives.sum() + true_negatives.sum())
+        accuracy = (true_positives.sum() + true_negatives.sum()) / (
+            true_positives.sum()
+            + false_positives.sum()
+            + false_negatives.sum()
+            + true_negatives.sum()
+        )
         sensitivity = recall  # Sensitivity is the same as recall
-        specificity = true_negatives.sum() / (true_negatives.sum() + false_positives.sum())
+        specificity = true_negatives.sum() / (
+            true_negatives.sum() + false_positives.sum()
+        )
 
+
+        print("True Positives: ", true_positives.sum())
+        print("True Negatives: ", true_negatives.sum())
+        print("False Positives: ", false_positives.sum())
+        print("False Negatives: ", false_negatives.sum())
         # Print metrics
         print(f"Precision: {precision}")
         print(f"Recall: {recall}")
@@ -212,13 +226,9 @@ def process_directory(
         print(f"Sensitivity: {sensitivity}")
         print(f"Specificity: {specificity}")
 
-    os.system(f"rm -rf {os.path.join(
-            JPLAG_DIR,
-            "systems",
-            f"analysis_target_{core_number}",
-            "results.csv",
-        )}")
-    
+    os.system(
+        f"rm -rf {os.path.join(JPLAG_DIR,'systems',f'analysis_target_{core_number}','results.csv',)}"
+    )
 
 
 def worker_function(args):
@@ -263,4 +273,3 @@ if __name__ == "__main__":
     original_directory_path = os.path.join(os.getcwd(), "jplag_results", "original")
     # Directory to save the result JSON files
     results_directory_path = os.path.join(os.getcwd(), "JPlag_results", "results")
-
