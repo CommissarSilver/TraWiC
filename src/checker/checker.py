@@ -616,7 +616,7 @@ class MistralChecker:
         """
         if model_output != None:
             if similiarity_metric == "exact":
-                if candidate["infill"].upper() in model_output.strip().upper():
+                if candidate["infill"].upper() == model_output.strip().upper():
                     logger.debug(
                         f"Similarity metric: ( {similiarity_metric} ). found infill objective in model output. infill objective: ( {candidate['infill']} ), model output: ( {model_output} )"
                     )
