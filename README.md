@@ -23,14 +23,13 @@ In order to download the dataset extracted from TheStack, run the following comm
 ```bash
 python src/data/dataset.py
 ```
-This will download the dataset and save it in the `data` directory. The dataset is extremely large. Therefore, ensure that you have enough space in your disk.
+This will download the dataset and save it in the `data` directory. The dataset is extremely large. Therefore, ensure that you have enough space.
 
 The list of reposotories mined from GitHub is provided in the `data/repos_fim.json` and `data/discard_fim` with the former being used for finetuning Mistral and Llama-2. You can clone each repository by running the following command:
 
 ```bash
-git clone {repo_url} data/repos/{repo_name}
+python download_repos.py
 ```
-Where `{repo_url}` is the URL of the repository and `{repo_name}` is the name of the repository.
 
 ## 3 - Run The Tests
 After getting the dataset, check that everything works and the directories are as they are supposed to be by running the following command:
@@ -105,7 +104,7 @@ python src/nicad_test.py
 ```
 
 ## 5 - Fine-tune Mistral and Llama-2
-In order ofinetune these models you need to have the pre-trained models. You can download them from the [HuggingFace Model Hub - Mistral](https://huggingface.co/mistralai/Mistral-7B-v0.1) and [HuggingFace Model Hub - Llama2](https://huggingface.co/meta-llama/Llama-2-7b) respectively. Both can be downloaded locally using the `download_model_local.py`.
+In order to finetune these models you need to have the pre-trained models. You can download them from the [HuggingFace Model Hub - Mistral](https://huggingface.co/mistralai/Mistral-7B-v0.1) and [HuggingFace Model Hub - Llama2](https://huggingface.co/meta-llama/Llama-2-7b) respectively. Both can be downloaded locally using the `download_model_local.py`.
 
 After downloading the models, run the following command to automatically download the repositories used in our study:
 ```bash
@@ -124,6 +123,8 @@ python src/fine_tune.py --model_name {model_name}
 Where `{model_name}` is the name of the model you want to fine-tune which has been downloaded before. The available models are:
 - `mistral` for Mistral.
 - `llama` for Llama-2.
+
+Given that TraWiC is model agnostic, you can use any other model that works with the HuggingFace library as well.
 
 ***PLEASE NOTE: You need to manually set the paths for the pre-trained models and the datasets in the script.***
 
