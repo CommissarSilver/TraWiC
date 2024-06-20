@@ -275,7 +275,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--get_scripts",
         type=bool,
-        default=False,
+        default=True,
         help="Whether to download individual scripts or entire repositories",
     )  # programming language
     args = parser.parse_args()

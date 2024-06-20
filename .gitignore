@@ -25,7 +25,6 @@ results.json
 
 /__pycache__/
 /logs
-/data/**
 /.vscode
 /run_results/
 /src/blocks
@@ -34,7 +33,10 @@ results.json
 /rf_data
 /rf_models
 /pictures
-
-
-
-
+/repos
+/llms
+/results
+/mistral_fim
+/systems
+git_access_token
+JPlag.jar

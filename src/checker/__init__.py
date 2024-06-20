@@ -1,2 +1,2 @@
-from .checker import Checker, CheckerBlock
+from .checker import *
 from .colator import process_input

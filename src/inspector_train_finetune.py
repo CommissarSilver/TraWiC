@@ -31,6 +31,16 @@ arg_parse.add_argument(
     default="rf",
 )
 arg_parse.add_argument(
+    "--model_name",
+    type=str,
+    default="mistral",
+)
+arg_parse.add_argument(
+    "--model_epoch",
+    type=str,
+    default="3",
+)
+arg_parse.add_argument(
     "--syntactic_threshold",
     type=int,
     default=100,
@@ -38,21 +48,19 @@ arg_parse.add_argument(
 arg_parse.add_argument(
     "--semantic_threshold",
     type=int,
-    default=20,
+    default=60,
 )
 arg_parse.add_argument(
     "--visualisation",
     type=bool,
     default=True,
 )
+
 args = arg_parse.parse_args()
 
 combined_ds = pd.read_csv(
     os.path.join(
-        "/home/vamaj/scratch/TraWiC/",
-        "rf_data",
-        f"syn{args.syntactic_threshold}_sem{args.semantic_threshold}",
-        "train.csv",
+        "/Users/ahvra/Nexus/TWMC/rf_data/old/rf_data/training/syn100_sem80/train.csv"
     )
 )
 
@@ -163,7 +171,7 @@ print(
 pickle.dump(
     clf,
     open(
-        f"{args.classifier}_model__syn{args.syntactic_threshold}_sem{args.semantic_threshold}.sav",
+        f"{args.classifier}_model_{args.model_name}_{args.model_epoch}__syn{args.syntactic_threshold}_sem{args.semantic_threshold}.sav",
         "wb",
     ),
 )
@@ -183,7 +191,20 @@ if args.visualisation:
     ax.set_xlabel("Importance", fontsize=20, fontdict={"weight": "bold"})
     # ax.set_ylabel("Features", fontsize=10)
 
-    # Horizontal bar chart with feature importances
+    # # Horizontal bar chart with feature importances
+    # train_ds.drop(
+    #     columns=[
+    #         "docstring_nums_total",
+    #         "comment_nums_total",
+    #         "string_nums_total",
+    #         "variable_nums_total",
+    #         "function_nums_total",
+    #         "class_nums_total",
+    #     ],
+    #     inplace=True,
+    # )
+    # # also remove them from clf feature importance
+    # clf.feature_importances_ = clf.feature_importances_[:-6]
     ax.barh(train_ds.columns[:-1], clf.feature_importances_)
 
     # Rotate y-axis labels to fit
@@ -205,11 +226,27 @@ if args.visualisation:
     fig, ax = plt.subplots(figsize=(12, 12))
     # Create the heatmap, ensuring square cells and other configurations
     sns.heatmap(
-        train_ds.corr(method="spearman"), annot=True, fmt=".2f", ax=ax, square=True
+        train_ds.corr(method="spearman"),
+        annot=True,
+        fmt=".2f",
+        ax=ax,
+        square=True,
+        cbar=False,
+        annot_kws={"size": 16},
     )
     # Adjusting the Y-axis limit
     ax.set_ylim(len(train_ds.columns), 0)
-    ax.tick_params(labelsize=12)
+    # Set larger font size and rotate the labels on y-axis
+    ax.tick_params(axis="y", which="major", labelsize=16)
+    ax.set_yticklabels(
+        ax.get_yticklabels(), rotation=45, horizontalalignment="right", fontsize=20
+    )
+
+    # Rotate the labels on x-axis by 90 degrees
+    ax.tick_params(axis="x", which="major", labelsize=16)
+    ax.set_xticklabels(
+        ax.get_xticklabels(), rotation=90, horizontalalignment="center", fontsize=20
+    )
     plt.tight_layout(pad=2)
     plt.savefig(
         f"correlation_matrix__syn{args.syntactic_threshold}_sem{args.semantic_threshold}.png",

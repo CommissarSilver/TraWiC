@@ -1,4 +1,3 @@
-from .inspector import InspectorModel, InspectorModelRF
 from .santa import SantaCoder, SantaCoderBlock
-
-# from .star import StarCoder
+from .mistral import MistralCoder
+from .llama import LlamaCoder
